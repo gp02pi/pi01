@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esqueci a senha</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <style>
+        /* Estilos */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f4f8; /* Fundo */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Container do formulário */
+        .reset-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* Título */
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* Estilo dos campos de entrada */
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        /* Estilo do botão de enviar */
+        .reset-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #316FF6;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .reset-btn:hover {
+            background-color: #1e4494;
+        }
+
+        /* Link para retornar ao login */
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .login-link a {
+            color: #316FF6;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .reset-container {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Container do formulário de "Esqueci minha senha" -->
+    <div class="reset-container">
+        <h2>Recupere sua senha</h2>
+
+        <!-- Formulário de recuperação -->
+        <form action="/esqueci-minha-senha/" method="POST">
+            {% csrf_token %} <!-- Token de segurança do Django -->
+
+            <!-- Campo para email ou celular -->
+            <input type="text" name="email_telefone" class="input-field" placeholder="Email ou número de celular" required>
+
+            <!-- Botão para enviar solicitação -->
+            <button type="submit" class="reset-btn">Enviar solicitação</button>
+        </form>
+
+        <!-- Link para retornar ao login -->
+        <div class="login-link">
+            <a href="/login/">Já tem uma conta? Faça login</a>
+        </div>
+    </div>
+
+</body>
+</html>
