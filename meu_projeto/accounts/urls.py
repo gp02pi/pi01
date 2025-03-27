@@ -1,8 +1,15 @@
 from django.urls import path
-from . import views  # Importando a view de login para criar em seguida
+from .views import login, senha, cadastrar, barra, inicio, clientes, financeiro, produtos, relatorios, fornecedores
 
 urlpatterns = [
-    path('login/', views.login_view, name='login'),  # Esta URL redireciona para a página de login
-    path('esqueci-minha-senha/', views.forgot_password_view, name='esqueci-minha-senha'), # Esta URL redireciona para a página de esqueci minha senha
-    path('cadastrar-usuario/', views.cadastrar_usuario, name='cadastrar-usuario'), # Esta URL redireciona para a página de cadastro de usuario
+    path('login/', login, name='login'), 
+    path('senha/', senha, name='senha'),
+    path('cadastrar/', cadastrar, name='cadastrar'),
+    path('barra/', barra, name='barra'),
+    path('inicio/', inicio, name='inicio'),
+    path('clientes/', clientes, name='clientes'),
+    path('financeiro/', financeiro, name='financeiro'),
+    path('produtos/', produtos, name='produtos'),
+    path('relatorios/', relatorios, name='relatorios'),
+    path('fornecedores/', fornecedores, name='fornecedores'),
 ]

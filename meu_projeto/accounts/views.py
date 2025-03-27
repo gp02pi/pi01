@@ -1,15 +1,15 @@
 from django.shortcuts import render
 
 # Login
-def login_view(request):
+def login(request):
     return render(request, 'login.html')
 
 # Esqueci minha senha
-def forgot_password_view(request):
-    return render(request, 'esqueci-minha-senha.html')
+def senha(request):
+    return render(request, 'senha.html')
 
 # Cadastrar um novo usuário
-def cadastrar_usuario(request):
+def cadastrar(request):
     if request.method == 'POST':
         nome = request.POST.get('nome')
         sobrenome = request.POST.get('sobrenome')
@@ -22,7 +22,7 @@ def cadastrar_usuario(request):
         # Verificar se a senha e a repetição são iguais
         if senha != repetir_senha:
             messages.error(request, 'As senhas não coincidem. Tente novamente.')
-            return redirect('cadastrar_usuario')
+            return redirect('cadastrar')
 
         try:
             # Criar o usuário
@@ -35,4 +35,26 @@ def cadastrar_usuario(request):
         except Exception as e:
             messages.error(request, f'Erro ao criar usuário: {str(e)}')
 
-    return render(request, 'cadastrar-usuario.html')
+    return render(request, 'cadastrar.html')
+
+# Outras views
+def barra(request):
+    return render(request, 'barra.html')
+
+def inicio(request):
+    return render(request, 'inicio.html')
+
+def clientes(request):
+    return render(request, 'clientes.html')
+
+def financeiro(request):
+    return render(request, 'financeiro.html')
+
+def fornecedores(request):
+    return render(request, 'fornecedores.html')
+
+def relatorios(request):
+    return render(request, 'relatorios.html')
+
+def produtos(request):
+    return render(request, 'produtos.html')

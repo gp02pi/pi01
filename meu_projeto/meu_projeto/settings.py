@@ -46,9 +46,9 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'templates',  # se você tem templates no diretório global
+            BASE_DIR / 'templates',  # Diretório de templates no projeto
         ],
-        'APP_DIRS': True,  # isso permite que os templates sejam buscados nas pastas de cada aplicativo
+        'APP_DIRS': True,  # Permite que o Django procure templates nas pastas apps/templates
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -59,6 +59,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 
 
@@ -110,7 +111,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # Isso define onde o Django irá procurar arquivos estáticos
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
