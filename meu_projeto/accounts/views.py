@@ -11,9 +11,10 @@ def login(request):
 def senha(request):
     return render(request, 'senha.html')
 
+# Cadastro
 def cadastrar(request):
     if request.method == 'POST':
-        nomecompleto = request.POST.get('nomecompleto', '').strip()  # Alterado para "nome"
+        nomecompleto = request.POST.get('nomecompleto', '').strip()
         username = request.POST.get('usuario', '').strip()
         email = request.POST.get('email', '').strip()
         celular = request.POST.get('celular', '').strip()

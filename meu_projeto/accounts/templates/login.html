@@ -272,81 +272,76 @@
         </div>
     </div>
 
-<!-- Modal de Cadastro -->
-<div class="modal" id="modalCadastro">
-    <div class="modal-content">
-        <button class="close-btn" onclick="document.getElementById('modalCadastro').style.display='none'">&times;</button>
-        <h2>Criar Cadastro</h2>
-        <form id="formCadastro" action="/cadastrar/" method="POST">
-            {% csrf_token %}
-            
-            <!-- Campo Nome Completo -->
-            <input type="text" name="nomecompleto" class="input-field full-width" placeholder="Nome Completo*" required pattern="[A-Za-zÀ-ÿ ]+" title="Deve conter apenas letras.">
-            
-            <!-- Campo de Usuário para Cadastro -->
-            <input type="text" name="usuario" class="input-field" placeholder="Usuário*" required pattern="[A-Za-z0-9]+" title="Deve conter apenas letras e números.">
+    <!-- Modal de Cadastro -->
+    <div class="modal" id="modalCadastro">
+        <div class="modal-content">
+            <button class="close-btn" onclick="document.getElementById('modalCadastro').style.display='none'">&times;</button>
+            <h2>Criar Cadastro</h2>
+            <form id="formCadastro" action="/cadastrar/" method="POST">
+                {% csrf_token %}
+                
+                <!-- Campo Nome Completo -->
+                <input type="text" name="nomecompleto" class="input-field full-width" placeholder="Nome Completo*" required pattern="[A-Za-zÀ-ÿ ]+" title="Deve conter apenas letras.">
+                
+                <!-- Campo de Usuário para Cadastro -->
+                <input type="text" name="usuario" class="input-field" placeholder="Usuário*" required pattern="[A-Za-z0-9]+" title="Deve conter apenas letras e números.">
 
-            <!-- Campos de Email e Celular -->
-            <input type="email" name="email" class="input-field" placeholder="Email*" required>
-            <input type="text" name="celular" class="input-field" placeholder="Celular*" required pattern="\d+" title="Deve conter apenas números.">
-            
-            <!-- Campos de Senha e Repetir Senha lado a lado -->
-            <div class="input-group">
-                <input type="password" name="senha" class="input-field" placeholder="Senha*" required minlength="8" title="A senha deve ter no mínimo 8 caracteres.">
-                <input type="password" name="repetir_senha" class="input-field" placeholder="Repetir Senha*" required>
-            </div>
-            
-            <span class="error-message" id="errorMessage">As senhas não coincidem. Por favor, tente novamente.</span>
-            
-            <button type="submit" class="register-btn" id="openModal">Cadastrar</button>
-        </form>
+                <!-- Campos de Email e Celular -->
+                <input type="email" name="email" class="input-field" placeholder="Email*" required>
+                <input type="text" name="celular" class="input-field" placeholder="Celular*" required pattern="\d+" title="Deve conter apenas números.">
+                
+                <!-- Campos de Senha e Repetir Senha lado a lado -->
+                <div class="input-group">
+                    <input type="password" name="senha" class="input-field" placeholder="Senha*" required minlength="8" title="A senha deve ter no mínimo 8 caracteres.">
+                    <input type="password" name="repetir_senha" class="input-field" placeholder="Repetir Senha*" required>
+                </div>
+                
+                <span class="error-message" id="errorMessage">As senhas não coincidem. Por favor, tente novamente.</span>
+                
+                <button type="submit" class="register-btn" id="openModal">Cadastrar</button>
+            </form>
+        </div>
     </div>
-</div>
 
-<!-- Pop-up de Sucesso -->
-<div id="successPopup" class="modal">
-    <div class="modal-content">
-        <h2>Cadastro Realizado com Sucesso!</h2>
-        <button onclick="closeSuccessPopup()">Fechar</button>
+    <!-- Pop-up de Sucesso -->
+    <div id="successPopup" class="modal">
+        <div class="modal-content">
+            <h2>Cadastro Realizado com Sucesso!</h2>
+            <button onclick="closeSuccessPopup()">Fechar</button>
+        </div>
     </div>
-</div>
 
-<script>
-    // Exibir modal de cadastro ao clicar no botão "Cadastrar"
-    document.getElementById('openModal').onclick = function() {
-        document.getElementById('modalCadastro').style.display = 'block';
-    }
+    <script>
+        // Exibir modal de cadastro ao clicar no botão "Cadastrar"
+        document.getElementById('openModal').onclick = function() {
+            document.getElementById('modalCadastro').style.display = 'block';
+        }
 
-    // Interceptando a submissão do formulário
-    document.querySelector('#formCadastro').addEventListener('submit', function(event) {
-        event.preventDefault();  // Impede o recarregamento da página
+        // Interceptando a submissão do formulário
+        document.querySelector('#formCadastro').addEventListener('submit', function(event) {
+            event.preventDefault();  // Impede o recarregamento da página
 
-        const form = new FormData(this);  // Captura os dados do formulário
+            const form = new FormData(this);  // Captura os dados do formulário
 
-        fetch('/cadastrar/', {
-            method: 'POST',
-            body: form
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);  // Exibe um pop-up de sucesso
-                document.getElementById('modalCadastro').style.display = 'none'; // Fecha o modal
-                document.getElementById('formCadastro').reset(); // Reseta o formulário
-            } else {
-                alert(data.message);  // Exibe erro, se houver
-            }
-        })
-        .catch(error => {
-            alert('Erro ao enviar formulário. Tente novamente.');
-            console.error('Erro:', error);
+            fetch('/cadastrar/', {
+                method: 'POST',
+                body: form
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);  // Exibe um pop-up de sucesso
+                    document.getElementById('modalCadastro').style.display = 'none'; // Fecha o modal
+                    document.getElementById('formCadastro').reset(); // Reseta o formulário
+                } else {
+                    alert(data.message);  // Exibe erro, se houver
+                }
+            })
+            .catch(error => {
+                alert('Erro ao enviar formulário. Tente novamente.');
+                console.error('Erro:', error);
+            });
         });
-    });
-</script>
-
-
-
-
-
+    </script>
 </body>
 </html>

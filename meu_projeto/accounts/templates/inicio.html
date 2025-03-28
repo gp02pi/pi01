@@ -4,10 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Inícial</title>
+    <title>Página Inicial</title>
     <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Biblioteca para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/animate.css"></script> <!-- Biblioteca para animações -->
 
     <style>
         * {
@@ -24,21 +26,396 @@
             flex-direction: column;
             height: 100vh;
             overflow-x: hidden;
+            padding-top: 80px;
         }
 
-        .content {
-            padding-top: 70px; /* Garante que o conteúdo fique abaixo do menu */
+        .container {
+            width: 80%;
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
+
+        .blocos-gradientes-container {
+            display: flex;
+            justify-content: flex-start;
+            width: 100%;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .bloco-gradiente {
+            width: 48%;
+            height: 150px;
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .bloco-gradiente1 {
+            background: linear-gradient(45deg, #1B91AC, #50acbe);
+        }
+
+        .bloco-gradiente2 {
+            background: linear-gradient(45deg, #DD6936, #dd815a);
+        }
+
+        .bloco-gradiente .sub-secao {
+            margin-top: 5px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .bloco-gradiente .secao {
+            font-size: 16px;
+            justify-content: center;
+            align-self: flex-start;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+            margin-top: 8px;
+        }
+
+        .grafico-container {
+            width: 118%;
+            height: 290px;
+            margin-top: 10px;
+            padding: 20px;
+            border-radius: 0;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Novo bloco à direita do gráfico */
+        .bloco-direita {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 400px; /* Aumenta o tamanho do bloco à direita */
+            height: 130px;
+            padding: 20px; /* Aumenta o padding para dar mais espaço interno */
+            background-color: #fff;
+            border-radius: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            left: 20px; /* Move o bloco mais para a direita */
+            margin-top: 10px;
+        }
+
+        .bloco-direita .secao {
+            font-size: 16px;
+            margin-right: 2px;
+            margin-bottom: 2px;
+        }
+
+        .bloco-direita .secao-com-icone {
+            display: flex; 
+            align-items: center; 
+        }
+
+        .icone-direita {
+            margin-left: 10px; 
+        }
+
+        .icone-direita i {
+            font-size: 12px; 
+            color: inherit;  
+        }
+
+        /* Botão no canto inferior esquerdo do bloco */
+        .botao-whatsapp {
+            position: absolute; 
+            bottom: 20px; 
+            left: 15px; 
+            background-color: #25D366; 
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center; 
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .botao-whatsapp:hover {
+            transform: translateY(-1px);
+        }
+
+        .botao-whatsapp i {
+            font-size: 16px; 
+        }
+
+        /* Estilo para a imagem dentro do bloco */
+        .bloco-direita img {
+            width: 120px;
+            position: absolute;
+            top: 5px;
+            right: 10px;
+        }
+
+        /* Novo estilo para exibir os blocos um embaixo do outro */
+        .bloco-ajuda-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+        }
+
+        /* Estilo responsivo */
+        @media (max-width: 768px) {
+            .blocos-gradientes-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .bloco-gradiente {
+                width: 100%;
+            }
+
+            .grafico-container {
+                width: 100%;
+            }
+
+            .bloco-direita {
+                width: 100%;
+            }
+        }
+
+        /* A parte crítica para garantir o lado a lado */
+        .grafico-e-bloco-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            width: 100%;
+
+        }
+
+        /* Estilo para o segundo bloco */
+        .grafico-e-bloco-container2 {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            width: 100%; 
+        }
+
+        /* Estilo para o segundo bloco */
+        .grafico-container2 {
+            width: 91%; 
+            height: 140px; 
+            margin-bottom: 30px;
+            margin-left: 20px;
+            padding: 20px;
+            border-radius: 0;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
 
     </style>
-
 </head>
 <body>
-    <!-- Incluindo o menu -->
     {% include 'barra.html' %}
+    <div class="container">
+        <div class="blocos-gradientes-container">
+            <div class="bloco-gradiente bloco-gradiente1">
+                <div class="secao"> Contas a receber (este mês) </div>
+                <div class="sub-secao">Pagas: </div>
+                <div class="sub-secao">A vencer: </div>
+                <div class="sub-secao">Atrasadas: </div>
+                <div class="sub-secao">Atrasadas (meses anteriores): </div>
+            </div>
+            <div class="bloco-gradiente bloco-gradiente2">
+                <div class="secao"> Contas a pagar (este mês)</div>
+                <div class="sub-secao">Pagas: </div>
+                <div class="sub-secao">A vencer: </div>
+                <div class="sub-secao">Atrasadas: </div>
+                <div class="sub-secao">Atrasadas (meses anteriores): </div>
+            </div>
+        </div>
+    
+        <!-- Gráfico e Bloco à direita -->
+        <div class="grafico-e-bloco-container">
+            <div class="grafico-container">
+                <canvas id="graficoVendas"></canvas>
+            </div>
+    
+            <!-- Novo bloco à direita -->
+            <div class="bloco-ajuda-container">
+                <div class="bloco-direita">
+                    <div class="secao">Precisa de ajuda?</div> 
+                    <div class="secao secao-com-icone">
+                        Fale com o suporte
+                        <div class="icone-direita">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                    <!-- Imagem dentro do bloco -->
+                    <img src="{% static 'img/suporte.png' %}" alt="Suporte">
+                    <!-- Botão do WhatsApp dentro do bloco -->
+                    <a href="https://wa.me/55XXXXXXXXX" class="botao-whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                        Atendimento via chat
+                    </a>
+                </div>
 
-    <div class="content">
-        <p>Conteúdo da página inicio...</p>
-    </div>
+                <!-- Segundo bloco duplicado -->
+                    <div class="grafico-e-bloco-container2">
+                        <div class="grafico-container2">
+                            <canvas id="graficoVendas2"></canvas>
+                        </div>
+                    </div>
+                    
+                    <script> 
+                        // Código do gráfico 2
+                        const dadosProdutosDepo = {
+                            labels: ['Jan', 'Fev', 'Mar', 'Abr'],
+                            datasets: [{
+                                label: 'Entradas',
+                                data: [500, 530, 560, 580],
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 2,
+                                fill: false
+                            },
+                            {
+                                label: 'Saídas',
+                                data: [800, 860, 260, 600],
+                                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 2,
+                                fill: false
+                            }]
+                        };
+                    
+                        const configProdutosDepo = {
+                            type: "bar", // Tipo de gráfico
+                            data: dadosProdutosDepo,
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        labels: {
+                                            font: {
+                                                family: 'Roboto',  // Fonte para a legenda
+                                                size: 11,
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        ticks: {
+                                            font: {
+                                                family: 'Roboto',  // Fonte para o eixo X
+                                                size: 12,
+                                            }
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: 'Últimos quatro meses',
+                                            font: {
+                                                family: 'Roboto',  // Fonte para o título do eixo X
+                                                size: 12
+                                            }
+                                        }
+                                    },
+                                    y: {
+                                        ticks: {
+                                            font: {
+                                                family: 'Roboto',  // Fonte para o eixo Y
+                                                size: 10,
+                                            }
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: 'Estoque (un)',
+                                            font: {
+                                                family: 'Roboto',  // Fonte para o título do eixo Y
+                                                size: 12
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    
+                        const ctxProdutosDepo = document.getElementById('graficoVendas2').getContext('2d');
+                        document.getElementById('graficoVendas2').width = 1800; 
+                        document.getElementById('graficoVendas2').height = 600;
+                        new Chart(ctxProdutosDepo, configProdutosDepo);
+                    
+                        // Código do gráfico 1
+                        const dadosVendas = {
+                            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                            datasets: [{
+                                label: 'Vendas',
+                                data: [1200, 1350, 1400, 1450, 1500, 1550, 1600, 1650, 5434, 4243, 2342, 2455],
+                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 2,
+                                fill: false
+                            },
+                            {
+                                label: 'Despesas',
+                                data: [1000, 1150, 1300, 1400, 1350, 1450, 1500, 1600, 4444, 2342, 1244, 2455],
+                                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 2,
+                                fill: false
+                            }]
+                        };
+                    
+                        const configVendas = {
+                            type: 'line',
+                            data: dadosVendas,
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        labels: {
+                                            font: {
+                                                family: 'Roboto',  // Fonte para a legenda
+                                                size: 12,
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        ticks: {
+                                            font: {
+                                                family: 'Roboto',  // Fonte para o eixo Y
+                                                size: 10,
+                                            }
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: 'Valores (em R$)',
+                                            font: {
+                                                family: 'Roboto',  // Fonte para o título do eixo Y
+                                                size: 12
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        };
+                    
+                        const ctxVendas = document.getElementById('graficoVendas').getContext('2d');
+                        new Chart(ctxVendas, configVendas);
+                    </script>
+                    
 </body>
 </html>
