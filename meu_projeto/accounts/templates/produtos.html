@@ -4,11 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produtos</title>
+    <title>Gestão de Estoque</title>
     <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
-
     <style>
         * {
             margin: 0;
@@ -16,29 +15,653 @@
             box-sizing: border-box;
             font-family: 'Montserrat', sans-serif;
         }
-
         body {
-            background-color: #f4f6f9;
+            background-color: #eef1f6;
             color: #333;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow-x: hidden;
+            align-items: center;
+            padding: 20px;
+            padding-top: 80px;
+        }
+        .all {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: auto;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        /* Botão "novo item" fixado no canto superior esquerdo */
+        .expand-btn {
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #21c721;
+            border: none;
+            color: white;
+            position: absolute;
+            left: 110px; 
+            top: 80px; 
+            padding: 11px;
+            border-radius: 5%;
+            transition: background 0.3s, transform 0.3s;
+        }
+        /* Modal */
+        .modal {
+            display: none; /* Ocultar por padrão */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); 
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+        }
+        input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .input-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .input-group input {
+            flex: 1;
+            min-width: 150px;
+        }
+        /* Botões dentro do formulário */
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .form-buttons button {
+            width: 48%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #21c721;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .form-buttons button:hover {
+            background: #179917;
         }
 
-        .content {
-            padding-top: 70px; /* Garante que o conteúdo fique abaixo do menu */
+        .form-buttons .cancel {
+            background: #dc3545;
+        }
+        .form-buttons .cancel:hover {
+            background: #c82333;
+        }
+        /* Tabela */
+        .table-container {
+            width: 100%;
+            margin-top: 10px;
+            overflow: hidden;
+            max-height: 400px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgb(255, 255, 255);
+        }
+        th, td {
+            border-bottom: 1px solid #ddd;
+            font-size: 13px;
+            padding: 10px;
+        }
+        th {
+            background: #1e2a37;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0;
+        }
+        td {
+            background: #f9f9f9;
+            transition: background-color 0.2s ease;
+        }
+        td:hover {
+            background-color: #f1f1f1;
+        }
+        /* Colunas da tabela */
+        th:nth-child(1), td:nth-child(1) {
+            width: 150px; 
+            text-align: left;;
         }
 
+        th:nth-child(2), td:nth-child(2) {
+            width: 200px; 
+            text-align: left;
+        }
+
+        th:nth-child(3), td:nth-child(3) {
+            width: 150px; 
+            text-align: center;
+        }
+
+        th:nth-child(4), td:nth-child(4) {
+            width: 150px; 
+            text-align: center;
+        }
+
+        th:nth-child(5), td:nth-child(5) {
+            width: 150px; 
+            text-align: center;
+        }
+
+        th:nth-child(6), td:nth-child(6) {
+            width: 250px; 
+            text-align: center;
+        }
+
+        th:nth-child(7) {
+            width: 150px;
+            text-align: left;
+        }
+        /* Botões de ação */
+        .actions a {
+            display: inline-block;
+            padding: 5px 5px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .actions .edit {
+            background-color: none;
+            color: rgb(87, 86, 86);;
+        }
+
+        .actions .delete {
+            background-color: none; 
+            color: rgb(228, 19, 19);
+        }
+
+        .actions .edit:hover {
+            background-color: none; 
+        }
+
+        .actions .delete:hover {
+            background-color: none; 
+        }
+
+        .actions i {
+            margin-right: 10px;
+        }
+        /* Barra de rolagem no corpo da tabela */
+        tbody {
+            display: block;
+            max-height: 300px; 
+            overflow-y: auto;
+        }
+        /* Mantém o cabeçalho da tabela fixo */
+        thead, tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+        /* Barra de Pesquisa */
+        .search-container {
+            width: 30%; 
+            display: flex;
+            justify-content: center; 
+            margin-bottom: 20px;
+            margin-left: 65%;
+        }
+        .search-input {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 100%; 
+        }
+        .search-input i {
+            position: absolute;
+            left: 10px;
+            color: #ccc;
+            font-size: 18px;
+        }
+        #search-bar {
+            width: 100%; 
+            max-width: 800px; 
+            padding: 10px 10px 10px 40px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        #search-bar:focus {
+            border-color: #26A0B8;
+        }
     </style>
+    <script>
+        // Gerar ID para o produto
+        function generateId() {
+            return Math.floor(100000 + Math.random() * 900000);
+        }
+        // Atribuir ID ao campo de ID
+        function assignId() {
+            let idField = document.getElementById('product-id');
+            if (!idField.value) {
+                idField.value = generateId();
+            }
+        }
+        // Limpar o ID quando o nome do produto for apagado
+        function clearIdIfNameEmpty() {
+            let nameField = document.querySelector('[name="nome"]');
+            let idField = document.getElementById('product-id');
+            if (nameField.value === '') {
+                idField.value = '';
+            }
+        }
+        // Formatar preço
+        function formatPrice(event) {
+            let priceInput = event.target;
+            let value = priceInput.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+            value = (value / 100).toFixed(2).replace(".", ","); // Divide por 100 e formata com vírgula
+            priceInput.value = "R$ " + value;
+        }
+        // Abrir o modal
+        function openModal() {
+            const modal = document.getElementById('product-modal');
+            modal.style.display = 'flex';
+        }
+        // Fechar o modal
+        function closeModal() {
+            const modal = document.getElementById('product-modal');
+            modal.style.display = 'none';
+        }
+        // Função para contar o número de produtos na tabela
+        function updateProductCount() {
+            const productRows = document.querySelectorAll('#product-table-body tr');
+            const count = productRows.length;
+            document.getElementById('product-count').textContent = count;
+        }
+        // Atualiza a contagem de produtos assim que a página é carregada
+        window.onload = updateProductCount;
 
+        // Função para abrir o modal de edição com os dados do produto
+        function editProduct(id) {
+            // Obter o produto do banco de dados (via AJAX, por exemplo)
+            fetch(`/produto/${id}/editar/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Preencher o modal com os dados do produto
+                    document.querySelector('[name="id"]').value = data.id;
+                    document.querySelector('[name="nome"]').value = data.nome;
+                    document.querySelector('[name="quantidade"]').value = data.quantidade;
+                    document.querySelector('[name="preco_compra"]').value = data.preco_compra;
+                    document.querySelector('[name="preco_venda"]').value = data.preco_venda;
+                    document.querySelector('[name="nota_fiscal"]').value = data.nota_fiscal;
+
+                    // Mostrar o modal
+                    openModal();
+                });
+        }
+
+        // Função para excluir um produto
+        function deleteProduct(id) {
+            if (confirm("Tem certeza que deseja excluir este produto?")) {
+                // Enviar a requisição de exclusão para o servidor
+                fetch(`/produto/${id}/excluir/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') // Garantir o CSRF Token
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Produto excluído com sucesso!");
+                        location.reload(); // Atualizar a página para refletir a exclusão
+                    } else {
+                        alert("Erro ao excluir o produto.");
+                    }
+                });
+            }
+        }
+
+        // Função para obter o CSRF token (necessário para requisições POST/DELETE em Django)
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+    </script>
 </head>
 <body>
-    <!-- Incluindo o menu -->
     {% include 'barra.html' %}
+<div class="all">
+    <!-- Barra de pesquisa -->
+    <div class="search-container">
+        <div class="search-input">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-bar" placeholder="Buscar produto..." oninput="filterProducts()">
+        </div>
+    </div>
+    <!-- Botão "novo item" para abrir o modal -->
+    <button class="expand-btn" onclick="openModal()">Novo Item +</button>
 
-    <div class="content">
-        <p>Conteúdo da página produtos...</p>
+    <!-- Modal com o formulário -->
+    <div id="product-modal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()"> <!-- Impede o clique no modal de fechar -->
+            <h2>Cadastro de Produto</h2>
+            <form action="" method="POST" onsubmit="adicionarProduto(event)">
+                {% csrf_token %}
+                <input type="text" id="product-id" name="id" placeholder="ID" readonly>
+                <input type="text" name="nome" placeholder="Nome do Produto" required oninput="assignId(); clearIdIfNameEmpty()">
+                
+                <div class="input-group">
+                    <input type="number" name="quantidade" placeholder="Quantidade" required min="1">
+                    <input type="text" name="preco_compra" placeholder="Preço de Compra" required oninput="formatPrice(event)">
+                    <input type="text" name="preco_venda" placeholder="Preço de Venda" required oninput="formatPrice(event)">
+                    <input type="text" name="nota_fiscal" placeholder="Nota Fiscal" required>
+                </div>
+
+                <!-- Botões dentro do formulário -->
+                <div class="form-buttons">
+                    <button type="submit">Adicionar Produto</button>
+                    <button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela de Produtos -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Quantidade</th>
+                    <th>Preço de Compra</th>
+                    <th>Preço de Venda</th>
+                    <th>Nota Fiscal</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="product-table-body">
+                {% for produto in produtos %}
+                    <tr>
+                        <td>{{ produto.id }}</td>
+                        <td>{{ produto.nome }}</td>
+                        <td>{{ produto.quantidade }}</td>
+                        <td>R$ {{ produto.preco_compra|floatformat:2 }}</td>
+                        <td>R$ {{ produto.preco_venda|floatformat:2 }}</td>
+                        <td>{{ produto.nota_fiscal }}</td>
+                        <td class="actions">
+                            <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                                <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                            </a>
+                            <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                                <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                <!-- Exemplos de produtos -->
+                <tr>
+                    <td>1</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>11</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>13</td>
+                    <td>Produto A</td>
+                    <td>10</td>
+                    <td>100,00</td>
+                    <td>150,00</td>
+                    <td>NF12345</td>
+                    <td class="actions">
+                        <a href="javascript:void(0);" class="edit" onclick="editProduct({ produtoid })">
+                            <i class="fas fa-edit"></i> <!-- Ícone de editar -->
+                        </a>
+                        <a href="javascript:void(0);" class="delete" onclick="deleteProduct({ produtoid })">
+                            <i class="fas fa-trash-alt"></i> <!-- Ícone de excluir -->
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+            <!--Rodapé da tabela-->
+            <tr>
+                <td colspan="7" style="text-align: center; font-weight: 600; background-color: #a8a8a8; color: #fcfcfc; padding: 10px;">
+                    Total de produtos: <span id="product-count">0</span>
+                </td>
+            </tr>
+        </table>
+    </div>
     </div>
 </body>
 </html>
