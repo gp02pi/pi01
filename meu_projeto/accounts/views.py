@@ -67,3 +67,6 @@ def relatorios(request):
 
 def produtos(request):
     return render(request, 'produtos.html')
+
+def configuracoes(request):
+    return render(request, 'configuracoes.html')

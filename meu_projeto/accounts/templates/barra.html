@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>menu</title>
     <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
@@ -124,7 +124,7 @@
         </div>
 
         <ul class="icons">
-            <li><a href="#" title="Configurações"><i class="fas fa-cogs"></i></a></li>
+            <li><a href="{% url 'configuracoes' %}" title="Configurações"><i class="fas fa-cogs"></i></a></li>
             <li><a href="#" title="Sair"><i class="fas fa-sign-out-alt"></i></a></li>
         </ul>
     </nav>
