@@ -177,16 +177,18 @@
                 <form id="personalInfoForm">
                     <label for="username">Usuário:</label>
                     <input type="text" id="username" name="username" value="exemplo" class="readonly" readonly>
-
+                
                     <label for="fullname">Nome Completo:</label>
-                    <input type="text" id="fullname" name="fullname" value="exemplo">
-
+                    <input type="text" id="fullname" name="fullname" value="">
+                
                     <label for="email">E-mail:</label>
-                    <input type="email" id="email" name="email" value="exemplo@email.com">
-
+                    <input type="email" id="email" name="email" value="">
+                
                     <label for="phone">Celular:</label>
-                    <input type="tel" id="phone" name="phone" value="(XX) XXXXX-XXXX">
+                    <input type="tel" id="phone" name="phone" inputmode="numeric" pattern="[0-9]*">
+                    <span id="phoneError"></span>
 
+                
                     <button type="submit">Salvar Informações</button>
                 </form>
             </div>
@@ -196,24 +198,30 @@
                 <form id="changePasswordForm">
                     <label for="currentPassword">Senha Atual:</label>
                     <input type="password" id="currentPassword" name="currentPassword" required>
-
+                
                     <label for="newPassword">Nova Senha:</label>
                     <input type="password" id="newPassword" name="newPassword" required>
-
+                
                     <label for="confirmPassword">Confirmar Nova Senha:</label>
                     <input type="password" id="confirmPassword" name="confirmPassword" required>
-
+                
                     <button type="submit">Alterar Senha</button>
                 </form>
-            </div>
+                
+                <!-- Mensagens de feedback -->
+                <div id="passwordMessage" style="margin-top: 10px; font-size: 14px;"></div>
         </div>
     </div>
 
     <script>
-        document.getElementById('theme').addEventListener('change', function() {
-            document.body.classList.toggle('dark-mode', this.checked);
-        });
-
+        // Confirmação de mudança de tema
+        const themeToggle = document.getElementById('theme');
+        if (themeToggle) {
+            themeToggle.addEventListener('change', function () {
+                document.body.classList.toggle('dark-mode', this.checked);
+            });
+        }
+    
         function resetSettings() {
             document.getElementById('fullname').value = "João Silva";
             document.getElementById('email').value = "joao.silva@email.com";
@@ -222,28 +230,98 @@
             document.getElementById('theme').checked = false;
             document.body.classList.remove('dark-mode');
         }
+        // Faz com que só números possam ser digitados no campo de celular
+        const phoneInput = document.getElementById('phone');
+        const phoneError = document.getElementById('phoneError');
+        const fullnameInput = document.getElementById('fullname');
+        const emailInput = document.getElementById('email');
 
-        document.getElementById('personalInfoForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const fullName = document.getElementById('fullname').value;
-            
-            // Atualizando o nome no topo da página
-            document.getElementById('displayName').textContent = fullName;
-            
-            alert('Informações pessoais atualizadas com sucesso!');
-        });
+        // Função para verificar se todos os campos estão válidos
+        function validateFields() {
+            const fullname = fullnameInput.value.trim();
+            const email = emailInput.value.trim();
+            const phone = phoneInput.value.trim();
 
-        document.getElementById('changePasswordForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            // Verifica se todos os campos têm valores válidos
+            return fullname !== '' && email !== '' && phone !== '' && !/\D/.test(phone);
+        }
 
-            if (newPassword === confirmPassword) {
-                alert('Senha alterada com sucesso!');
+        phoneInput.addEventListener('input', function () {
+            // Se o campo for preenchido com algo que não seja número, exibe o erro
+            if (/\D/.test(this.value)) {
+                phoneError.style.display = 'block';
+                phoneInput.setCustomValidity('Digite apenas números.');
+                this.style.borderColor = 'red';
             } else {
-                alert('As senhas não coincidem!');
+                phoneError.style.display = 'none';
+                phoneInput.setCustomValidity('');
+                this.style.borderColor = '';
             }
         });
+
+        // Ao submeter o formulário, verificar se os campos estão válidos
+        document.getElementById('personalInfoForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Só atualiza o topo se todos os campos forem válidos
+            if (validateFields()) {
+                const fullName = fullnameInput.value.trim();
+                const email = emailInput.value.trim();
+                const phone = phoneInput.value.trim();
+
+                // Atualiza os elementos do topo da página
+                document.getElementById('displayName').textContent = fullName;
+                document.getElementById('emailInfo').textContent = `E-mail: ${email}`;
+                document.getElementById('phoneInfo').textContent = `Celular: ${phone}`;
+
+                alert('Informações atualizadas com sucesso!');
+            } else {
+                alert('Por favor, preencha todos os campos corretamente.');
+            }
+        });
+
+        // Validação de senha
+        document.getElementById('changePasswordForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const currentPassword = document.getElementById('currentPassword');
+        const newPassword = document.getElementById('newPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const messageDiv = document.getElementById('passwordMessage');
+
+        const newPass = newPassword.value.trim();
+        const confirmPass = confirmPassword.value.trim();
+
+        // Limpa mensagens anteriores
+        messageDiv.textContent = '';
+        messageDiv.style.color = '';
+
+        if (newPass.length < 8) {
+            messageDiv.textContent = 'A nova senha deve ter pelo menos 8 caracteres.';
+            messageDiv.style.color = 'red';
+            return;
+        }
+
+        if (newPass !== confirmPass) {
+            messageDiv.textContent = 'As senhas não coincidem!';
+            messageDiv.style.color = 'red';
+            return;
+        }
+
+        // Sucesso
+        messageDiv.textContent = 'Senha alterada com sucesso!';
+        messageDiv.style.color = 'green';
+
+        // Limpa os campos após sucesso
+        currentPassword.value = '';
+        newPassword.value = '';
+        confirmPassword.value = '';
+
+        // Some com a mensagem após 3s
+        setTimeout(() => {
+            messageDiv.textContent = '';
+        }, 2000);
+    });
     </script>
 </body>
 </html>
