@@ -1,4 +1,4 @@
-{% load static %}
+{% load static %} 
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -29,6 +29,7 @@
             padding: 40px;
             width: 100%;
             max-width: 400px;
+            position: relative;
         }
 
         /* Título */
@@ -82,6 +83,28 @@
             text-decoration: underline;
         }
 
+        /* Mensagem de feedback */
+        .message {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .message.success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
         /* Responsividade */
         @media (max-width: 768px) {
             .reset-container {
@@ -96,12 +119,14 @@
     <div class="reset-container">
         <h2>Recupere sua senha</h2>
 
+        <div id="message" class="message"></div>
+
         <!-- Formulário de recuperação -->
-        <form action="/esqueci-minha-senha/" method="POST">
+        <form id="resetForm" action="/esqueci-minha-senha/" method="POST">
             {% csrf_token %} <!-- Token de segurança do Django -->
 
             <!-- Campo para email ou celular -->
-            <input type="text" name="email_telefone" class="input-field" placeholder="Email ou número de celular" required>
+            <input type="text" name="email_telefone" id="email_telefone" class="input-field" placeholder="Email ou número de celular" required>
 
             <!-- Botão para enviar solicitação -->
             <button type="submit" class="reset-btn">Enviar solicitação</button>
@@ -112,6 +137,57 @@
             <a href="/login/">Já tem uma conta? Faça login</a>
         </div>
     </div>
+
+    <script>
+        (function(){
+            const form = document.getElementById('resetForm');
+            const messageBox = document.getElementById('message');
+
+            form.addEventListener('submit', function(event){
+                event.preventDefault();
+
+                // Obter token CSRF do input hidden gerado pelo Django
+                const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+                const emailTelefone = document.getElementById('email_telefone').value.trim();
+
+                if(!emailTelefone){
+                    showMessage('Por favor, preencha o campo Email ou número de celular.', 'error');
+                    return;
+                }
+
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ email_telefone: emailTelefone })
+                })
+                .then(response => {
+                    if(!response.ok) throw new Error('Erro na requisição');
+                    return response.json();
+                })
+                .then(data => {
+                    if(data.success){
+                        showMessage(data.message || 'Código de recuperação enviado com sucesso.', 'success');
+                        form.reset();
+                    } else {
+                        showMessage(data.message || 'Falha ao enviar código de recuperação.', 'error');
+                    }
+                })
+                .catch(() => {
+                    showMessage('Erro na comunicação com o servidor. Tente novamente.', 'error');
+                });
+            });
+
+            function showMessage(msg, type) {
+                messageBox.textContent = msg;
+                messageBox.className = 'message ' + type;
+                messageBox.style.display = 'block';
+            }
+        })();
+    </script>
 
 </body>
 </html>

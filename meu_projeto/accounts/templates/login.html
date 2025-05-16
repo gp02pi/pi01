@@ -250,7 +250,7 @@
             <h2>Acesso ao usuário</h2>
 
             <!-- Formulário de login -->
-            <form action="/login/" method="POST">
+            <form id="formLogin" action="/login/" method="POST">
                 {% csrf_token %} <!-- Token de segurança do Django -->
                 <!-- Campo de Usuário para Login -->
                 <input type="text" name="login_usuario" class="input-field" placeholder="Usuário" required pattern="[A-Za-z0-9]+" title="Deve conter apenas letras e números.">
@@ -298,7 +298,7 @@
                 
                 <span class="error-message" id="errorMessage">As senhas não coincidem. Por favor, tente novamente.</span>
                 
-                <button type="submit" class="register-btn" id="openModal">Cadastrar</button>
+                <button type="submit" class="register-btn">Cadastrar</button>
             </form>
         </div>
     </div>
@@ -317,13 +317,30 @@
             document.getElementById('modalCadastro').style.display = 'block';
         }
 
-        // Interceptando a submissão do formulário
+        // Fechar modal de sucesso
+        function closeSuccessPopup() {
+            document.getElementById('successPopup').style.display = 'none';
+        }
+
+        // Validação e envio do formulário de cadastro via Fetch API
         document.querySelector('#formCadastro').addEventListener('submit', function(event) {
             event.preventDefault();  // Impede o recarregamento da página
 
+            const senha = this.senha.value;
+            const repetirSenha = this.repetir_senha.value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Valida se as senhas coincidem
+            if (senha !== repetirSenha) {
+                errorMessage.style.display = 'block';
+                return;
+            } else {
+                errorMessage.style.display = 'none';
+            }
+
             const form = new FormData(this);  // Captura os dados do formulário
 
-            fetch('/cadastrar/', {
+            fetch(this.action, {
                 method: 'POST',
                 body: form
             })
@@ -332,7 +349,8 @@
                 if (data.success) {
                     alert(data.message);  // Exibe um pop-up de sucesso
                     document.getElementById('modalCadastro').style.display = 'none'; // Fecha o modal
-                    document.getElementById('formCadastro').reset(); // Reseta o formulário
+                    this.reset(); // Reseta o formulário
+                    window.location.href = window.location.href;
                 } else {
                     alert(data.message);  // Exibe erro, se houver
                 }
@@ -342,6 +360,48 @@
                 console.error('Erro:', error);
             });
         });
+
+        // Intercepta o envio do formulário de login para enviar via Fetch API
+        document.querySelector('#formLogin').addEventListener('submit', function(event) {
+            event.preventDefault();  // Impede o recarregamento da página
+
+            const form = new FormData(this);
+
+            fetch(this.action, {
+                method: 'POST',
+                body: form
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Supondo que o backend retorne uma URL para redirecionar após login
+                    if(data.redirect_url){
+                        window.location.href = data.redirect_url;
+                    } else {
+                        alert('Login realizado com sucesso!');
+                        // Aqui poderia atualizar a interface para usuário logado, se desejar
+                    }
+                } else {
+                    alert(data.message || 'Usuário ou senha incorretos.');
+                }
+            })
+            .catch(error => {
+                alert('Erro ao tentar efetuar login. Tente novamente.');
+                console.error('Erro:', error);
+            });
+        });
+
+        // Fechar modal ao clicar fora do conteúdo
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalCadastro');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+            const successPopup = document.getElementById('successPopup');
+            if(event.target == successPopup){
+                successPopup.style.display = "none";
+            }
+        }
     </script>
 </body>
 </html>

@@ -214,40 +214,48 @@
     </div>
 
     <script>
-        // Confirmação de mudança de tema
-        const themeToggle = document.getElementById('theme');
-        if (themeToggle) {
-            themeToggle.addEventListener('change', function () {
-                document.body.classList.toggle('dark-mode', this.checked);
-            });
+        // Função para pegar token CSRF do cookie (Django) - deixar pronta para uso futuro
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+    
+        // Placeholder: função para carregar dados do usuário do backend (ainda não implementada)
+        async function loadUserProfile() {
+            // Aqui no futuro, você pode usar fetch('/api/user/profile') para popular os campos
+            // Por enquanto, nada é feito para não alterar nada
         }
     
-        function resetSettings() {
-            document.getElementById('fullname').value = "João Silva";
-            document.getElementById('email').value = "joao.silva@email.com";
-            document.getElementById('phone').value = "(11) 98765-4321";
-            document.getElementById('notifications').checked = true;
-            document.getElementById('theme').checked = false;
-            document.body.classList.remove('dark-mode');
+        // Placeholder: função para enviar dados pessoais para backend (ainda não implementada)
+        async function submitPersonalInfo(data) {
+            // No futuro: fetch PUT para '/api/user/profile' com JSON data
+            // Por enquanto, apenas retorna sucesso para não bloquear a UX atual
+            return { success: true, updatedData: data };
         }
-        // Faz com que só números possam ser digitados no campo de celular
+    
+        // Placeholder: função para enviar alteração de senha para backend (ainda não implementada)
+        async function submitChangePassword(data) {
+            // No futuro: fetch POST para '/api/user/change-password' com JSON data
+            // Por enquanto, apenas retorna sucesso para não bloquear a UX atual
+            return { success: true };
+        }
+    
+        // Manter a validação atual do telefone (permite só números)
         const phoneInput = document.getElementById('phone');
         const phoneError = document.getElementById('phoneError');
-        const fullnameInput = document.getElementById('fullname');
-        const emailInput = document.getElementById('email');
-
-        // Função para verificar se todos os campos estão válidos
-        function validateFields() {
-            const fullname = fullnameInput.value.trim();
-            const email = emailInput.value.trim();
-            const phone = phoneInput.value.trim();
-
-            // Verifica se todos os campos têm valores válidos
-            return fullname !== '' && email !== '' && phone !== '' && !/\D/.test(phone);
-        }
-
+    
         phoneInput.addEventListener('input', function () {
-            // Se o campo for preenchido com algo que não seja número, exibe o erro
             if (/\D/.test(this.value)) {
                 phoneError.style.display = 'block';
                 phoneInput.setCustomValidity('Digite apenas números.');
@@ -258,70 +266,92 @@
                 this.style.borderColor = '';
             }
         });
-
-        // Ao submeter o formulário, verificar se os campos estão válidos
-        document.getElementById('personalInfoForm').addEventListener('submit', function (event) {
+    
+        // Ao submeter o formulário de informações pessoais, mantém comportamento atual e prepara para integração futura
+        document.getElementById('personalInfoForm').addEventListener('submit', async function (event) {
             event.preventDefault();
-
-            // Só atualiza o topo se todos os campos forem válidos
-            if (validateFields()) {
-                const fullName = fullnameInput.value.trim();
-                const email = emailInput.value.trim();
-                const phone = phoneInput.value.trim();
-
-                // Atualiza os elementos do topo da página
-                document.getElementById('displayName').textContent = fullName;
+    
+            // Validação atual da página
+            const fullname = document.getElementById('fullname').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = phoneInput.value.trim();
+    
+            if (fullname === '' || email === '' || phone === '' || /\D/.test(phone)) {
+                alert('Por favor, preencha todos os campos corretamente.');
+                return;
+            }
+    
+            // Aqui chama a função futura para enviar dados para backend (no momento só simula)
+            const result = await submitPersonalInfo({ fullname, email, phone });
+    
+            if (result.success) {
+                // Atualiza os elementos do topo da página conforme valores atuais
+                document.getElementById('displayName').textContent = fullname;
                 document.getElementById('emailInfo').textContent = `E-mail: ${email}`;
                 document.getElementById('phoneInfo').textContent = `Celular: ${phone}`;
-
+    
                 alert('Informações atualizadas com sucesso!');
             } else {
-                alert('Por favor, preencha todos os campos corretamente.');
+                alert('Erro ao atualizar informações. Tente novamente mais tarde.');
             }
         });
-
-        // Validação de senha
-        document.getElementById('changePasswordForm').addEventListener('submit', function (event) {
-        event.preventDefault();
-
-        const currentPassword = document.getElementById('currentPassword');
-        const newPassword = document.getElementById('newPassword');
-        const confirmPassword = document.getElementById('confirmPassword');
-        const messageDiv = document.getElementById('passwordMessage');
-
-        const newPass = newPassword.value.trim();
-        const confirmPass = confirmPassword.value.trim();
-
-        // Limpa mensagens anteriores
-        messageDiv.textContent = '';
-        messageDiv.style.color = '';
-
-        if (newPass.length < 8) {
-            messageDiv.textContent = 'A nova senha deve ter pelo menos 8 caracteres.';
-            messageDiv.style.color = 'red';
-            return;
-        }
-
-        if (newPass !== confirmPass) {
-            messageDiv.textContent = 'As senhas não coincidem!';
-            messageDiv.style.color = 'red';
-            return;
-        }
-
-        // Sucesso
-        messageDiv.textContent = 'Senha alterada com sucesso!';
-        messageDiv.style.color = 'green';
-
-        // Limpa os campos após sucesso
-        currentPassword.value = '';
-        newPassword.value = '';
-        confirmPassword.value = '';
-
-        // Some com a mensagem após 3s
-        setTimeout(() => {
+    
+        // Ao submeter o formulário de alteração de senha, mantém validação e UX atual e prepara para backend futuro
+        document.getElementById('changePasswordForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+    
+            const currentPassword = document.getElementById('currentPassword');
+            const newPassword = document.getElementById('newPassword');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const messageDiv = document.getElementById('passwordMessage');
+    
+            const newPass = newPassword.value.trim();
+            const confirmPass = confirmPassword.value.trim();
+    
             messageDiv.textContent = '';
-        }, 2000);
-    });
+            messageDiv.style.color = '';
+    
+            if (newPass.length < 8) {
+                messageDiv.textContent = 'A nova senha deve ter pelo menos 8 caracteres.';
+                messageDiv.style.color = 'red';
+                return;
+            }
+    
+            if (newPass !== confirmPass) {
+                messageDiv.textContent = 'As senhas não coincidem!';
+                messageDiv.style.color = 'red';
+                return;
+            }
+    
+            // Aqui chama a função futura para enviar a senha para backend (no momento só simula)
+            const result = await submitChangePassword({
+                current_password: currentPassword.value.trim(),
+                new_password: newPass
+            });
+    
+            if (result.success) {
+                messageDiv.textContent = 'Senha alterada com sucesso!';
+                messageDiv.style.color = 'green';
+    
+                // Limpa campos
+                currentPassword.value = '';
+                newPassword.value = '';
+                confirmPassword.value = '';
+    
+                setTimeout(() => {
+                    messageDiv.textContent = '';
+                }, 3000);
+            } else {
+                messageDiv.textContent = 'Erro ao alterar senha. Tente novamente.';
+                messageDiv.style.color = 'red';
+            }
+        });
+    
+        // No carregamento da página, chama a função que vai buscar dados (ainda vazia)
+        window.addEventListener('DOMContentLoaded', () => {
+            loadUserProfile();
+        });
     </script>
+    
 </body>
 </html>

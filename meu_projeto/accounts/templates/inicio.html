@@ -1,4 +1,4 @@
-{% load static %}
+{% load static %} 
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -192,8 +192,7 @@
                 width: 100%;
             }
         }
-
-        /* A parte crítica para garantir o lado a lado */
+        
         .grafico-e-bloco-container {
             display: flex;
             justify-content: space-between;
@@ -230,18 +229,18 @@
     <div class="container">
         <div class="blocos-gradientes-container">
             <div class="bloco-gradiente bloco-gradiente1">
-                <div class="secao"> Contas a receber (este mês) </div>
-                <div class="sub-secao">Pagas: </div>
-                <div class="sub-secao">A vencer: </div>
-                <div class="sub-secao">Atrasadas: </div>
-                <div class="sub-secao">Atrasadas (meses anteriores): </div>
+                <div class="secao">Produtos em falta (este mês) </div>
+                <div class="sub-secao" id="falta1">1. </div>
+                <div class="sub-secao" id="falta2">2. </div>
+                <div class="sub-secao" id="falta3">3. </div>
+                <div class="sub-secao" id="falta4">4. </div>
             </div>
             <div class="bloco-gradiente bloco-gradiente2">
-                <div class="secao"> Contas a pagar (este mês)</div>
-                <div class="sub-secao">Pagas: </div>
-                <div class="sub-secao">A vencer: </div>
-                <div class="sub-secao">Atrasadas: </div>
-                <div class="sub-secao">Atrasadas (meses anteriores): </div>
+                <div class="secao"> Produtos em excesso (este mês)</div>
+                <div class="sub-secao" id="excesso1">1. </div>
+                <div class="sub-secao" id="excesso2">2. </div>
+                <div class="sub-secao" id="excesso3">3. </div>
+                <div class="sub-secao" id="excesso4">4. </div>
             </div>
         </div>
     
@@ -277,145 +276,210 @@
                         </div>
                     </div>
                     
-                    <script> 
-                        // Código do gráfico 2
-                        const dadosProdutosDepo = {
-                            labels: ['Jan', 'Fev', 'Mar', 'Abr'],
-                            datasets: [{
-                                label: 'Entradas',
-                                data: [500, 530, 560, 580],
-                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 2,
-                                fill: false
-                            },
-                            {
-                                label: 'Saídas',
-                                data: [800, 860, 260, 600],
-                                backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 2,
-                                fill: false
-                            }]
-                        };
-                    
-                        const configProdutosDepo = {
-                            type: "bar", // Tipo de gráfico
-                            data: dadosProdutosDepo,
-                            options: {
-                                responsive: true,
-                                plugins: {
-                                    legend: {
-                                        labels: {
-                                            font: {
-                                                family: 'Roboto',  // Fonte para a legenda
-                                                size: 11,
-                                            }
-                                        }
-                                    }
-                                },
-                                scales: {
-                                    x: {
-                                        ticks: {
-                                            font: {
-                                                family: 'Roboto',  // Fonte para o eixo X
-                                                size: 12,
-                                            }
-                                        },
-                                        title: {
-                                            display: true,
-                                            text: 'Últimos quatro meses',
-                                            font: {
-                                                family: 'Roboto',  // Fonte para o título do eixo X
-                                                size: 12
-                                            }
-                                        }
-                                    },
-                                    y: {
-                                        ticks: {
-                                            font: {
-                                                family: 'Roboto',  // Fonte para o eixo Y
-                                                size: 10,
-                                            }
-                                        },
-                                        title: {
-                                            display: true,
-                                            text: 'Estoque (un)',
-                                            font: {
-                                                family: 'Roboto',  // Fonte para o título do eixo Y
-                                                size: 12
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+<script>
+    // Função para atualizar os blocos de produtos em falta e excesso com dados externos
+    function atualizarProdutos(dados) {
+        // Atualiza produtos em falta
+        for (let i = 0; i < 4; i++) {
+            const faltaElem = document.getElementById(`falta${i + 1}`);
+            faltaElem.textContent = dados.produtosEmFalta[i] ? `${i + 1}. ${dados.produtosEmFalta[i]}` : `${i + 1}.`;
+        }
+        // Atualiza produtos em excesso
+        for (let i = 0; i < 4; i++) {
+            const excessoElem = document.getElementById(`excesso${i + 1}`);
+            excessoElem.textContent = dados.produtosEmExcesso[i] ? `${i + 1}. ${dados.produtosEmExcesso[i]}` : `${i + 1}.`;
+        }
+    }
+
+    // Função para atualizar os dados dos gráficos
+    function atualizarGraficos(dados) {
+        // Atualiza gráfico 1 (vendas/despesas)
+        configVendas.data.labels = dados.graficoVendas.labels;
+        configVendas.data.datasets[0].data = dados.graficoVendas.vendas;
+        configVendas.data.datasets[1].data = dados.graficoVendas.despesas;
+        chartVendas.update();
+
+        // Atualiza gráfico 2 (entradas/saídas)
+        configProdutosDepo.data.labels = dados.graficoProdutos.labels;
+        configProdutosDepo.data.datasets[0].data = dados.graficoProdutos.entradas;
+        configProdutosDepo.data.datasets[1].data = dados.graficoProdutos.saidas;
+        chartProdutosDepo.update();
+    }
+
+    // Configurações e inicialização dos gráficos
+    const dadosProdutosDepo = {
+        labels: ['Jan', 'Fev', 'Mar', 'Abr'],
+        datasets: [{
+            label: 'Entradas',
+            data: [500, 530, 560, 580],
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 2,
+            fill: false
+        },
+        {
+            label: 'Saídas',
+            data: [800, 860, 260, 600],
+            backgroundColor: 'rgba(255,165,0)',
+            borderColor: 'rgba(255,130,0)',
+            borderWidth: 2,
+            fill: false
+        }]
+    };
+
+    const configProdutosDepo = {
+        type: "bar",
+        data: dadosProdutosDepo,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            family: 'Roboto',
+                            size: 11,
                         }
-                    
-                        const ctxProdutosDepo = document.getElementById('graficoVendas2').getContext('2d');
-                        document.getElementById('graficoVendas2').width = 1800; 
-                        document.getElementById('graficoVendas2').height = 600;
-                        new Chart(ctxProdutosDepo, configProdutosDepo);
-                    
-                        // Código do gráfico 1
-                        const dadosVendas = {
-                            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-                            datasets: [{
-                                label: 'Vendas',
-                                data: [1200, 1350, 1400, 1450, 1500, 1550, 1600, 1650, 5434, 4243, 2342, 2455],
-                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 2,
-                                fill: false
-                            },
-                            {
-                                label: 'Despesas',
-                                data: [1000, 1150, 1300, 1400, 1350, 1450, 1500, 1600, 4444, 2342, 1244, 2455],
-                                backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 2,
-                                fill: false
-                            }]
-                        };
-                    
-                        const configVendas = {
-                            type: 'line',
-                            data: dadosVendas,
-                            options: {
-                                responsive: true,
-                                plugins: {
-                                    legend: {
-                                        labels: {
-                                            font: {
-                                                family: 'Roboto',  // Fonte para a legenda
-                                                size: 12,
-                                            }
-                                        }
-                                    }
-                                },
-                                scales: {
-                                    y: {
-                                        ticks: {
-                                            font: {
-                                                family: 'Roboto',  // Fonte para o eixo Y
-                                                size: 10,
-                                            }
-                                        },
-                                        title: {
-                                            display: true,
-                                            text: 'Valores (em R$)',
-                                            font: {
-                                                family: 'Roboto',  // Fonte para o título do eixo Y
-                                                size: 12
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        };
-                    
-                        const ctxVendas = document.getElementById('graficoVendas').getContext('2d');
-                        new Chart(ctxVendas, configVendas);
-                    </script>
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        afterBody: function(context) {
+                            const entradas = configProdutosDepo.data.datasets[0].data;
+                            const saidas = configProdutosDepo.data.datasets[1].data;
+                            const totalEntradas = entradas.reduce((a, b) => a + b, 0);
+                            const totalSaidas = saidas.reduce((a, b) => a + b, 0);
+                            return [
+                                `Total de Entradas: ${totalEntradas}`,
+                                `Total de Saídas: ${totalSaidas}`
+                            ];
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        font: {
+                            family: 'Roboto',
+                            size: 12,
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Últimos quatro meses',
+                        font: {
+                            family: 'Roboto',
+                            size: 12
+                        }
+                    }
+                },
+                y: {
+                    ticks: {
+                        font: {
+                            family: 'Roboto',
+                            size: 10,
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Estoque (un)',
+                        font: {
+                            family: 'Roboto',
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    const ctxProdutosDepo = document.getElementById('graficoVendas2').getContext('2d');
+    document.getElementById('graficoVendas2').width = 1800; 
+    document.getElementById('graficoVendas2').height = 600;
+    const chartProdutosDepo = new Chart(ctxProdutosDepo, configProdutosDepo);
+
+    const dadosVendas = {
+        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+        datasets: [{
+            label: 'Vendas',
+            data: [1200, 1350, 1400, 1450, 1500, 1550, 1600, 1650, 5434, 4243, 2342, 2455],
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 2,
+            fill: false
+        },
+        {
+            label: 'Despesas',
+            data: [1000, 1150, 1300, 1400, 1350, 1450, 1500, 1600, 4444, 2342, 1244, 2455],
+            backgroundColor: 'rgba(255,165,0)',
+            borderColor: 'rgba(255,130,0)',
+            borderWidth: 2,
+            fill: false
+        }]
+    };
+
+    const configVendas = {
+        type: 'line',
+        data: dadosVendas,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            family: 'Roboto',
+                            size: 12,
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: {
+                        font: {
+                            family: 'Roboto',
+                            size: 10,
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Valores (R$)',
+                        font: {
+                            family: 'Roboto',
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    const ctxVendas = document.getElementById('graficoVendas').getContext('2d');
+    const chartVendas = new Chart(ctxVendas, configVendas);
+
+    // Exemplo de função para buscar dados de outra página (API ou endpoint)
+    async function carregarDadosExternos() {
+        try {
+            // Exemplo: fetch('/api/dados-dashboard')
+            // Substitua '/api/dados-dashboard' pela URL real da sua página/dados
+            const response = await fetch('/api/dados-dashboard');
+            if (!response.ok) throw new Error('Erro ao carregar dados');
+            const dados = await response.json();
+
+            // Atualiza blocos e gráficos com os dados recebidos
+            atualizarProdutos(dados);
+            atualizarGraficos(dados);
+
+        } catch (error) {
+            console.error('Falha ao carregar dados externos:', error);
+        }
+    }
+
+    // Carregar dados externos após o carregamento da página
+    document.addEventListener('DOMContentLoaded', () => {
+        carregarDadosExternos();
+    });
+</script>
                     
 </body>
 </html>

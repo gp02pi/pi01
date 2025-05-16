@@ -56,9 +56,6 @@ def inicio(request):
 def clientes(request):
     return render(request, 'clientes.html')
 
-def financeiro(request):
-    return render(request, 'financeiro.html')
-
 def fornecedores(request):
     return render(request, 'fornecedores.html')
 
