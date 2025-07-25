@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import login, senha, cadastrar, barra, inicio, clientes, produtos, relatorios, fornecedores, configuracoes
+from .views import login, senha, cadastrar, barra, inicio, clientes, produtos, relatorios, fornecedores, configuracoes, api_openai_chat
 
 urlpatterns = [
     path('login/', login, name='login'), 
@@ -12,5 +12,6 @@ urlpatterns = [
     path('relatorios/', relatorios, name='relatorios'),
     path('fornecedores/', fornecedores, name='fornecedores'),
     path('configuracoes/', configuracoes, name='configuracoes'),
+    path('api/openai/chat/', api_openai_chat, name='api_openai_chat'),
 ]
 

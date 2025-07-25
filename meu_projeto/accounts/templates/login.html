@@ -7,6 +7,7 @@
     <title>Acesso ao usuário</title>
     <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         /* Estilos básicos */
         body {
@@ -21,7 +22,6 @@
             flex-direction: column;
         }
 
-        /* Container do login (formulário + imagem) */
         .login-wrapper {
             display: flex;
             justify-content: center;
@@ -31,7 +31,6 @@
             margin-right: 100px;
         }
 
-        /* Container para o logotipo */
         .logo-container {
             flex: 1; 
             display: flex;
@@ -39,7 +38,6 @@
             align-items: center;
         }
 
-        /* Estilização da logo */
         .logo-container img {
             max-width: 100%; 
             height: auto; 
@@ -50,7 +48,6 @@
             margin-left: 50px
         }
 
-        /* Container do formulário de login */
         .login-container {
             background-color: #ffffff;
             border-radius: 8px;
@@ -61,14 +58,12 @@
             margin-left: 200px;
         }
 
-        /* Título */
         h2 {
             text-align: center;
             margin-bottom: 20px;
             color: #333;
         }
 
-        /* Estilo dos campos de entrada */
         .input-field {
             width: 100%;
             padding: 15px;
@@ -79,14 +74,12 @@
             box-sizing: border-box;
         }
 
-        /* Container para botões alinhados */
         .button-container {
             display: flex;
             justify-content: space-between;
             gap: 10px; 
         }
 
-        /* Estilo do botão "Entrar" */
         .btn {
             flex: 1; 
             padding: 15px;
@@ -105,7 +98,6 @@
             background-color: #1B91AC;
         }
 
-        /* Estilo do botão "Cadastrar" */
         .btn-cadastrar {
             background-color: #EB9941;
         }
@@ -114,7 +106,6 @@
             background-color: #DD6936;
         }
 
-        /* Links de navegação */
         .links {
             text-align: center;
             margin-top: 20px;
@@ -130,7 +121,6 @@
             text-decoration: underline;
         }
 
-        /* Responsividade */
         @media (max-width: 768px) {
             .login-container {
                 padding: 30px;
@@ -149,7 +139,6 @@
             }
         }
 
-        /* Responsividade */
         @media (max-width: 768px) {
             .logo-container img {
                 max-height: 100px; 
@@ -162,7 +151,6 @@
             }
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -209,7 +197,6 @@
             display: none;
         }
 
-        /* Flexbox para Senha e Repetir Senha */
         .input-group {
             display: flex;
             gap: 20px; 
@@ -219,7 +206,6 @@
             flex: 1; 
         }
 
-        /* Botão de Fechar no canto superior direito */
         .close-btn {
             position: absolute;
             top: 10px;
@@ -234,76 +220,68 @@
         .close-btn:hover {
             color: #333;
         }
+
+        .recaptcha-wrapper {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Container principal (Logo + Formulário) -->
     <div class="login-wrapper">
-        <!-- Logotipo -->
         <div class="logo-container">
             <img src="{% static 'img/logo.png' %}" alt="Logo">
         </div>
 
-        <!-- Container do formulário de login -->
         <div class="login-container">
             <h2>Acesso ao usuário</h2>
 
-            <!-- Formulário de login -->
             <form id="formLogin" action="/login/" method="POST">
-                {% csrf_token %} <!-- Token de segurança do Django -->
-                <!-- Campo de Usuário para Login -->
+                {% csrf_token %}
                 <input type="text" name="login_usuario" class="input-field" placeholder="Usuário" required pattern="[A-Za-z0-9]+" title="Deve conter apenas letras e números.">
-
-                <!-- Campo de Senha -->
                 <input type="password" name="password" class="input-field" placeholder="Senha" required>
 
-                <!-- Botões de Login e Cadastro -->
                 <div class="button-container">
                     <button type="submit" class="btn">Entrar</button>
                     <button type="button" class="btn btn-cadastrar" id="openModal">Cadastrar</button>
                 </div>
+
+                <div class="recaptcha-wrapper">
+                    <div class="g-recaptcha" data-sitekey="SUA_CHAVE_SITE_PUBLICA"></div>
+                </div>
             </form>
 
-            <!-- Link para recuperação de senha -->
             <div class="links">
                 <a href="/senha/">Esqueci minha senha</a>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Cadastro -->
     <div class="modal" id="modalCadastro">
         <div class="modal-content">
             <button class="close-btn" onclick="document.getElementById('modalCadastro').style.display='none'">&times;</button>
             <h2>Criar Cadastro</h2>
             <form id="formCadastro" action="/cadastrar/" method="POST">
                 {% csrf_token %}
-                
-                <!-- Campo Nome Completo -->
                 <input type="text" name="nomecompleto" class="input-field full-width" placeholder="Nome Completo*" required pattern="[A-Za-zÀ-ÿ ]+" title="Deve conter apenas letras.">
-                
-                <!-- Campo de Usuário para Cadastro -->
                 <input type="text" name="usuario" class="input-field" placeholder="Usuário*" required pattern="[A-Za-z0-9]+" title="Deve conter apenas letras e números.">
-
-                <!-- Campos de Email e Celular -->
                 <input type="email" name="email" class="input-field" placeholder="Email*" required>
                 <input type="text" name="celular" class="input-field" placeholder="Celular*" required pattern="\d+" title="Deve conter apenas números.">
-                
-                <!-- Campos de Senha e Repetir Senha lado a lado -->
+
                 <div class="input-group">
                     <input type="password" name="senha" class="input-field" placeholder="Senha*" required minlength="8" title="A senha deve ter no mínimo 8 caracteres.">
                     <input type="password" name="repetir_senha" class="input-field" placeholder="Repetir Senha*" required>
                 </div>
-                
+
                 <span class="error-message" id="errorMessage">As senhas não coincidem. Por favor, tente novamente.</span>
-                
+
                 <button type="submit" class="register-btn">Cadastrar</button>
             </form>
         </div>
     </div>
 
-    <!-- Pop-up de Sucesso -->
     <div id="successPopup" class="modal">
         <div class="modal-content">
             <h2>Cadastro Realizado com Sucesso!</h2>
@@ -312,58 +290,27 @@
     </div>
 
     <script>
-        // Exibir modal de cadastro ao clicar no botão "Cadastrar"
         document.getElementById('openModal').onclick = function() {
             document.getElementById('modalCadastro').style.display = 'block';
         }
 
-        // Fechar modal de sucesso
         function closeSuccessPopup() {
             document.getElementById('successPopup').style.display = 'none';
         }
 
-        // Validação e envio do formulário de cadastro via Fetch API
         document.querySelector('#formCadastro').addEventListener('submit', function(event) {
-            event.preventDefault();  // Impede o recarregamento da página
+            event.preventDefault();
 
             const senha = this.senha.value;
             const repetirSenha = this.repetir_senha.value;
             const errorMessage = document.getElementById('errorMessage');
 
-            // Valida se as senhas coincidem
             if (senha !== repetirSenha) {
                 errorMessage.style.display = 'block';
                 return;
             } else {
                 errorMessage.style.display = 'none';
             }
-
-            const form = new FormData(this);  // Captura os dados do formulário
-
-            fetch(this.action, {
-                method: 'POST',
-                body: form
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);  // Exibe um pop-up de sucesso
-                    document.getElementById('modalCadastro').style.display = 'none'; // Fecha o modal
-                    this.reset(); // Reseta o formulário
-                    window.location.href = window.location.href;
-                } else {
-                    alert(data.message);  // Exibe erro, se houver
-                }
-            })
-            .catch(error => {
-                alert('Erro ao enviar formulário. Tente novamente.');
-                console.error('Erro:', error);
-            });
-        });
-
-        // Intercepta o envio do formulário de login para enviar via Fetch API
-        document.querySelector('#formLogin').addEventListener('submit', function(event) {
-            event.preventDefault();  // Impede o recarregamento da página
 
             const form = new FormData(this);
 
@@ -374,12 +321,36 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Supondo que o backend retorne uma URL para redirecionar após login
+                    alert(data.message);
+                    document.getElementById('modalCadastro').style.display = 'none';
+                    this.reset();
+                    window.location.href = window.location.href;
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                alert('Erro ao enviar formulário. Tente novamente.');
+                console.error('Erro:', error);
+            });
+        });
+
+        document.querySelector('#formLogin').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const form = new FormData(this);
+
+            fetch(this.action, {
+                method: 'POST',
+                body: form
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     if(data.redirect_url){
                         window.location.href = data.redirect_url;
                     } else {
                         alert('Login realizado com sucesso!');
-                        // Aqui poderia atualizar a interface para usuário logado, se desejar
                     }
                 } else {
                     alert(data.message || 'Usuário ou senha incorretos.');
@@ -391,7 +362,6 @@
             });
         });
 
-        // Fechar modal ao clicar fora do conteúdo
         window.onclick = function(event) {
             const modal = document.getElementById('modalCadastro');
             if (event.target == modal) {

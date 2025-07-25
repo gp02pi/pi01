@@ -2,285 +2,536 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>menu</title>
-    <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap"
-      rel="stylesheet"
-    />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Menu Principal</title>
+  <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Montserrat", sans-serif;
+    }
 
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Montserrat", sans-serif;
-      }
+    body {
+      background-color: #f4f6f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
 
-      body {
-        background-color: #f4f6f9;
-        color: #333;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        overflow-x: hidden;
-      }
+    #chat-ai-popup,
+    #chat-ai-popup * {
+      font-family: "Noto Sans", sans-serif !important;
+    }
 
-      .top-menu {
-        background-color: #fff;
-        width: 100%;
-        height: 60px;
-        position: fixed;
-        top: 0;
-        left: 0;
-        padding: 10px 30px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 2px solid #ddd;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-      }
+    .top-menu {
+      background-color: #fff;
+      width: 100%;
+      height: 60px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding: 10px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #ddd;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
 
-      .logo {
-        display: flex;
-        align-items: center;
-      }
+    .logo {
+      display: flex;
+      align-items: center;
+    }
 
-      .logo img {
-        height: 40px;
-      }
+    .logo img {
+      height: 40px;
+    }
 
+    .menu {
+      display: flex;
+      align-items: center;
+      list-style: none;
+      margin-left: 15px;
+    }
+
+    .menu li {
+      margin: 0 10px;
+    }
+
+    .menu li a {
+      text-decoration: none;
+      color: #2c3e50;
+      font-size: 14px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      transition: color 0.3s ease-in-out;
+    }
+
+    .menu li a:hover,
+    .menu li a:focus {
+      color: #0984e3;
+      outline: none;
+    }
+
+    .menu li a i {
+      margin-right: 8px;
+      font-size: 14px;
+    }
+
+    .icons {
+      display: flex;
+      list-style: none;
+    }
+
+    .icons li {
+      margin-left: 20px;
+      position: relative;
+    }
+
+    .icons li a {
+      color: #2c3e50;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .icons li a:hover,
+    .icons li a:focus {
+      color: #0984e3;
+      outline: none;
+    }
+
+    @media (max-width: 768px) {
       .menu {
-        display: flex;
-        align-items: center;
-        list-style: none;
-        margin-left: 15px;
-      }
-
-      .menu li {
-        margin: 0 10px;
-      }
-
-      .menu li a {
-        text-decoration: none;
-        color: #333;
-        font-size: 14px;
-        padding: 10px;
-        display: flex;
-        align-items: center;
-        transition: color 0.3s ease-in-out;
-      }
-
-      .menu li a:hover {
-        color: #0984e3;
-      }
-
-      .menu li a i {
-        margin-right: 8px;
-        font-size: 14px;
-      }
-
-      .icons {
-        display: flex;
-        list-style: none;
-      }
-
-      .icons li {
-        margin-left: 20px;
-      }
-
-      .icons li a {
-        color: #333;
-        font-size: 18px;
-        transition: color 0.3s ease-in-out;
-        cursor: pointer;
-      }
-
-      .icons li a:hover {
-        color: #0984e3;
-      }
-
-      @media (max-width: 768px) {
-        .menu {
-          display: none;
-        }
-      }
-
-      /* Popup overlay */
-      .popup-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.45);
         display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        backdrop-filter: blur(4px);
       }
+    }
 
-      /* Popup container */
-      .popup {
-        background: #fff;
-        padding: 30px 35px;
-        border-radius: 12px;
-        width: 360px;
-        max-width: 90vw;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-        text-align: center;
-        animation: popupFadeIn 0.25s ease forwards;
-      }
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      backdrop-filter: blur(4px);
+    }
 
-      @keyframes popupFadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-15px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
+    .popup {
+      background: #fff;
+      padding: 30px 35px;
+      border-radius: 12px;
+      width: 360px;
+      max-width: 90vw;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      text-align: center;
+      animation: popupFadeIn 0.25s ease forwards;
+      color: #2c3e50;
+      font-size: 16px;
+      font-weight: 500;
+    }
 
-      .popup h2 {
-        font-weight: 700;
-        font-size: 22px;
-        margin-bottom: 12px;
-        color: #222;
+    @keyframes popupFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-15px);
       }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-      .popup p {
-        font-size: 16px;
-        color: #555;
-        margin-bottom: 28px;
-        line-height: 1.4;
-      }
+    .popup .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 28px;
+    }
 
-      /* Buttons container */
-      .popup .buttons {
-        display: flex;
-        justify-content: center;
-        gap: 16px;
-      }
+    .btn-cancel {
+      background-color: #e0e0e0;
+      color: #333;
+      border: none;
+      padding: 12px 26px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
 
-      /* Cancel button */
-      .btn-cancel {
-        background-color: #e0e0e0;
-        color: #333;
-        border: none;
-        padding: 12px 26px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 15px;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-      }
+    .btn-cancel:hover,
+    .btn-cancel:focus {
+      background-color: #cacaca;
+      outline: none;
+    }
 
-      .btn-cancel:hover,
-      .btn-cancel:focus {
-        background-color: #cacaca;
-        outline: none;
-      }
+    .btn-confirm {
+      background-color: #d63031;
+      color: #fff;
+      border: none;
+      padding: 12px 26px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
 
-      /* Confirm button */
-      .btn-confirm {
-        background-color: #d63031;
-        color: #fff;
-        border: none;
-        padding: 12px 26px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 15px;
-        cursor: pointer;
-        transition: background-color 0.2s ease, box-shadow 0.2s ease;
-      }
+    .btn-confirm:hover,
+    .btn-confirm:focus {
+      background-color: #b12722;
+      outline: none;
+    }
 
-      .btn-confirm:hover,
-      .btn-confirm:focus {
-        background-color: #b12722;
-        outline: none;
-      }
-    </style>
+    #chat-ai-popup {
+      position: fixed;
+      top: 70px;
+      right: 12px;
+      width: 350px;
+      max-width: 100vw;
+      height: 400px;
+      background: #202123;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      display: none;
+      flex-direction: column;
+      z-index: 10000;
+      font-size: 15px;
+      user-select: text;
+      overflow: hidden;
+      color: #e6e6e6;
+      font-weight: 400;
+    }
+
+    #chat-ai-header {
+      background-color: #343541;
+      color: #fff;
+      padding: 16px 24px;
+      font-weight: 700;
+      font-size: 20px;
+      border-top-left-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      user-select: none;
+      border-bottom: 1px solid #444654;
+    }
+
+    #chat-ai-title {
+      user-select: none;
+    }
+
+    #chat-ai-header svg {
+      stroke: #10a37f;
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    #chat-ai-messages {
+      flex-grow: 1;
+      padding: 18px 24px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      background: #202123;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #e6e6e6;
+    }
+
+    #chat-ai-messages::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #chat-ai-messages::-webkit-scrollbar-track {
+      background: #202123;
+    }
+
+    #chat-ai-messages::-webkit-scrollbar-thumb {
+      background: #444654;
+      border-radius: 4px;
+    }
+
+    .message {
+      margin-bottom: 20px;
+      max-width: 85%;
+      padding: 14px 20px;
+      border-radius: 12px;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      font-size: 15px;
+      line-height: 1.5;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+      user-select: text;
+      position: relative;
+      transition: background-color 0.3s ease;
+    }
+
+    .message.user {
+      background-color: #6c757d;
+      color: #f1f1f1;
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.bot {
+      background-color: #444654;
+      color: #e6e6e6;
+      margin-right: auto;
+      border-bottom-left-radius: 4px;
+    }
+
+    #chat-ai-form {
+      background: #343541;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      border-bottom-left-radius: 16px;
+      border-top: 1px solid #444654;
+    }
+
+    #chat-ai-input {
+      flex-grow: 1;
+      padding: 12px 16px;
+      font-size: 15px;
+      border: none;
+      border-radius: 9999px;
+      outline: none;
+      background: #40414f;
+      color: #e6e6e6;
+      resize: none;
+      min-height: 38px;
+      max-height: 120px;
+      overflow-y: hidden;
+      line-height: 1.4;
+      font-family: inherit;
+      transition: background-color 0.2s ease;
+    }
+
+    #chat-ai-input::placeholder {
+      color: #8b8b8b;
+    }
+
+    #chat-ai-input:focus {
+      background: #4a4b5b;
+    }
+  </style>
 </head>
 <body>
-    <nav class="top-menu">
-        <div class="logo">
-            <img src="{% static 'img/icon2.png' %}" alt="Logo" />
-            <ul class="menu">
-                <li><a href="{% url 'inicio' %}"><i class="fas fa-home"></i> Início</a></li>
-                <li><a href="{% url 'produtos' %}"><i class="fas fa-box"></i> Produtos</a></li>
-                <li><a href="{% url 'fornecedores' %}"><i class="fas fa-truck"></i> Fornecedores</a></li>
-                <li><a href="{% url 'clientes' %}"><i class="fas fa-user"></i> Clientes</a></li>
-                <li><a href="{% url 'relatorios' %}"><i class="fas fa-chart-bar"></i> Relátorios</a></li>
-            </ul>
+  <nav class="top-menu" role="navigation" aria-label="Menu principal">
+    <div class="logo">
+      <img src="{% static 'img/icon2.png' %}" alt="Logo da empresa" />
+      <ul class="menu" role="menubar">
+        <li role="none"><a role="menuitem" href="{% url 'inicio' %}"><i class="fas fa-home" aria-hidden="true"></i> Início</a></li>
+        <li role="none"><a role="menuitem" href="{% url 'produtos' %}"><i class="fas fa-box" aria-hidden="true"></i> Produtos</a></li>
+        <li role="none"><a role="menuitem" href="{% url 'fornecedores' %}"><i class="fas fa-truck" aria-hidden="true"></i> Fornecedores</a></li>
+        <li role="none"><a role="menuitem" href="{% url 'clientes' %}"><i class="fas fa-user" aria-hidden="true"></i> Clientes</a></li>
+        <li role="none"><a role="menuitem" href="{% url 'relatorios' %}"><i class="fas fa-chart-bar" aria-hidden="true"></i> Relatórios</a></li>
+      </ul>
+    </div>
+    <ul class="icons">
+      <li>
+        <a id="chat-ai-open-btn" title="Abrir chat ChatGPT" aria-haspopup="dialog" aria-expanded="false" aria-controls="chat-ai-popup" role="button" tabindex="0">
+          <i class="fas fa-robot" aria-hidden="true"></i>
+          <span class="sr-only">Abrir ChatGPT</span>
+        </a>
+        <div id="chat-ai-popup" role="dialog" aria-modal="true" aria-labelledby="chat-ai-title" aria-hidden="true">
+          <div id="chat-ai-header" aria-label="Cabeçalho do ChatGPT">
+            <img src="{% static 'img/chatgpt-icon.png' %}" alt="ChatGPT" width="30" height="30" style="border-radius: 8px;" />
+            <span id="chat-ai-title">ChatGPT</span>
+          </div>
+          <div id="chat-ai-messages" tabindex="0" aria-live="polite" aria-relevant="additions" aria-atomic="false"></div>
+          <form id="chat-ai-form" autocomplete="off" aria-label="Enviar mensagem para o ChatGPT">
+            <textarea id="chat-ai-input" placeholder="Digite sua mensagem..." aria-label="Mensagem" required rows="1" autocomplete="off"></textarea>
+          </form>
         </div>
+      </li>
+      <li>
+        <a href="{% url 'configuracoes' %}" title="Configurações" aria-label="Configurações do sistema">
+          <i class="fas fa-tools" aria-hidden="true"></i>
+        </a>
+      </li>
+      <li>
+        <a id="logout-btn" title="Sair do sistema" aria-haspopup="dialog" aria-controls="logout-popup" role="button" tabindex="0">
+          <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+          <span class="sr-only">Sair</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
 
-        <ul class="icons">
-            <li><a href="{% url 'configuracoes' %}" title="Configurações"><i class="fas fa-cogs"></i></a></li>
-            <li><a id="logout-btn" title="Sair" aria-haspopup="dialog" aria-controls="logout-popup"><i class="fas fa-sign-out-alt"></i></a></li>
-        </ul>
-    </nav>
-
-    <!-- Popup de confirmação -->
-    <div
-      class="popup-overlay"
-      id="logout-popup"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="popup-title"
-      aria-describedby="popup-desc"
-      tabindex="-1"
-    >
-      <div class="popup">
-        <p id="popup-desc">Você realmente deseja sair do sistema?</p>
-        <div class="buttons">
-          <button type="button" class="btn-cancel" id="cancel-logout">Cancelar</button>
-          <button type="button" class="btn-confirm" id="confirm-logout">Sair</button>
-        </div>
+  <div class="popup-overlay" id="logout-popup" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="logout-title" aria-describedby="popup-desc">
+    <div class="popup">
+      <h2 id="logout-title" style="margin-bottom:12px; color:#2c3e50;">Confirmação de Logout</h2>
+      <p id="popup-desc">Deseja realmente encerrar a sessão?</p>
+      <div class="buttons">
+        <button type="button" class="btn-cancel" id="cancel-logout">Cancelar</button>
+        <button type="button" class="btn-confirm" id="confirm-logout">Sair</button>
       </div>
     </div>
+  </div>
 
-    <script>
-      const logoutBtn = document.getElementById("logout-btn");
-      const popupOverlay = document.getElementById("logout-popup");
-      const cancelBtn = document.getElementById("cancel-logout");
-      const confirmBtn = document.getElementById("confirm-logout");
+  <script>
+    // Controle popup logout
+  const logoutBtn = document.getElementById("logout-btn");
+  const popupOverlay = document.getElementById("logout-popup");
+  const cancelBtn = document.getElementById("cancel-logout");
+  const confirmBtn = document.getElementById("confirm-logout");
 
-      // Abrir popup
-      logoutBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        popupOverlay.style.display = "flex";
-        popupOverlay.focus();
+  logoutBtn.addEventListener("click", e => {
+    e.preventDefault();
+    popupOverlay.style.display = "flex";
+    popupOverlay.focus();
+  });
+
+  cancelBtn.addEventListener("click", () => {
+    popupOverlay.style.display = "none";
+    logoutBtn.focus();
+  });
+
+  confirmBtn.addEventListener("click", () => {
+    window.location.replace("{% url 'login' %}");
+  });
+
+  popupOverlay.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      popupOverlay.style.display = "none";
+      logoutBtn.focus();
+    }
+  });
+
+  // Chat AI
+  const chatBtn = document.getElementById("chat-ai-open-btn");
+  const chatPopup = document.getElementById("chat-ai-popup");
+  const chatMessages = document.getElementById("chat-ai-messages");
+  const chatForm = document.getElementById("chat-ai-form");
+  const chatInput = document.getElementById("chat-ai-input");
+
+  function toggleChat() {
+    const isOpen = chatPopup.style.display === "flex";
+    if (isOpen) {
+      chatPopup.style.display = "none";
+      chatBtn.setAttribute("aria-expanded", "false");
+      chatPopup.setAttribute("aria-hidden", "true");
+      chatBtn.focus();
+    } else {
+      chatPopup.style.display = "flex";
+      chatBtn.setAttribute("aria-expanded", "true");
+      chatPopup.setAttribute("aria-hidden", "false");
+      chatInput.focus();
+      scrollToBottom();
+    }
+  }
+
+  chatBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    toggleChat();
+  });
+
+  document.addEventListener("click", e => {
+    if (!chatPopup.contains(e.target) && e.target !== chatBtn) {
+      if (chatPopup.style.display === "flex") toggleChat();
+    }
+  });
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && chatPopup.style.display === "flex") toggleChat();
+  });
+
+  // Adiciona mensagem no chat
+  function addMessage(text, sender) {
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add("message", sender);
+    msgDiv.textContent = text;
+    chatMessages.appendChild(msgDiv);
+    scrollToBottom();
+  }
+
+  function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // Ajusta altura do textarea automaticamente
+  function autoResizeTextarea() {
+    chatInput.style.height = 'auto';
+    chatInput.style.height = chatInput.scrollHeight + 'px';
+  }
+  chatInput.addEventListener('input', autoResizeTextarea);
+
+  // Permite envio com Enter (sem Shift)
+  chatInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      chatForm.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+    }
+  });
+
+  chatForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    const userMessage = chatInput.value.trim();
+    if (!userMessage) return;
+
+    addMessage(userMessage, "user");
+    chatInput.value = "";
+    autoResizeTextarea();
+    chatInput.disabled = true;
+
+    try {
+      const response = await fetch("{% url 'api_openai_chat' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie('csrftoken'),
+        },
+        body: JSON.stringify({ message: userMessage }),
       });
 
-      // Fechar popup ao cancelar
-      cancelBtn.addEventListener("click", () => {
-        popupOverlay.style.display = "none";
-        logoutBtn.focus();
-      });
+      if (!response.ok) throw new Error("Resposta inválida do servidor.");
 
-      // Confirmar logout
-      confirmBtn.addEventListener("click", () => {
-        // Aqui poderia limpar sessão/localStorage se necessário
-        // localStorage.clear();
+      const data = await response.json();
+      addMessage(data.reply, "bot");
+    } catch (error) {
+      addMessage("Erro ao processar sua solicitação. Por favor, tente novamente.", "bot");
+      console.error(error);
+    }
 
-        // Redireciona para página de login (substitui histórico)
-        window.location.replace("{% url 'login' %}");
-      });
+    chatInput.disabled = false;
+    chatInput.focus();
+  });
 
-      // Fechar popup ao pressionar ESC
-      popupOverlay.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-          popupOverlay.style.display = "none";
-          logoutBtn.focus();
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
-      });
-    </script>
+      }
+    }
+    return cookieValue;
+  } 
+  </script>
 </body>
 </html>

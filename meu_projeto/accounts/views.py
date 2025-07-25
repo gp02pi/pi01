@@ -1,7 +1,14 @@
-from django.contrib import messages
+from django.contrib import messages 
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
+import os
+import json
+import openai
+from django.views.decorators.csrf import csrf_exempt
+
+# Configure sua chave da OpenAI via variável de ambiente
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Login
 def login(request):
@@ -21,25 +28,20 @@ def cadastrar(request):
         senha = request.POST.get('senha', '').strip()
         repetir_senha = request.POST.get('repetir_senha', '').strip()
 
-        # Verifica se algum campo obrigatório está vazio
         if not nomecompleto or not username or not email or not senha or not repetir_senha:
             return JsonResponse({'success': False, 'message': 'Todos os campos obrigatórios devem ser preenchidos.'})
 
-        # Verificar se a senha e a repetição são iguais
         if senha != repetir_senha:
             return JsonResponse({'success': False, 'message': 'As senhas não coincidem. Tente novamente.'})
 
-        # Verificar se o username já existe
         if User.objects.filter(username=username).exists():
             return JsonResponse({'success': False, 'message': 'Nome de usuário já está em uso.'})
 
         try:
-            # Criar o usuário com nome completo
             user = User.objects.create_user(username=username, password=senha, email=email)
-            user.first_name = nomecompleto  # Armazena o nome completo em first_name
-            user.last_name = ""  # Evita erro do banco de dados ao tentar salvar um campo vazio
+            user.first_name = nomecompleto
+            user.last_name = ""
             user.save()
-
             return JsonResponse({'success': True, 'message': 'Usuário cadastrado com sucesso!'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': f'Erro ao criar usuário: {str(e)}'})
@@ -67,3 +69,31 @@ def produtos(request):
 
 def configuracoes(request):
     return render(request, 'configuracoes.html')
+
+# View para integração com OpenAI Chat
+@csrf_exempt  # Você pode remover isso se configurar corretamente CSRF no frontend
+def api_openai_chat(request):
+    if request.method != "POST":
+        return HttpResponseBadRequest("Apenas POST permitido.")
+
+    try:
+        data = json.loads(request.body)
+        user_message = data.get("message", "").strip()
+        if not user_message:
+            return JsonResponse({"error": "Mensagem vazia"}, status=400)
+
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # Altere para "gpt-4" se disponível e quiser usar
+            messages=[
+                {"role": "system", "content": "Você é um assistente útil."},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=500,
+            temperature=0.7,
+        )
+
+        reply = response.choices[0].message.content.strip()
+        return JsonResponse({"reply": reply})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
