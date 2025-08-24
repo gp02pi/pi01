@@ -7,225 +7,61 @@
     <title>Acesso ao usuário</title>
     <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Estilos básicos */
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f0f4f8; 
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
+        /* CSS completo (sem indentação) */
+        body{font-family:'Roboto',sans-serif;background-color:#f0f4f8;margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column}
+        .login-wrapper{display:flex;justify-content:center;align-items:center;width:80%;max-width:1200px;margin-right:100px}
+        .logo-container{flex:1;display:flex;justify-content:center;align-items:center}
+        .logo-container img{max-width:100%;height:auto;display:block;object-fit:contain;max-height:500px;margin-bottom:100px;margin-left:50px}
+        .login-container{background-color:#ffffff;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,0.1);padding:40px;width:100%;max-width:400px;margin-left:200px;display:flex;flex-direction:column;justify-content:center;transition:padding .3s ease-in-out}
+        .login-container.captcha-visible{padding-top:20px;padding-bottom:20px}
+        h2{text-align:center;margin-bottom:20px;color:#333}
+        .input-field{width:100%;padding:15px;margin-bottom:20px;border:1px solid #ccc;border-radius:4px;font-size:16px;box-sizing:border-box}
+        .button-container{display:flex;justify-content:space-between;gap:10px}
+        .btn{flex:1;padding:15px;background-color:#26A0B8;color:#fff;border:none;border-radius:4px;font-size:16px;cursor:pointer;text-align:center;text-decoration:none;font-weight:bold}
+        .btn:hover{background-color:#1B91AC}
+        .btn-cadastrar{background-color:#EB9941}
+        .btn-cadastrar:hover{background-color:#DD6936}
+        .links{text-align:center;margin-top:20px}
+        .links a{color:#1B91AC;text-decoration:none;font-size:14px}
+        .links a:hover{text-decoration:underline}
+        .login-error-message{background-color:#f8d7da;color:#721c24;padding:12px;border-radius:4px;border:1px solid #f5c6cb;margin-bottom:20px;text-align:center;font-size:15px}
+        .captcha-container{padding:15px;border:1px solid #e0e0e0;border-radius:4px;margin-bottom:20px;background-color:#f9f9f9;text-align:center}
+        .captcha-container p{margin:0 0 10px;color:#555;font-size:15px}
+        .captcha-image-container{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
+        .captcha-container .captcha{border-radius:4px;display:block}
+        #captcha-refresh-btn{font-size:1.2rem;color:var(--light-text-color);cursor:pointer;transition:color .2s,transform .2s}
+        #captcha-refresh-btn:hover{color:var(--primary-color);transform:rotate(180deg)}
+        .captcha-container input[type="text"]{width:100%;padding:15px;text-align:center;font-size:16px;letter-spacing:5px;border:1px solid #ccc;border-radius:4px;margin:0;box-sizing:border-box}
+        .captcha-container ul{list-style-type:none;padding:0;margin:5px 0 0;color:#c0392b;font-size:.9rem}
+        @media (max-width: 768px){
+        .login-container{padding:30px;min-height:auto}
+        .button-container{flex-direction:column}
+        .login-wrapper{flex-direction:column}
+        .logo-container{display:none}
         }
-
-        .login-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 80%; 
-            max-width: 1200px;
-            margin-right: 100px;
-        }
-
-        .logo-container {
-            flex: 1; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .logo-container img {
-            max-width: 100%; 
-            height: auto; 
-            display: block; 
-            object-fit: contain; 
-            max-height: 500px; 
-            margin-bottom: 100px;
-            margin-left: 50px
-        }
-
-        .login-container {
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
-            margin-left: 200px;
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px; 
-        }
-
-        .btn {
-            flex: 1; 
-            padding: 15px;
-            background-color: #26A0B8;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .btn:hover {
-            background-color: #1B91AC;
-        }
-
-        .btn-cadastrar {
-            background-color: #EB9941;
-        }
-
-        .btn-cadastrar:hover {
-            background-color: #DD6936;
-        }
-
-        .links {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .links a {
-            color: #1B91AC;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .links a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .login-container {
-                padding: 30px;
-            }
-
-            .button-container {
-                flex-direction: column;
-            }
-
-            .login-wrapper {
-                flex-direction: column;
-            }
-
-            .logo-container {
-                display: none; 
-            }
-        }
-
-        @media (max-width: 768px) {
-            .logo-container img {
-                max-height: 100px; 
-            }
-        }
-
-        @media (max-width: 480px) {
-            .logo-container img {
-                max-height: 80px; 
-            }
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0; 
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
-            overflow: auto;
-        }
-
-        .modal-content {
-            background-color: #fff;
-            margin: 20px auto; 
-            padding: 20px;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 400px;
-            position: relative; 
-        }
-
-        .register-btn, .back-btn {
-            width: 100%;
-            padding: 14px;
-            background-color: #EB9941;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: background-color 0.3s ease;
-        }
-
-        .register-btn:hover, .back-btn:hover {
-            background-color: #DD6936;
-        }
-
-        .error-message {
-            color: red;
-            font-size: 14px;
-            display: none;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 20px; 
-        }
-
-        .input-group .input-field {
-            flex: 1; 
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 24px;
-            background-color: transparent;
-            border: none;
-            color: #aaa;
-            cursor: pointer;
-        }
-
-        .close-btn:hover {
-            color: #333;
-        }
-
-        .recaptcha-wrapper {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-        }
+        .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);overflow:auto;justify-content:center;align-items:center;opacity:0;transition:opacity .3s ease-in-out}
+        .modal.show{display:flex;opacity:1}
+        .modal-content{background-color:#fff;padding:24px;border-radius:8px;width:90%;max-width:400px;position:relative;text-align:center;box-shadow:0 6px 15px rgba(0,0,0,0.25);transform:translateY(-20px);transition:transform .3s ease-in-out}
+        .modal.show .modal-content{transform:translateY(0)}
+        .close-btn{position:absolute;top:10px;right:15px;font-size:28px;background-color:transparent;border:none;color:#999;cursor:pointer;transition:color .2s ease}
+        .close-btn:hover{color:#555}
+        .register-btn{width:100%;padding:14px;background-color:#EB9941;color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:700;cursor:pointer;margin-top:15px;transition:background-color .3s ease}
+        .register-btn:hover{background-color:#DD6936}
+        .error-message{color:#dc3545;font-size:14px;display:none;margin-top:-10px;margin-bottom:10px}
+        .input-group{display:flex;gap:20px}
+        .input-group .input-field{flex:1}
+        #toast-container{position:fixed;top:20px;right:20px;z-index:2000;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+        .toast-notification{background-color:#fff;color:#333;padding:15px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-width:350px;display:flex;align-items:center;gap:10px;transform:translateX(120%);transition:transform .4s ease-out,opacity .4s ease-out;opacity:0}
+        .toast-notification.show{transform:translateX(0);opacity:1}
+        .toast-icon{font-size:24px}
+        .toast-message{flex-grow:1;font-size:15px;line-height:1.4}
+        .toast-close-btn{background:none;border:none;font-size:20px;color:#999;cursor:pointer;transition:color .2s}
+        .toast-close-btn:hover{color:#555}
+        .toast-notification.success .toast-icon{color:#28a745}
+        .toast-notification.error .toast-icon{color:#dc3545}
+        .toast-notification.info .toast-icon{color:#007bff}
     </style>
 </head>
 <body>
@@ -234,144 +70,91 @@
         <div class="logo-container">
             <img src="{% static 'img/logo.png' %}" alt="Logo">
         </div>
-
-        <div class="login-container">
+        <div class="login-container {% if show_captcha %}captcha-visible{% endif %}">
             <h2>Acesso ao usuário</h2>
-
-            <form id="formLogin" action="/login/" method="POST">
+            <form id="formLogin" action="{% url 'login' %}" method="POST" autocomplete="off">
                 {% csrf_token %}
-                <input type="text" name="login_usuario" class="input-field" placeholder="Usuário" required pattern="[A-Za-z0-9]+" title="Deve conter apenas letras e números.">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="login-error-message {{ message.tags }}">
+                            <i class="fas fa-exclamation-circle"></i> {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <input type="text" name="login_usuario" class="input-field" placeholder="Usuário" required>
                 <input type="password" name="password" class="input-field" placeholder="Senha" required>
 
+                {% if show_captcha %}
+                    <div class="captcha-container">
+                        <p>Por segurança, digite o texto da imagem:</p>
+                        <div class="captcha-image-container">
+                            {{ captcha_form.captcha }}
+                            <i class="fas fa-sync-alt" id="captcha-refresh-btn" title="Trocar imagem"></i>
+                        </div>
+                    </div>
+                {% endif %}
+                
                 <div class="button-container">
                     <button type="submit" class="btn">Entrar</button>
                     <button type="button" class="btn btn-cadastrar" id="openModal">Cadastrar</button>
                 </div>
-
-                <div class="recaptcha-wrapper">
-                    <div class="g-recaptcha" data-sitekey="SUA_CHAVE_SITE_PUBLICA"></div>
-                </div>
             </form>
-
             <div class="links">
-                <a href="/senha/">Esqueci minha senha</a>
+                <a href="{% url 'senha' %}">Esqueci minha senha</a>
             </div>
         </div>
     </div>
-
-    <div class="modal" id="modalCadastro">
-        <div class="modal-content">
-            <button class="close-btn" onclick="document.getElementById('modalCadastro').style.display='none'">&times;</button>
-            <h2>Criar Cadastro</h2>
-            <form id="formCadastro" action="/cadastrar/" method="POST">
-                {% csrf_token %}
-                <input type="text" name="nomecompleto" class="input-field full-width" placeholder="Nome Completo*" required pattern="[A-Za-zÀ-ÿ ]+" title="Deve conter apenas letras.">
-                <input type="text" name="usuario" class="input-field" placeholder="Usuário*" required pattern="[A-Za-z0-9]+" title="Deve conter apenas letras e números.">
-                <input type="email" name="email" class="input-field" placeholder="Email*" required>
-                <input type="text" name="celular" class="input-field" placeholder="Celular*" required pattern="\d+" title="Deve conter apenas números.">
-
-                <div class="input-group">
-                    <input type="password" name="senha" class="input-field" placeholder="Senha*" required minlength="8" title="A senha deve ter no mínimo 8 caracteres.">
-                    <input type="password" name="repetir_senha" class="input-field" placeholder="Repetir Senha*" required>
-                </div>
-
-                <span class="error-message" id="errorMessage">As senhas não coincidem. Por favor, tente novamente.</span>
-
-                <button type="submit" class="register-btn">Cadastrar</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="successPopup" class="modal">
-        <div class="modal-content">
-            <h2>Cadastro Realizado com Sucesso!</h2>
-            <button onclick="closeSuccessPopup()">Fechar</button>
-        </div>
-    </div>
+    
+    <div class="modal" id="modalCadastro">...</div>
+    <div id="toast-container"></div>
 
     <script>
-        document.getElementById('openModal').onclick = function() {
-            document.getElementById('modalCadastro').style.display = 'block';
-        }
+        function showToast(type,message,duration=3000){const container=document.getElementById('toast-container');const toast=document.createElement('div');toast.className=`toast-notification ${type}`;let iconClass='';if(type==='success'){iconClass='fa-check-circle';}else if(type==='error'){iconClass='fa-exclamation-circle';}else{iconClass='fa-info-circle';}
+        toast.innerHTML=`<i class="toast-icon fas ${iconClass}"></i><span class="toast-message">${message}</span><button class="toast-close-btn">&times;</button>`;container.appendChild(toast);void toast.offsetWidth;toast.classList.add('show');const timeoutId=setTimeout(()=>{toast.classList.remove('show');setTimeout(()=>{toast.remove();},400);},duration);toast.querySelector('.toast-close-btn').addEventListener('click',()=>{clearTimeout(timeoutId);toast.classList.remove('show');setTimeout(()=>{toast.remove();},400);});}
+        document.getElementById('openModal').onclick=function(){document.getElementById('modalCadastro').classList.add('show');}
+        document.querySelector('#formCadastro').addEventListener('submit',function(event){event.preventDefault();const senha=this.senha.value;const repetirSenha=this.repetir_senha.value;const errorMessage=document.getElementById('errorMessage');if(senha!==repetirSenha){errorMessage.style.display='block';showToast('error','As senhas não coincidem. Por favor, tente novamente.');return;}else{errorMessage.style.display='none';}
+        const form=new FormData(this);fetch(this.action,{method:'POST',body:form}).then(response=>response.json()).then(data=>{if(data.success){showToast('success','Cadastro realizado com sucesso!');document.getElementById('modalCadastro').classList.remove('show');this.reset();}else{showToast('error',data.message||'Ocorreu um erro no cadastro. Por favor, tente novamente.');}}).catch(error=>{showToast('error','Ocorreu um erro. Verifique sua conexão e tente novamente.');console.error('Erro:',error);});});
+        window.onclick=function(event){const modalCadastro=document.getElementById('modalCadastro');if(event.target==modalCadastro){modalCadastro.classList.remove('show');}}
+    </script>
 
-        function closeSuccessPopup() {
-            document.getElementById('successPopup').style.display = 'none';
-        }
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const refreshButton = document.getElementById('captcha-refresh-btn');
 
-        document.querySelector('#formCadastro').addEventListener('submit', function(event) {
-            event.preventDefault();
+            if (refreshButton) {
+                refreshButton.addEventListener('click', function(e) {
+                    e.preventDefault();
 
-            const senha = this.senha.value;
-            const repetirSenha = this.repetir_senha.value;
-            const errorMessage = document.getElementById('errorMessage');
+                    // Faz uma chamada AJAX para a URL de refresh do captcha
+                    fetch('/captcha/refresh/', {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.key && data.image_url) {
+                            // Encontra os elementos do captcha no formulário
+                            const captchaImage = document.querySelector('.captcha');
+                            const hiddenInput = document.getElementById('id_captcha_0');
+                            const textInput = document.getElementById('id_captcha_1');
 
-            if (senha !== repetirSenha) {
-                errorMessage.style.display = 'block';
-                return;
-            } else {
-                errorMessage.style.display = 'none';
+                            // Atualiza a imagem e o valor do campo oculto
+                            if (captchaImage) captchaImage.src = data.image_url;
+                            if (hiddenInput) hiddenInput.value = data.key;
+                            
+                            // Limpa o campo de texto e foca nele
+                            if (textInput) {
+                                textInput.value = '';
+                                textInput.focus();
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Erro ao atualizar o CAPTCHA:', error));
+                });
             }
-
-            const form = new FormData(this);
-
-            fetch(this.action, {
-                method: 'POST',
-                body: form
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    document.getElementById('modalCadastro').style.display = 'none';
-                    this.reset();
-                    window.location.href = window.location.href;
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => {
-                alert('Erro ao enviar formulário. Tente novamente.');
-                console.error('Erro:', error);
-            });
         });
-
-        document.querySelector('#formLogin').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const form = new FormData(this);
-
-            fetch(this.action, {
-                method: 'POST',
-                body: form
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if(data.redirect_url){
-                        window.location.href = data.redirect_url;
-                    } else {
-                        alert('Login realizado com sucesso!');
-                    }
-                } else {
-                    alert(data.message || 'Usuário ou senha incorretos.');
-                }
-            })
-            .catch(error => {
-                alert('Erro ao tentar efetuar login. Tente novamente.');
-                console.error('Erro:', error);
-            });
-        });
-
-        window.onclick = function(event) {
-            const modal = document.getElementById('modalCadastro');
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-            const successPopup = document.getElementById('successPopup');
-            if(event.target == successPopup){
-                successPopup.style.display = "none";
-            }
-        }
     </script>
 </body>
 </html>

@@ -1,485 +1,371 @@
-{% load static %} 
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Inicial</title>
+    <title>Painel de Gestão de Estoque</title>
     <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Biblioteca para gráficos -->
-    <script src="https://cdn.jsdelivr.net/npm/animate.css"></script> <!-- Biblioteca para animações -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Montserrat', sans-serif;
-        }
-
         body {
             background-color: #f4f6f9;
             color: #333;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow-x: hidden;
+            font-family: 'Montserrat', sans-serif;
             padding-top: 80px;
         }
-
-        .container {
-            width: 80%;
-            max-width: 1000px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .blocos-gradientes-container {
-            display: flex;
-            justify-content: flex-start;
-            width: 100%;
-            margin-bottom: 20px;
-            gap: 20px;
-        }
-
-        .bloco-gradiente {
-            width: 48%;
-            height: 150px;
-            border-radius: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: flex-start;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            padding: 10px;
-            position: relative;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .bloco-gradiente1 {
-            background: linear-gradient(45deg, #1B91AC, #50acbe);
-        }
-
-        .bloco-gradiente2 {
-            background: linear-gradient(45deg, #DD6936, #dd815a);
-        }
-
-        .bloco-gradiente .sub-secao {
-            margin-top: 5px;
-            font-size: 12px;
-            margin-left: 10px;
-        }
-
-        .bloco-gradiente .secao {
-            font-size: 16px;
-            justify-content: center;
-            align-self: flex-start;
-            width: 100%;
-            text-align: center;
-            margin-bottom: 10px;
-            margin-top: 8px;
-        }
-
-        .grafico-container {
-            width: 118%;
-            height: 290px;
-            margin-top: 10px;
+        .main-content {
             padding: 20px;
-            border-radius: 0;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #26A0B8;
+        }
+        .header p {
+            font-size: 14px;
+            color: #666;
         }
 
-        /* Novo bloco à direita do gráfico */
-        .bloco-direita {
+        /* KPI Cards */
+        .kpi-card {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            width: 400px; 
-            height: 130px;
-            padding: 20px; 
-            background-color: #fff;
-            border-radius: 0;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
-            left: 20px; 
-            margin-top: 10px;
+            justify-content: center;
+            align-items: center;
         }
-
-        .bloco-direita .secao {
-            font-size: 16px;
-            margin-right: 2px;
-            margin-bottom: 2px;
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         }
-
-        .bloco-direita .secao-com-icone {
-            display: flex; 
-            align-items: center; 
+        .kpi-card-header {
+            font-size: 14px;
+            color: #26A0B8;
+            font-weight: 600;
+            margin-bottom: 10px;
         }
-
-        .icone-direita {
-            margin-left: 10px; 
+        .kpi-card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
         }
-
-        .icone-direita i {
-            font-size: 12px; 
-            color: inherit;  
-        }
-
-        /* Botão no canto inferior esquerdo do bloco */
-        .botao-whatsapp {
-            position: absolute; 
-            bottom: 20px; 
-            left: 15px; 
-            background-color: #25D366; 
-            color: white;
+        .kpi-card-footer {
             font-size: 12px;
-            font-weight: bold;
-            padding: 10px 20px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center; 
-            gap: 10px;
-            text-decoration: none;
+            color: #666;
+            margin-top: 5px;
+        }
+        .kpi-card-accent-blue .kpi-card-header {
+            color: #26A0B8;
+        }
+        .kpi-card-accent-red .kpi-card-header {
+            color: #dc3545;
         }
 
-        .botao-whatsapp:hover {
-            transform: translateY(-1px);
+        /* Chart Containers */
+        .chart-container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease-in-out;
         }
-
-        .botao-whatsapp i {
-            font-size: 16px; 
+        .chart-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
         }
-
-        /* Estilo para a imagem dentro do bloco */
-        .bloco-direita img {
-            width: 120px;
+        .chart-wrapper {
+            position: relative;
+        }
+        #mainChart-wrapper {
+            height: 250px;
+        }
+        #inventoryValueChart-wrapper, 
+        #salesTrendChart-wrapper, 
+        #payableAgingChart-wrapper {
+            height: 180px;
+        }
+        .gauge-chart-container {
+            position: relative;
+            height: 150px;
+        }
+        .gauge-chart-label {
             position: absolute;
-            top: 5px;
-            right: 10px;
-        }
-
-        /* Novo estilo para exibir os blocos um embaixo do outro */
-        .bloco-ajuda-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-        }
-
-        /* Estilo responsivo */
-        @media (max-width: 768px) {
-            .blocos-gradientes-container {
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .bloco-gradiente {
-                width: 100%;
-            }
-
-            .grafico-container {
-                width: 100%;
-            }
-
-            .bloco-direita {
-                width: 100%;
-            }
+            top: 70%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            font-weight: 600;
         }
         
-        .grafico-e-bloco-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            width: 100%;
-
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
-
-        /* Estilo para o segundo bloco */
-        .grafico-e-bloco-container2 {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            width: 100%; 
-        }
-
-        /* Estilo para o segundo bloco */
-        .grafico-container2 {
-            width: 91%; 
-            height: 140px; 
-            margin-bottom: 30px;
-            margin-left: 20px;
-            padding: 20px;
-            border-radius: 0;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-
     </style>
 </head>
 <body>
-    {% include 'barra.html' %} 
-    <div class="container">
-        <div class="blocos-gradientes-container">
-            <div class="bloco-gradiente bloco-gradiente1">
-                <div class="secao">Produtos em falta (este mês) </div>
-                <div class="sub-secao" id="falta1">1. </div>
-                <div class="sub-secao" id="falta2">2. </div>
-                <div class="sub-secao" id="falta3">3. </div>
-                <div class="sub-secao" id="falta4">4. </div>
+    {% include 'barra.html' %}
+    {% include 'session_timeout_modal.html' %}
+    <div class="main-content container-fluid">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <div class="kpi-card-header">Total de Vendas</div>
+                    <div class="kpi-card-value">200.100</div>
+                    <div class="kpi-card-footer">R$</div>
+                </div>
             </div>
-            <div class="bloco-gradiente bloco-gradiente2">
-                <div class="secao"> Produtos em excesso (este mês)</div>
-                <div class="sub-secao" id="excesso1">1. </div>
-                <div class="sub-secao" id="excesso2">2. </div>
-                <div class="sub-secao" id="excesso3">3. </div>
-                <div class="sub-secao" id="excesso4">4. </div>
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <div class="kpi-card-header">Número de Vendas</div>
+                    <div class="kpi-card-value">5.230</div>
+                    <div class="kpi-card-footer">Transações</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <div class="kpi-card-header">Produtos em Estoque</div>
+                    <div class="kpi-card-value">8,000</div>
+                    <div class="kpi-card-footer">unidades</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <div class="kpi-card-header">Entrada de Produtos</div>
+                    <div class="kpi-card-value">900</div>
+                    <div class="kpi-card-footer">unidades</div>
+                </div>
             </div>
         </div>
-    
-        <!-- Gráfico e Bloco à direita -->
-        <div class="grafico-e-bloco-container">
-            <div class="grafico-container">
-                <canvas id="graficoVendas"></canvas>
+
+        <div class="chart-container">
+            <div class="chart-header">Vendas e Estoque</div>
+            <div class="chart-wrapper" id="mainChart-wrapper">
+                <canvas id="mainChart"></canvas>
             </div>
-    
-            <!-- Novo bloco à direita -->
-            <div class="bloco-ajuda-container">
-                <div class="bloco-direita">
-                    <div class="secao">Precisa de ajuda?</div> 
-                    <div class="secao secao-com-icone">
-                        Fale com o suporte
-                        <div class="icone-direita">
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="chart-container">
+                    <div class="chart-header">Vendas por Produto</div>
+                    <div class="chart-wrapper" id="inventoryValueChart-wrapper">
+                        <canvas id="inventoryValueChart"></canvas>
                     </div>
-                    <!-- Imagem dentro do bloco -->
-                    <img src="{% static 'img/suporte.png' %}" alt="Suporte">
-                    <!-- Botão do WhatsApp dentro do bloco -->
-                    <a href="https://wa.me/55XXXXXXXXX" class="botao-whatsapp">
-                        <i class="fab fa-whatsapp"></i>
-                        Atendimento via chat
-                    </a>
                 </div>
-
-                <!-- Segundo bloco duplicado -->
-                    <div class="grafico-e-bloco-container2">
-                        <div class="grafico-container2">
-                            <canvas id="graficoVendas2"></canvas>
-                        </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-container">
+                    <div class="chart-header">Média de dias em Estoque</div>
+                    <div class="gauge-chart-container">
+                        <canvas id="daysInventoryChart"></canvas>
+                        <div class="gauge-chart-label">Total de dias 8,765</div>
                     </div>
-                    
-<script>
-    // Função para atualizar os blocos de produtos em falta e excesso com dados externos
-    function atualizarProdutos(dados) {
-        // Atualiza produtos em falta
-        for (let i = 0; i < 4; i++) {
-            const faltaElem = document.getElementById(`falta${i + 1}`);
-            faltaElem.textContent = dados.produtosEmFalta[i] ? `${i + 1}. ${dados.produtosEmFalta[i]}` : `${i + 1}.`;
-        }
-        // Atualiza produtos em excesso
-        for (let i = 0; i < 4; i++) {
-            const excessoElem = document.getElementById(`excesso${i + 1}`);
-            excessoElem.textContent = dados.produtosEmExcesso[i] ? `${i + 1}. ${dados.produtosEmExcesso[i]}` : `${i + 1}.`;
-        }
-    }
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-container">
+                    <div class="chart-header">Total de Pagamentos</div>
+                    <div class="gauge-chart-container">
+                        <canvas id="daysPayableChart"></canvas>
+                        <div class="gauge-chart-label">R$ 500</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    // Função para atualizar os dados dos gráficos
-    function atualizarGraficos(dados) {
-        // Atualiza gráfico 1 (vendas/despesas)
-        configVendas.data.labels = dados.graficoVendas.labels;
-        configVendas.data.datasets[0].data = dados.graficoVendas.vendas;
-        configVendas.data.datasets[1].data = dados.graficoVendas.despesas;
-        chartVendas.update();
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <div class="chart-header">Crescimento de Vendas</div>
+                    <div class="chart-wrapper" id="salesTrendChart-wrapper">
+                        <canvas id="salesTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <div class="chart-header">Compras por Fornecedor</div>
+                    <div class="chart-wrapper" id="payableAgingChart-wrapper">
+                        <canvas id="payableAgingChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        // Atualiza gráfico 2 (entradas/saídas)
-        configProdutosDepo.data.labels = dados.graficoProdutos.labels;
-        configProdutosDepo.data.datasets[0].data = dados.graficoProdutos.entradas;
-        configProdutosDepo.data.datasets[1].data = dados.graficoProdutos.saidas;
-        chartProdutosDepo.update();
-    }
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
 
-    // Configurações e inicialização dos gráficos
-    const dadosProdutosDepo = {
-        labels: ['Jan', 'Fev', 'Mar', 'Abr'],
-        datasets: [{
-            label: 'Entradas',
-            data: [500, 530, 560, 580],
-            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 2,
-            fill: false
-        },
-        {
-            label: 'Saídas',
-            data: [800, 860, 260, 600],
-            backgroundColor: 'rgba(255,165,0)',
-            borderColor: 'rgba(255,130,0)',
-            borderWidth: 2,
-            fill: false
-        }]
-    };
+            const generateRandomData = (count, max, min = 0) => Array.from({ length: count }, () => Math.floor(Math.random() * (max - min + 1)) + min);
+            const months = ['Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
 
-    const configProdutosDepo = {
-        type: "bar",
-        data: dadosProdutosDepo,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        font: {
-                            family: 'Roboto',
-                            size: 11,
-                        }
-                    }
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true } }
                 },
-                tooltip: {
-                    callbacks: {
-                        afterBody: function(context) {
-                            const entradas = configProdutosDepo.data.datasets[0].data;
-                            const saidas = configProdutosDepo.data.datasets[1].data;
-                            const totalEntradas = entradas.reduce((a, b) => a + b, 0);
-                            const totalSaidas = saidas.reduce((a, b) => a + b, 0);
-                            return [
-                                `Total de Entradas: ${totalEntradas}`,
-                                `Total de Saídas: ${totalSaidas}`
-                            ];
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        font: {
-                            family: 'Roboto',
-                            size: 12,
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Últimos quatro meses',
-                        font: {
-                            family: 'Roboto',
-                            size: 12
-                        }
-                    }
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, grid: { color: '#e9ecef' } }
                 },
-                y: {
-                    ticks: {
-                        font: {
-                            family: 'Roboto',
-                            size: 10,
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Estoque (un)',
-                        font: {
-                            family: 'Roboto',
-                            size: 12
-                        }
+                animation: { duration: 1500, easing: 'easeOutQuart' }
+            };
+
+            // Main Combination Chart (Bar & Line)
+            const mainChartCtx = document.getElementById('mainChart').getContext('2d');
+            new Chart(mainChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        type: 'bar',
+                        label: 'Vendas',
+                        data: [15600, 13700, 11100, 15100, 9070, 14370, 12100, 10260, 10200, 7855, 10890, 8965],
+                        backgroundColor: '#26A0B8',
+                        yAxisID: 'y'
+                    }, {
+                        type: 'bar',
+                        label: 'Estoque',
+                        data: [8700, 9650, 6770, 9800, 9070, 7370, 9070, 8640, 8900, 7855, 8960, 8760],
+                        backgroundColor: '#EB9941',
+                        yAxisID: 'y'
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, position: 'left' }
                     }
                 }
-            }
-        }
-    };
+            });
 
-    const ctxProdutosDepo = document.getElementById('graficoVendas2').getContext('2d');
-    document.getElementById('graficoVendas2').width = 1800; 
-    document.getElementById('graficoVendas2').height = 600;
-    const chartProdutosDepo = new Chart(ctxProdutosDepo, configProdutosDepo);
+            // Inventory Value by Item Chart (Horizontal Bar)
+            const inventoryValueChartCtx = document.getElementById('inventoryValueChart').getContext('2d');
+            new Chart(inventoryValueChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'],
+                    datasets: [{
+                        label: 'Vendas',
+                        data: [3500, 1700, 1568, 1050, 870],
+                        backgroundColor: '#26A0B8',
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true }, y: { grid: { display: false } } }
+                }
+            });
 
-    const dadosVendas = {
-        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-        datasets: [{
-            label: 'Vendas',
-            data: [1200, 1350, 1400, 1450, 1500, 1550, 1600, 1650, 5434, 4243, 2342, 2455],
-            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 2,
-            fill: false
-        },
-        {
-            label: 'Despesas',
-            data: [1000, 1150, 1300, 1400, 1350, 1450, 1500, 1600, 4444, 2342, 1244, 2455],
-            backgroundColor: 'rgba(255,165,0)',
-            borderColor: 'rgba(255,130,0)',
-            borderWidth: 2,
-            fill: false
-        }]
-    };
+            // Days Inventory Outstanding (Gauge Chart)
+            const daysInventoryChartCtx = document.getElementById('daysInventoryChart').getContext('2d');
+            new Chart(daysInventoryChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Ocupado', 'Livre'],
+                    datasets: [{
+                        data: [50, 100],
+                        backgroundColor: ['#EB9941', '#e0e0e0'],
+                        cutout: '80%',
+                        circumference: 180,
+                        rotation: 270,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
 
-    const configVendas = {
-        type: 'line',
-        data: dadosVendas,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        font: {
-                            family: 'Roboto',
-                            size: 12,
-                        }
+            // Days Payable Outstanding (Gauge Chart)
+            const daysPayableChartCtx = document.getElementById('daysPayableChart').getContext('2d');
+            new Chart(daysPayableChartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pago', 'Restante'],
+                    datasets: [{
+                        data: [30, 70],
+                        backgroundColor: ['#26A0B8', '#e0e0e0'],
+                        cutout: '80%',
+                        circumference: 180,
+                        rotation: 270,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
+
+            // Sales Trend Chart (Line Chart)
+            const salesTrendChartCtx = document.getElementById('salesTrendChart').getContext('2d');
+            new Chart(salesTrendChartCtx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Crescimento de Vendas',
+                        data: generateRandomData(12, 15000, 5000),
+                        borderColor: '#26A0B8',
+                        backgroundColor: 'rgba(26, 115, 232, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Payable Aging Chart (Horizontal Bar)
+            const payableAgingChartCtx = document.getElementById('payableAgingChart').getContext('2d');
+            new Chart(payableAgingChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Fornecedor A', 'Fornecedor B', 'Fornecedor C', 'Fornecedor D'],
+                    datasets: [{
+                        label: 'Compras (R$)',
+                        data: [2600, 1900, 1300, 700],
+                        backgroundColor: ['#26A0B8', '#EB9941', '#26A0B8', '#EB9941'],
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, grid: { display: false } },
+                        y: { grid: { display: false } }
                     }
                 }
-            },
-            scales: {
-                y: {
-                    ticks: {
-                        font: {
-                            family: 'Roboto',
-                            size: 10,
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Valores (R$)',
-                        font: {
-                            family: 'Roboto',
-                            size: 12
-                        }
-                    }
-                }
-            }
-        }
-    };
-
-    const ctxVendas = document.getElementById('graficoVendas').getContext('2d');
-    const chartVendas = new Chart(ctxVendas, configVendas);
-
-    // Exemplo de função para buscar dados de outra página (API ou endpoint)
-    async function carregarDadosExternos() {
-        try {
-            // Exemplo: fetch('/api/dados-dashboard')
-            // Substitua '/api/dados-dashboard' pela URL real da sua página/dados
-            const response = await fetch('/api/dados-dashboard');
-            if (!response.ok) throw new Error('Erro ao carregar dados');
-            const dados = await response.json();
-
-            // Atualiza blocos e gráficos com os dados recebidos
-            atualizarProdutos(dados);
-            atualizarGraficos(dados);
-
-        } catch (error) {
-            console.error('Falha ao carregar dados externos:', error);
-        }
-    }
-
-    // Carregar dados externos após o carregamento da página
-    document.addEventListener('DOMContentLoaded', () => {
-        carregarDadosExternos();
-    });
-</script>
-                    
+            });
+        });
+    </script>
 </body>
 </html>

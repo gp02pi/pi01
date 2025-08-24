@@ -3,309 +3,329 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gestão de Estoque</title>
     <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Montserrat', sans-serif;
-        }
-        body {
-            background-color: #eef1f6;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            padding-top: 80px;
-        }
-        .all {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            height: auto;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        /* Botão "novo item" fixado no canto superior esquerdo */
-        .expand-btn {
-            font-size: 14px;
-            cursor: pointer;
-            background-color: #2196F3;
-            border: none;
-            color: white;
-            position: absolute;
-            left: 110px; 
-            top: 80px; 
-            padding: 11px;
-            border-radius: 5%;
-            transition: background 0.3s, transform 0.3s;
-        }
-        /* Modal */
-        .modal {
-            display: none; 
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); 
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            width: 80%;
-            max-width: 600px;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 24px;
-            font-weight: 700;
-            color: #2c3e50;
-        }
-        form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: space-between;
-        }
-        input {
-            flex: 1;
-            min-width: 250px;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        .input-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            width: 100%;
-        }
-        .input-group input {
-            flex: 1;
-            min-width: 150px;
-        }
-        /* Botões dentro do formulário */
-        .form-buttons {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-        }
-        .form-buttons button {
-            width: 48%;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            background: #2196F3;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .form-buttons button:hover {
-            background: #1976D2;
-        }
-
-        .form-buttons .cancel {
-            background: #dc3545;
-        }
-        .form-buttons .cancel:hover {
-            background: #c82333;
-        }
-        /* Tabela */
-        .table-container {
-            width: 100%;
-            margin-top: 10px;
-            overflow: hidden;
-            max-height: 400px;
-            border-radius: 6px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: rgb(255, 255, 255);
-        }
-        th, td {
-            border-bottom: 1px solid #b4b4b4;
-            font-size: 13px;
-            padding: 10px;
-        }
-        th {
-            background: #1e2a37;
-            color: white;
-            font-size: 15px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0;
-        }
-        td {
-            background: #f9f9f9;
-            transition: background-color 0.2s ease;
-        }
-        td:hover {
-            background-color: #f1f1f1;
-        }
-        /* Colunas da tabela */
-        th:nth-child(1), td:nth-child(1) {
-            width: 150px; 
-            text-align: left;;
-        }
-
-        th:nth-child(2), td:nth-child(2) {
-            width: 200px; 
-            text-align: left;
-        }
-
-        th:nth-child(3), td:nth-child(3) {
-            width: 150px; 
-            text-align: center;
-        }
-
-        th:nth-child(4), td:nth-child(4) {
-            width: 150px; 
-            text-align: center;
-        }
-
-        th:nth-child(5), td:nth-child(5) {
-            width: 150px; 
-            text-align: center;
-        }
-
-        th:nth-child(6), td:nth-child(6) {
-            width: 250px; 
-            text-align: center;
-        }
-
-        th:nth-child(7) {
-            width: 150px;
-            text-align: left;
-        }
-        /* Botões de ação */
-        .actions a {
-            display: inline-block;
-            padding: 5px 5px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .actions .edit {
-            background-color: none;
-            color: rgb(87, 86, 86);;
-        }
-
-        .actions .delete {
-            background-color: none; 
-            color: rgb(228, 19, 19);
-        }
-
-        .actions .edit:hover {
-            background-color: none; 
-        }
-
-        .actions .delete:hover {
-            background-color: none; 
-        }
-
-        .actions i {
-            margin-right: 10px;
-        }
-        /* Barra de rolagem no corpo da tabela */
-        tbody {
-            display: block;
-            max-height: 300px; 
-            overflow-y: auto;
-        }
-        /* Mantém o cabeçalho da tabela fixo */
-        thead, tbody tr {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
-        /* Barra de Pesquisa */
-        .search-container {
-            width: 30%; 
-            display: flex;
-            justify-content: center; 
-            margin-bottom: 20px;
-            margin-left: 65%;
-        }
-        .search-input {
-            display: flex;
-            align-items: center;
-            position: relative;
-            width: 100%; 
-        }
-        .search-input i {
-            position: absolute;
-            left: 10px;
-            color: #ccc;
-            font-size: 18px;
-        }
-        #search-bar {
-            width: 100%; 
-            max-width: 800px; 
-            padding: 10px 10px 10px 40px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-        #search-bar:focus {
-            border-color: #26A0B8;
-        }
+        :root{--bg-color:#f4f6f9;--card-bg-color:#ffffff;--primary-color:#26A0B8;--primary-dark:#1f7f92;--secondary-color:#17a2b8;--text-color:#343a40;--light-text-color:#6c757d;--border-color:#e9ecef;--border-radius:8px;--box-shadow:0 4px 15px rgba(0,0,0,.05);--modal-bg:#ffffff;--modal-shadow:0 10px 30px rgba(0,0,0,.15);--input-border:#ced4da;--input-focus:#26A0B8;--btn-confirm:#26A0B8;--btn-cancel:#6c757d;--btn-text-dark:#343a40;--selected-row-bg:#d4e6f9;--selected-green:#d4f4e4;--primary-color-rgb:38,160,184}*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}body{background-color:var(--bg-color);color:var(--text-color);display:flex;flex-direction:column;align-items:center;padding:30px;padding-top:90px;overflow:hidden}.all{width:100%;max-width:1200px;margin:0 auto;height:calc(100vh - 120px);display:flex;flex-direction:column}.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;flex-wrap:wrap;gap:15px}.search-container{position:relative;flex-grow:1;min-width:250px}.search-container i{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--light-text-color);font-size:1rem}#search-bar{width:100%;padding:12px 12px 12px 45px;border:1px solid var(--input-border);border-radius:50px;outline:none;transition:all .3s ease}#search-bar:focus{border-color:var(--primary-color);box-shadow:0 0 0 3px rgba(74,144,226,.25)}.header-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 25px;border:none;border-radius:30px;font-size:.95rem;font-weight:600;color:white;cursor:pointer;min-width:160px;letter-spacing:.5px;box-shadow:0 2px 5px rgba(0,0,0,.1),0 4px 10px rgba(0,0,0,.05);transition:all .25s cubic-bezier(.25,.8,.25,1)}.header-btn:hover{transform:translateY(-3px);box-shadow:0 5px 12px rgba(0,0,0,.15),0 8px 18px rgba(0,0,0,.1)}.header-btn:active{transform:translateY(0);box-shadow:0 1px 3px rgba(0,0,0,.1)}.add-btn{background:linear-gradient(45deg,var(--primary-color),var(--secondary-color))}.export-btn{background:linear-gradient(45deg,#28a745,#2ebf4e)}.delete-selected-btn{background:linear-gradient(45deg,#dc3545,#e45a67);display:none}.view-notes-btn{background:linear-gradient(45deg,#2196F3,#0b6fbe);display:none}.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.4);justify-content:center;align-items:center;z-index:1000}.modal-content{background-color:var(--modal-bg);padding:30px;border-radius:var(--border-radius);width:90%;max-width:600px;box-shadow:var(--modal-shadow);animation:fadeIn .3s ease-out}.modal-confirm-content{width:90%;max-width:350px;padding:25px;text-align:center}.modal-confirm-content h2{margin-bottom:15px}.modal-confirm-content p{margin-bottom:25px;font-size:1rem}.modal-confirm-content .form-buttons{margin-top:0}.modal-confirm-content .form-buttons .delete{background-color:#dc3545;color:white}.modal-confirm-content .form-buttons .delete:hover{background-color:#c82333;transform:translateY(-1px)}@keyframes fadeIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}h2{text-align:center;margin-bottom:25px;font-size:1.5rem;font-weight:600;color:var(--text-color)}form{display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between}.input-group{display:flex;gap:15px;flex-wrap:wrap;width:100%}.input-field-group{display:flex;flex-direction:column;flex:1;min-width:250px}input{flex:1;width:100%;padding:12px;border:1px solid var(--input-border);border-radius:6px;font-size:.95rem;color:var(--text-color);transition:border-color .2s,box-shadow .2s}input:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 2px rgba(74,144,226,.25)}.form-buttons{display:flex;justify-content:space-between;width:100%;margin-top:10px}.form-buttons button{width:48%;padding:12px;border:none;border-radius:6px;font-size:1rem;font-weight:500;cursor:pointer;transition:background-color .2s,transform .2s}.form-buttons button[type=submit]{background:var(--btn-confirm);color:white}.form-buttons button[type=submit]:hover{background:var(--primary-dark);transform:translateY(-1px)}.form-buttons .cancel{background:var(--btn-cancel);color:white}.form-buttons .cancel:hover{background:#5a6268;transform:translateY(-1px)}.table-container{background:var(--card-bg-color);box-shadow:var(--box-shadow);border-radius:var(--border-radius);overflow-y:auto;flex-grow:1}table{width:100%;border-collapse:collapse;font-size:.95rem}thead{position:sticky;top:0;background:var(--primary-color);color:white;box-shadow:0 2px 5px rgba(0,0,0,.1)}th,td{padding:15px 20px;text-align:left;border-bottom:1px solid var(--border-color)}th{font-weight:600;text-transform:uppercase;letter-spacing:.5px;font-size:.9rem}th:nth-child(2),td:nth-child(2),th:nth-child(4),td:nth-child(4),th:nth-child(5),td:nth-child(5),th:nth-child(6),td:nth-child(6),th:nth-child(7),td:nth-child(7),th:nth-child(8),td:nth-child(8){text-align:center}tbody tr:nth-child(even){background:#f8f9fa}tbody tr{transition:background-color .2s ease-in-out}tbody tr:hover{background-color:#e2f0ff;cursor:pointer}tbody tr.selected{background-color:var(--selected-green);font-weight:500}tbody tr.selected:hover{background-color:#c4f2d7}.actions{text-align:center}.actions a{color:var(--light-text-color);transition:color .2s}.actions .edit:hover{color:var(--primary-color)}.actions .delete:hover{color:#dc3545}.actions .notes:hover{color:#2196f3}.actions i{margin:0 8px;font-size:1.1rem}.low-stock-row{background-color:#ffeded!important;color:#cc0000!important;font-weight:500}.low-stock-row.selected{background-color:var(--selected-green)!important;color:var(--text-color)!important}.low-stock-row.selected:hover{background-color:#c4f2d7!important}.table-container{height:calc(100% - 140px)}.table-container::-webkit-scrollbar{width:0;background:transparent}.table-container{scrollbar-width:none;-ms-overflow-style:none}.toast-message{visibility:hidden;min-width:250px;background-color:#4CAF50;color:#fff;text-align:center;border-radius:6px;padding:16px;position:fixed;z-index:1001;top:0;left:50%;transform:translateX(-50%);font-size:17px;opacity:0;transition:opacity .5s,top .5s}.toast-message.show{visibility:visible;opacity:1;top:30px}.autocomplete-container{position:relative;flex:1;min-width:250px}.autocomplete-list{position:absolute;top:100%;left:0;right:0;background-color:var(--card-bg-color);border:1px solid var(--input-border);border-top:none;border-radius:0 0 6px 6px;box-shadow:0 4px 8px rgba(0,0,0,.1);list-style:none;padding:0;margin:0;max-height:150px;overflow-y:auto;z-index:1002;display:none}.autocomplete-list li{padding:12px;cursor:pointer;transition:background-color .2s}.autocomplete-list li:hover{background-color:var(--bg-color)}.fornecedor-warning{display:none;color:#dc3545;font-size:.85rem;margin-top:5px}#fornecedor-search{padding-right:40px}.add-fornecedor-btn{position:absolute;right:1px;top:1px;bottom:1px;width:38px;border:none;background-color:var(--primary-color);color:white;border-radius:0 6px 6px 0;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background-color .2s}.add-fornecedor-btn:hover{background-color:var(--primary-dark)}.input-field-group .msg{display:none}#fornecedor-modal{z-index:1001}#fornecedor-modal .modal-content,#product-modal .modal-content{max-width:550px;border-radius:16px;padding:35px}#fornecedor-modal h2,#product-modal h2{font-weight:600;font-size:1.75rem;color:#333;margin-bottom:30px}#fornecedor-modal form,#product-modal form{gap:15px}#fornecedor-modal .input-field-group label,#product-modal .input-field-group label{display:block;font-size:.75rem;font-weight:600;color:#555;text-transform:uppercase;margin-bottom:6px}#fornecedor-modal .input-field-group,#product-modal .input-field-group{min-width:initial}#fornecedor-modal input,#product-modal input{font-size:.9rem;padding:14px;border-radius:8px}#fornecedor-modal .form-buttons,#product-modal .form-buttons{justify-content:flex-end;gap:10px}#fornecedor-modal .form-buttons button,#product-modal .form-buttons button{width:auto;padding:12px 24px;font-weight:500;border-radius:8px}#fornecedor-modal .form-buttons button.cancel,#product-modal .form-buttons button.cancel{background-color:#f0f0f0;color:#555;border:1px solid #ddd}#fornecedor-modal .form-buttons button.cancel:hover,#product-modal .form-buttons button.cancel:hover{background-color:#e0e0e0}#fornecedor-modal .form-buttons button[type=submit],#product-modal .form-buttons button[type=submit]{background-color:var(--primary-color);border:none}#fornecedor-modal .form-buttons button[type=submit]:hover,#product-modal .form-buttons button[type=submit]:hover{background-color:var(--primary-dark)}.input-field-group label{display:block!important}.modal-notes .modal-content{max-width:800px}.notes-table-container{max-height:400px;overflow-y:auto;margin-top:20px;border-radius:var(--border-radius);border:1px solid var(--border-color)}.notes-table{width:100%;border-collapse:collapse}.notes-table thead{background-color:var(--primary-dark);color:white;position:sticky;top:0}.notes-table th,.notes-table td{padding:12px 15px;border-bottom:1px solid var(--border-color)}.notes-table tbody tr:hover{background-color:#f8f9fa}.notes-table .actions{text-align:center}.notes-table .actions a{color:var(--light-text-color)}.notes-table .actions .delete:hover{color:#dc3545}.actions .notes:hover{color:#2196f3}.actions i{margin:0 8px;font-size:1.1rem}.low-stock-row{background-color:#ffeded!important;color:#cc0000!important;font-weight:500}.low-stock-row.selected{background-color:var(--selected-green)!important;color:var(--text-color)!important}.low-stock-row.selected:hover{background-color:#c4f2d7!important}.table-container{height:calc(100% - 140px)}.table-container::-webkit-scrollbar{width:0;background:transparent}.table-container{scrollbar-width:none;-ms-overflow-style:none}.toast-message{visibility:hidden;min-width:250px;background-color:#4CAF50;color:#fff;text-align:center;border-radius:6px;padding:16px;position:fixed;z-index:1001;top:0;left:50%;transform:translateX(-50%);font-size:17px;opacity:0;transition:opacity .5s,top .5s}.toast-message.show{visibility:visible;opacity:1;top:30px}.autocomplete-container{position:relative;flex:1;min-width:250px}.autocomplete-list{position:absolute;top:100%;left:0;right:0;background-color:var(--card-bg-color);border:1px solid var(--input-border);border-top:none;border-radius:0 0 6px 6px;box-shadow:0 4px 8px rgba(0,0,0,.1);list-style:none;padding:0;margin:0;max-height:150px;overflow-y:auto;z-index:1002;display:none}.autocomplete-list li{padding:12px;cursor:pointer;transition:background-color .2s}.autocomplete-list li:hover{background-color:var(--bg-color)}.fornecedor-warning{display:none;color:#dc3545;font-size:.85rem;margin-top:5px}#fornecedor-search{padding-right:40px}.add-fornecedor-btn{position:absolute;right:1px;top:1px;bottom:1px;width:38px;border:none;background-color:var(--primary-color);color:white;border-radius:0 6px 6px 0;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background-color .2s}.add-fornecedor-btn:hover{background-color:var(--primary-dark)}.input-field-group .msg{display:none}#fornecedor-modal{z-index:1001}#fornecedor-modal .modal-content,#product-modal .modal-content{max-width:550px;border-radius:16px;padding:35px}#fornecedor-modal h2,#product-modal h2{font-weight:600;font-size:1.75rem;color:#333;margin-bottom:30px}#fornecedor-modal form,#product-modal form{gap:15px}#fornecedor-modal .input-field-group label,#product-modal .input-field-group label{display:block;font-size:.75rem;font-weight:600;color:#555;text-transform:uppercase;margin-bottom:6px}#fornecedor-modal .input-field-group,#product-modal .input-field-group{min-width:initial}#fornecedor-modal input,#product-modal input{font-size:.9rem;padding:14px;border-radius:8px}#fornecedor-modal .form-buttons,#product-modal .form-buttons{justify-content:flex-end;gap:10px}#fornecedor-modal .form-buttons button,#product-modal .form-buttons button{width:auto;padding:12px 24px;font-weight:500;border-radius:8px}#fornecedor-modal .form-buttons button.cancel,#product-modal .form-buttons button.cancel{background-color:#f0f0f0;color:#555;border:1px solid #ddd}#fornecedor-modal .form-buttons button.cancel:hover,#product-modal .form-buttons button.cancel:hover{background-color:#e0e0e0}#fornecedor-modal .form-buttons button[type=submit],#product-modal .form-buttons button[type=submit]{background-color:var(--primary-color);border:none}#fornecedor-modal .form-buttons button[type=submit]:hover,#product-modal .form-buttons button[type=submit]:hover{background-color:var(--primary-dark)}.input-field-group label{display:block!important}.modal-notes .modal-content{max-width:800px}.notes-table-container{max-height:400px;overflow-y:auto;margin-top:20px;border-radius:var(--border-radius);border:1px solid var(--border-color)}.notes-table{width:100%;border-collapse:collapse}.notes-table thead{background-color:var(--primary-dark);color:white;position:sticky;top:0}.notes-table th,.notes-table td{padding:12px 15px;border-bottom:1px solid var(--border-color)}.notes-table tbody tr:hover{background-color:#f8f9fa}.notes-table .actions{text-align:center}.notes-table .actions a{color:var(--light-text-color)}.notes-table .actions .delete:hover{color:#dc3545}.modal-notes h2{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}.modal-notes .select-all-notes-btn{padding:8px 15px;background:#2196F3;color:white;border:none;border-radius:5px;cursor:pointer;font-size:.9rem;transition:background .2s;margin-bottom:15px}.modal-notes .select-all-notes-btn:hover{background:#0b6fbe}.modal-notes .delete-notes-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border:none;border-radius:6px;background-color:#dc3545;color:white;font-weight:500;cursor:pointer;transition:background-color .2s,transform .2s}.modal-notes .delete-notes-btn:hover{background-color:#c82333;transform:translateY(-1px)}.modal-notes .delete-notes-btn:active{transform:translateY(0)}.modal-notes .form-buttons{display:flex;justify-content:space-between;gap:10px;margin-top:20px}.note-warning{margin-top:0;color:#dc3545;font-size:.85rem;text-align:center;margin-bottom:15px}#note-confirm-modal{z-index:1002}.note-select-row{cursor:pointer;transition:background-color .2s ease-in-out}.note-select-row:hover{background-color:#f1f1f1}.note-select-row.selected{background-color:var(--selected-green)!important;font-weight:500}.note-select-row.selected:hover{background-color:#c4f2d7!important}.note-select-checkbox{cursor:pointer}.pagination-container{display:flex;justify-content:center;align-items:center;margin-top:15px;gap:8px}.pagination-btn{background-color:transparent;color:var(--primary-color);border:none;border-radius:5px;padding:5px 10px;font-size:0.9rem;cursor:pointer;transition:all .2s ease;font-weight:500}.pagination-btn:hover:not(.active):not(.disabled){background-color:rgba(38,160,184,.1)}.pagination-btn.active{background-color:var(--primary-color);color:white;font-weight:600;cursor:default}.pagination-btn.disabled{cursor:not-allowed;opacity:.4}.pagination-btn i{margin:0 2px}
     </style>
+</head>
+<body>
+    {% include 'barra.html' %}
+    {% include 'session_timeout_modal.html' %}
+    <div id="toast-message" class="toast-message"></div>
+    <div id="confirm-modal" class="modal" onclick="closeConfirmModal()">
+        <div class="modal-content modal-confirm-content" onclick="event.stopPropagation()">
+            <h2>Confirmar Exclusão</h2>
+            <p id="confirm-modal-text">Tem certeza que deseja excluir este produto? Essa ação não pode ser desfeita.</p>
+            <div class="form-buttons">
+                <button type="button" class="delete" id="confirm-delete-btn">Excluir</button>
+                <button type="button" class="cancel" onclick="closeConfirmModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <div id="note-confirm-modal" class="modal" onclick="closeNoteConfirmModal()">
+        <div class="modal-content modal-confirm-content" onclick="event.stopPropagation()">
+            <h2>Confirmar Exclusão</h2>
+            <p id="note-confirm-modal-text">Tem certeza que deseja excluir esta nota fiscal? Essa ação não pode ser desfeita.</p>
+            <div class="form-buttons">
+                <button type="button" class="delete" id="note-confirm-delete-btn">Excluir</button>
+                <button type="button" class="cancel" onclick="closeNoteConfirmModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <div id="fornecedor-modal" class="modal" onclick="closeFornecedorModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2>Cadastro Rápido de Fornecedor</h2>
+            <form id="fornecedor-form" onsubmit="adicionarFornecedor(event)">
+                <div class="input-group">
+                    <div class="input-field-group">
+                        <label for="quick-add-nome">Nome da Empresa</label>
+                        <input type="text" id="quick-add-nome" placeholder="Nome completo da empresa" required />
+                    </div>
+                    <div class="input-field-group">
+                        <label for="quick-add-cnpj">CNPJ</label>
+                        <input type="text" id="quick-add-cnpj" placeholder="Apenas números" required />
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field-group">
+                        <label for="quick-add-email">Email</label>
+                        <input type="email" id="quick-add-email" placeholder="email@exemplo.com" required />
+                    </div>
+                    <div class="input-field-group">
+                        <label for="quick-add-telefone">Telefone</label>
+                        <input type="text" id="quick-add-telefone" placeholder="Com DDD, apenas números" required />
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field-group">
+                        <label for="quick-add-endereco">Endereço</label>
+                        <input type="text" id="quick-add-endereco" placeholder="Rua, Número, Bairro..." required />
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field-group">
+                        <label for="quick-add-cep">CEP</label>
+                        <input type="text" id="quick-add-cep" placeholder="Apenas números" required />
+                    </div>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="cancel" onclick="closeFornecedorModal()">Cancelar</button>
+                    <button type="submit">Salvar Fornecedor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="all">
+        <div class="header">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-bar" placeholder="Buscar produto..." oninput="filtrarProdutos()" />
+            </div>
+            <button class="header-btn export-btn" id="export-btn" onclick="exportarPlanilha()">
+                <i class="fas fa-file-excel"></i> Exportar
+            </button>
+            <button class="header-btn delete-selected-btn" id="delete-selected-btn">
+                <i class="fas fa-trash-alt"></i> Excluir
+            </button>
+            <button class="header-btn add-btn" id="add-btn" onclick="openModal()">+ Novo Item</button>
+        </div>
+        <div id="product-modal" class="modal" onclick="closeModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <h2>Adicionar Produto</h2>
+                <form id="product-form" onsubmit="adicionarProduto(event)">
+                    <input type="hidden" name="id" id="product-id" />
+                    <div class="input-group">
+                        <div class="input-field-group autocomplete-container">
+                            <label for="nome-input">Nome do Produto</label>
+                            <input type="text" id="nome-input" name="nome" placeholder="Busque por um produto existente ou crie um novo" required autocomplete="off" />
+                            <ul id="product-suggestions" class="autocomplete-list"></ul>
+                        </div>
+                        <div class="input-field-group">
+                            <label for="quantidade-input">Quantidade a Adicionar</label>
+                            <input type="number" id="quantidade-input" name="quantidade" placeholder="Ex: 10" min="0" required />
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-field-group">
+                            <label for="preco_compra-input">Preço de Compra</label>
+                            <input type="text" id="preco_compra-input" name="preco_compra" placeholder="R$ 0,00" oninput="formatPrice(event)" required />
+                        </div>
+                        <div class="input-field-group">
+                            <label for="preco_venda-input">Preço de Venda</label>
+                            <input type="text" id="preco_venda-input" name="preco_venda" placeholder="R$ 0,00" oninput="formatPrice(event)" required />
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-field-group">
+                            <label for="fornecedor-search">Fornecedor</label>
+                            <div class="autocomplete-container">
+                                <input type="text" id="fornecedor-search" placeholder="Busque ou cadastre um fornecedor" required />
+                                <button type="button" class="add-fornecedor-btn" onclick="openFornecedorModal()">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                                <input type="hidden" name="fornecedor_cnpj" id="fornecedor-cnpj-hidden" />
+                                <ul id="fornecedor-suggestions" class="autocomplete-list"></ul>
+                            </div>
+                            <small class="fornecedor-warning" id="fornecedor-warning">Por favor, selecione um fornecedor válido.</small>
+                        </div>
+                        <div class="input-field-group">
+                            <label for="quantidade-minima-input">Qtd. Mínima (Opcional)</label>
+                            <input type="number" id="quantidade-minima-input" name="quantidade_minima" placeholder="Ex: 5" min="0" />
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <div class="input-field-group">
+                            <label for="nota_fiscal-input">Nota Fiscal</label>
+                            <input type="text" id="nota_fiscal-input" name="nota_fiscal" placeholder="Obrigatório para adicionar estoque" required />
+                        </div>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
+                        <button type="submit">Adicionar Produto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="notes-modal" class="modal modal-notes" onclick="closeNotesModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2>Histórico de Notas Fiscais</h2>
+                    <button class="select-all-notes-btn" id="select-all-notes-btn">Selecionar Todos</button>
+                </div>
+                <div class="notes-table-container">
+                    <table class="notes-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 20px;"></th>
+                                <th>Número da Nota</th>
+                                <th>Quantidade</th>
+                                <th>Data de Entrada</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notes-table-body"></tbody>
+                    </table>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="cancel" onclick="closeNotesModal()">Fechar</button>
+                    <button type="button" class="delete-notes-btn" id="delete-selected-notes-btn" style="display: none;">
+                        <i class="fas fa-trash-alt"></i> Excluir Selecionadas
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nome</th>
+                        <th>Qtd</th>
+                        <th>Preço Compra</th>
+                        <th>Preço Venda</th>
+                        <th>Fornecedor</th>
+                        <th>Nota Fiscal</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="product-table-body">
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-container" id="pagination-container"></div>
+    </div>
     <script>
-        // Array local para armazenar os produtos enquanto não houver conexão com back-end
-        let produtos = [];
+        const API_URLS = {
+            produtos: "{% url 'api_produtos' %}",
+            produtos_exportar: "{% url 'api_exportar_produtos' %}",
+            fornecedores: "{% url 'api_fornecedores' %}",
+            historico_notas: "{% url 'api_historico_notas' %}"
+        };
+        const CSRF_TOKEN = "{{ csrf_token }}";
 
-        // URL base da API (ajuste conforme seu back-end)
-        const API_URL = '/api/produtos/';
+        let produtos = []; // Lista global com todos os produtos
+        let fornecedores = [];
+        let notasFiscais = [];
+        const API_URL = API_URLS.produtos;
+        const API_FORNECEDORES_URL = API_URLS.fornecedores;
+        const API_NOTAS_FISCAIS_URL = API_URLS.historico_notas;
+        let currentPage = 1;
+        const itemsPerPage = 6;
+        let isLoading = false;
+        let isSearching = false;
+        let searchResults = [];
+        let selectedProductId = null;
 
-        // Gera ID único localmente (pode ser removido se o back-end fornecer)
-        function generateId() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
+        function allowOnlyNumbers(event) {
+            event.target.value = event.target.value.replace(/\D/g, '');
         }
 
-        // Abre modal para adicionar/editar produto
         function openModal(edit = false) {
             const modal = document.getElementById('product-modal');
             modal.style.display = 'flex';
-
             const form = document.getElementById('product-form');
             form.reset();
-
-            // Ajusta título do modal conforme modo (adicionar ou editar)
+            document.getElementById('fornecedor-cnpj-hidden').value = '';
             const modalTitle = modal.querySelector('h2');
+
+            // === MUDANÇA 2: Reseta o estado do autocomplete do produto ===
+            document.getElementById('product-suggestions').innerHTML = '';
+            document.getElementById('product-suggestions').style.display = 'none';
+
             if (edit) {
                 modalTitle.textContent = "Editar Produto";
+                form.querySelector('button[type="submit"]').textContent = "Salvar Alterações";
+                // Em modo de edição, a quantidade a adicionar é opcional e pode ser zero
+                document.getElementById('quantidade-input').placeholder = "Adicionar mais (opcional)";
+                document.getElementById('nota_fiscal-input').placeholder = "Obrigatório se adicionar qtd.";
+
             } else {
                 modalTitle.textContent = "Adicionar Produto";
-                document.getElementById('product-id').value = generateId();
+                form.querySelector('button[type="submit"]').textContent = "Adicionar Produto";
+                document.getElementById('product-id').value = '';
+                document.getElementById('quantidade-input').placeholder = "Ex: 10";
             }
+            document.getElementById('fornecedor-warning').style.display = 'none';
         }
 
-        // Fecha o modal
         function closeModal() {
             const modal = document.getElementById('product-modal');
             modal.style.display = 'none';
         }
 
-        // Formata preço para "R$ xx,xx"
+        function openConfirmModal(ids, isBulk = false) {
+            const modal = document.getElementById('confirm-modal');
+            const modalText = document.getElementById('confirm-modal-text');
+            modal.style.display = 'flex';
+            const confirmBtn = document.getElementById('confirm-delete-btn');
+            if (isBulk) {
+                modalText.textContent = `Tem certeza que deseja excluir ${ids.length} produto(s)? Essa ação não pode ser desfeita.`;
+                confirmBtn.onclick = () => {
+                    excluirMultiplosProdutos(ids);
+                    closeConfirmModal();
+                };
+            } else {
+                modalText.textContent = "Tem certeza que deseja excluir este produto? Essa ação não pode ser desfeita.";
+                confirmBtn.onclick = () => {
+                    excluirProduto(ids);
+                    closeConfirmModal();
+                };
+            }
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirm-modal');
+            modal.style.display = 'none';
+        }
+
+        function openFornecedorModal() {
+            const modal = document.getElementById('fornecedor-modal');
+            modal.style.display = 'flex';
+            document.getElementById('fornecedor-form').reset();
+        }
+
+        function closeFornecedorModal() {
+            const modal = document.getElementById('fornecedor-modal');
+            modal.style.display = 'none';
+        }
+
+        async function adicionarFornecedor(event) {
+            event.preventDefault();
+            const nome = document.getElementById('quick-add-nome').value.trim();
+            const cnpj = document.getElementById('quick-add-cnpj').value.trim();
+            const email = document.getElementById('quick-add-email').value.trim();
+            const telefone = document.getElementById('quick-add-telefone').value.trim();
+            const endereco = document.getElementById('quick-add-endereco').value.trim();
+            const cep = document.getElementById('quick-add-cep').value.trim();
+            if (!nome || !cnpj || !email || !telefone || !endereco || !cep) {
+                showToastMessage('Preencha todos os campos do fornecedor.', 'error');
+                return;
+            }
+            const fornecedorData = { nome, cnpj, email, telefone, endereco, cep };
+            try {
+                const response = await fetch(API_FORNECEDORES_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+                    body: JSON.stringify(fornecedorData),
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro ao cadastrar fornecedor.');
+                }
+                const novoFornecedor = await response.json();
+                showToastMessage('Fornecedor adicionado com sucesso!', 'success');
+                closeFornecedorModal();
+                await carregarFornecedores();
+                selectFornecedor(novoFornecedor);
+            } catch (error) {
+                console.error("Erro ao adicionar fornecedor:", error);
+                showToastMessage(`Erro: ${error.message}`, 'error');
+            }
+        }
+
         function formatPrice(event) {
             let input = event.target;
             let value = input.value.replace(/\D/g, '');
@@ -314,215 +334,609 @@
             input.value = formatted;
         }
 
-        // Busca produtos do back-end e atualiza tabela
-        async function carregarProdutos() {
+        function parsePrice(priceString) {
+            if (!priceString) return 0;
+            return parseFloat(priceString.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
+        }
+
+        async function carregarFornecedores() {
             try {
-                const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('Erro ao carregar produtos');
-                produtos = await response.json();
-                atualizarTabela();
+                const response = await fetch(API_FORNECEDORES_URL);
+                if (!response.ok) throw new Error('Erro ao carregar fornecedores');
+                fornecedores = await response.json();
             } catch (error) {
-                console.error(error);
-                // Em caso de erro, pode carregar produtos locais (exemplo)
-                produtos = [
-                    { id: "285249", nome: "Exemplo", quantidade: 10, preco_compra: "R$ 100,00", preco_venda: "R$ 150,00", nota_fiscal: "NF12345" }
-                ];
-                atualizarTabela();
+                console.error("Erro ao carregar fornecedores:", error);
             }
         }
 
-        // Adiciona ou edita produto via API
+        async function carregarProdutos(page = 1, searchTerm = '') {
+            if (isLoading) return;
+            isLoading = true;
+            currentPage = page;
+            
+            let url = `${API_URL}?page=${page}`;
+            if (searchTerm) {
+                url += `&search=${encodeURIComponent(searchTerm)}`;
+            }
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Erro na rede: ${response.statusText}`);
+                }
+                const data = await response.json();
+                produtos = data; // Atualiza a lista global de produtos
+                isSearching = !!searchTerm;
+                atualizarTabela(produtos, currentPage);
+                updateButtonVisibility();
+            } catch (error) {
+                console.error("Erro ao carregar produtos:", error);
+                const tbody = document.getElementById('product-table-body');
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center;">Não foi possível carregar os produtos.</td></tr>`;
+            }
+            isLoading = false;
+        }
+
         async function adicionarProduto(event) {
             event.preventDefault();
             const form = event.target;
-
             const id = form.id.value.trim();
             const nome = form.nome.value.trim();
-            const quantidade = parseInt(form.quantidade.value.trim());
-            const preco_compra = form.preco_compra.value.trim();
-            const preco_venda = form.preco_venda.value.trim();
+            const quantidade_adicionada = form.quantidade.value.trim();
+            const quantidade_minima = form.quantidade_minima.value.trim() || '0';
+            const preco_compra_str = form.preco_compra.value.trim();
+            const preco_venda_str = form.preco_venda.value.trim();
             const nota_fiscal = form.nota_fiscal.value.trim();
+            const fornecedor_cnpj = document.getElementById('fornecedor-cnpj-hidden').value;
 
-            if (!nome || !quantidade || !preco_compra || !preco_venda || !nota_fiscal) {
-                alert("Preencha todos os campos.");
+            const warningElement = document.getElementById('fornecedor-warning');
+            if (!fornecedor_cnpj) {
+                warningElement.style.display = 'block';
+                return;
+            } else {
+                warningElement.style.display = 'none';
+            }
+            
+            // Validação da Nota Fiscal: obrigatória se adicionando quantidade
+            const quantidade_adicionada_int = parseInt(quantidade_adicionada, 10);
+            if (quantidade_adicionada_int > 0 && !nota_fiscal) {
+                showToastMessage("A Nota Fiscal é obrigatória ao adicionar estoque.");
                 return;
             }
 
-            const produtoData = { id, nome, quantidade, preco_compra, preco_venda, nota_fiscal };
+            if (!nome || !preco_compra_str || !preco_venda_str) {
+                showToastMessage("Preencha todos os campos obrigatórios.");
+                return;
+            }
+
+            const preco_compra = parsePrice(preco_compra_str);
+            const preco_venda = parsePrice(preco_venda_str);
+            const quantidade_minima_int = parseInt(quantidade_minima, 10);
+
+            if (isNaN(quantidade_adicionada_int) || quantidade_adicionada_int < 0) {
+                showToastMessage("A quantidade deve ser um número válido.");
+                return;
+            }
 
             try {
-                let response;
-                const index = produtos.findIndex(p => p.id === id);
-                if (index >= 0) {
-                    // Edita produto existente (PUT)
-                    response = await fetch(`${API_URL}${id}/`, {
+                let message;
+                if (id) { // Modo de Edição
+                    const produtoData = {
+                        nome,
+                        quantidade_minima: quantidade_minima_int,
+                        preco_compra,
+                        preco_venda,
+                        fornecedor_cnpj
+                    };
+                    const produtoResponse = await fetch(`${API_URL}${id}/`, {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
                         body: JSON.stringify(produtoData),
                     });
-                    if (!response.ok) throw new Error('Erro ao atualizar produto');
-                    produtos[index] = produtoData;
-                } else {
-                    // Adiciona novo produto (POST)
-                    response = await fetch(API_URL, {
+                    if (!produtoResponse.ok) {
+                        const errorData = await produtoResponse.json();
+                        throw new Error(errorData.error || 'Erro ao atualizar produto.');
+                    }
+
+                    if (quantidade_adicionada_int > 0) {
+                        const noteData = {
+                            produto_id: id,
+                            numero_nota: nota_fiscal,
+                            quantidade_adicionada: quantidade_adicionada_int,
+                            preco_compra_nota: preco_compra,
+                            preco_venda_nota: preco_venda
+                        };
+                        const noteResponse = await fetch(API_NOTAS_FISCAIS_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+                            body: JSON.stringify(noteData)
+                        });
+                        if (!noteResponse.ok) {
+                            const errorData = await noteResponse.json();
+                            throw new Error(errorData.error || 'Erro ao adicionar nota fiscal.');
+                        }
+                    }
+                    message = 'Produto e/ou estoque atualizado com sucesso!';
+                } else { // Modo de Criação
+                    const produtoData = {
+                        nome,
+                        quantidade: quantidade_adicionada_int,
+                        quantidade_minima: quantidade_minima_int,
+                        preco_compra,
+                        preco_venda,
+                        fornecedor_cnpj,
+                        nota_fiscal
+                    };
+                    const response = await fetch(API_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
                         body: JSON.stringify(produtoData),
                     });
-                    if (!response.ok) throw new Error('Erro ao adicionar produto');
-                    const novoProduto = await response.json();
-                    produtos.push(novoProduto);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Erro ao adicionar produto.');
+                    }
+                    message = 'Produto adicionado com sucesso!';
                 }
-                atualizarTabela();
+                await carregarProdutos();
                 closeModal();
+                showToastMessage(message, 'success');
             } catch (error) {
                 console.error(error);
-                alert('Erro ao salvar produto. Tente novamente.');
+                showToastMessage(`Erro: ${error.message}`, 'error');
             }
         }
 
-        // Atualiza a tabela exibida
-        function atualizarTabela() {
+        function atualizarTabela(data, page = 1) {
             const tbody = document.getElementById('product-table-body');
             tbody.innerHTML = '';
-
-            produtos.forEach(produto => {
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const paginatedItems = data.slice(start, end);
+            if (paginatedItems.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center;">Nenhum produto encontrado.</td></tr>`;
+                renderPagination(data.length);
+                return;
+            }
+            paginatedItems.forEach(produto => {
                 const tr = document.createElement('tr');
-
+                tr.dataset.id = produto.id;
+                const precoCompraFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(produto.preco_compra);
+                const precoVendaFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(produto.preco_venda);
+                const quantidadeAtual = parseInt(produto.quantidade, 10);
+                const quantidadeMinima = parseInt(produto.quantidade_minima, 10);
+                if (!isNaN(quantidadeMinima) && quantidadeAtual <= quantidadeMinima) {
+                    tr.classList.add('low-stock-row');
+                }
+                const nomeFornecedor = produto.fornecedor && produto.fornecedor.nome ? produto.fornecedor.nome : 'N/A';
                 tr.innerHTML = `
-                    <td>${produto.id}</td>
+                    <td>${String(produto.id).substring(0, 8)}...</td>
                     <td>${produto.nome}</td>
-                    <td style="text-align:center;">${produto.quantidade}</td>
-                    <td style="text-align:center;">${produto.preco_compra}</td>
-                    <td style="text-align:center;">${produto.preco_venda}</td>
-                    <td>${produto.nota_fiscal}</td>
+                    <td>${produto.quantidade}</td>
+                    <td>${precoCompraFormatado}</td>
+                    <td>${precoVendaFormatado}</td>
+                    <td>${nomeFornecedor}</td>
+                    <td>${produto.last_nota_fiscal ? produto.last_nota_fiscal.numero_nota : 'N/A'}</td>
                     <td class="actions">
-                        <a href="javascript:void(0);" class="edit" onclick="abrirEdicao('${produto.id}')">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="javascript:void(0);" class="delete" onclick="excluirProduto('${produto.id}')">
-                            <i class="fas fa-trash-alt"></i>
-                        </a>
+                        <a href="#" class="notes" onclick="openNotesModalForProduct('${produto.id}')" title="Ver Notas"><i class="fas fa-clipboard-list"></i></a>
+                        <a href="#" class="edit" onclick="abrirEdicao('${produto.id}')" title="Editar"><i class="fas fa-edit"></i></a>
+                        <a href="#" class="delete" onclick="openConfirmModal('${produto.id}')" title="Excluir"><i class="fas fa-trash-alt"></i></a>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
-            document.getElementById('product-count').textContent = produtos.length;
-            filtrarProdutos();
+            renderPagination(data.length);
         }
 
-        // Abre modal para editar produto
+        function renderPagination(totalItems) {
+            const paginationContainer = document.getElementById('pagination-container');
+            paginationContainer.innerHTML = '';
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            if (totalPages <= 1) return;
+            const prevBtn = document.createElement('button');
+            prevBtn.classList.add('pagination-btn');
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.classList.toggle('disabled', prevBtn.disabled);
+            prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; navigateToPage(currentPage); } };
+            paginationContainer.appendChild(prevBtn);
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            if (endPage - startPage < 4) {
+                if (startPage === 1) endPage = Math.min(totalPages, startPage + 4);
+                if (endPage === totalPages) startPage = Math.max(1, endPage - 4);
+            }
+            if (startPage > 1) {
+                const firstPageBtn = document.createElement('button');
+                firstPageBtn.classList.add('pagination-btn');
+                firstPageBtn.textContent = 1;
+                firstPageBtn.onclick = () => navigateToPage(1);
+                paginationContainer.appendChild(firstPageBtn);
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    paginationContainer.appendChild(dots);
+                }
+            }
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.classList.add('pagination-btn');
+                pageBtn.textContent = i;
+                if (i === currentPage) { pageBtn.classList.add('active'); }
+                pageBtn.onclick = () => navigateToPage(i);
+                paginationContainer.appendChild(pageBtn);
+            }
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    paginationContainer.appendChild(dots);
+                }
+                const lastPageBtn = document.createElement('button');
+                lastPageBtn.classList.add('pagination-btn');
+                lastPageBtn.textContent = totalPages;
+                lastPageBtn.onclick = () => navigateToPage(totalPages);
+                paginationContainer.appendChild(lastPageBtn);
+            }
+            const nextBtn = document.createElement('button');
+            nextBtn.classList.add('pagination-btn');
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.classList.toggle('disabled', nextBtn.disabled);
+            nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; navigateToPage(currentPage); } };
+            paginationContainer.appendChild(nextBtn);
+        }
+
+        function navigateToPage(page) {
+            const data = isSearching ? searchResults : produtos;
+            currentPage = page;
+            atualizarTabela(data, currentPage);
+            document.querySelector('.table-container').scrollTop = 0;
+        }
+
+        function filtrarProdutos() {
+            const filtro = document.getElementById('search-bar').value;
+            carregarProdutos(1, filtro);
+        }
+
         function abrirEdicao(id) {
             const produto = produtos.find(p => p.id === id);
-            if (!produto) return alert('Produto não encontrado.');
-
+            if (!produto) return showToastMessage('Produto não encontrado.');
             openModal(true);
             const form = document.getElementById('product-form');
             form.id.value = produto.id;
             form.nome.value = produto.nome;
-            form.quantidade.value = produto.quantidade;
-            form.preco_compra.value = produto.preco_compra;
-            form.preco_venda.value = produto.preco_venda;
-            form.nota_fiscal.value = produto.nota_fiscal;
-
-            form.querySelector('button[type="submit"]').textContent = "Salvar Alterações";
-        }
-
-        // Exclui produto via API e atualiza tabela
-        async function excluirProduto(id) {
-            if (!confirm("Tem certeza que deseja excluir este produto?")) return;
-
-            try {
-                const response = await fetch(`${API_URL}${id}/`, { method: 'DELETE' });
-                if (!response.ok) throw new Error('Erro ao excluir produto');
-                produtos = produtos.filter(p => p.id !== id);
-                atualizarTabela();
-            } catch (error) {
-                console.error(error);
-                alert('Erro ao excluir produto. Tente novamente.');
+            // Em modo de edição, o campo de quantidade serve para ADICIONAR estoque, então começa vazio.
+            form.quantidade.value = ''; 
+            form.quantidade.placeholder = `Estoque Atual: ${produto.quantidade}. Adicionar mais?`;
+            form.quantidade_minima.value = produto.quantidade_minima;
+            const precoCompraFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(produto.preco_compra);
+            const precoVendaFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(produto.preco_venda);
+            form.preco_compra.value = precoCompraFormatado;
+            form.preco_venda.value = precoVendaFormatado;
+            form.nota_fiscal.value = ''; 
+            form.nota_fiscal.required = false; // Nota só é obrigatória se adicionar quantidade
+            if (produto.fornecedor) {
+                document.getElementById('fornecedor-search').value = produto.fornecedor.nome;
+                document.getElementById('fornecedor-cnpj-hidden').value = produto.fornecedor.cnpj;
             }
         }
 
-        // Filtra produtos na tabela conforme busca
-        function filtrarProdutos() {
-            const filtro = document.getElementById('search-bar').value.toLowerCase();
-            const tbody = document.getElementById('product-table-body');
-            const trs = tbody.querySelectorAll('tr');
+        async function excluirProduto(id) {
+            try {
+                const response = await fetch(`${API_URL}${id}/`, { method: 'DELETE', headers: { 'X-CSRFToken': CSRF_TOKEN } });
+                if (response.status === 204) {
+                    showToastMessage('Produto excluído com sucesso!', 'success');
+                    await carregarProdutos(currentPage);
+                } else {
+                    const errorData = await response.json(); throw new Error(errorData.error || 'Erro ao excluir produto');
+                }
+            } catch (error) {
+                showToastMessage(`Erro ao excluir produto: ${error.message}`, 'error');
+            }
+        }
 
-            trs.forEach(tr => {
-                const codigo = tr.cells[0].textContent.toLowerCase();
-                const nome = tr.cells[1].textContent.toLowerCase();
-                const notaFiscal = tr.cells[5].textContent.toLowerCase();
+        async function excluirMultiplosProdutos(ids) {
+            const deletePromises = ids.map(id =>
+                fetch(`${API_URL}${id}/`, { method: 'DELETE', headers: { 'X-CSRFToken': CSRF_TOKEN } })
+            );
+            const results = await Promise.all(deletePromises);
+            const successCount = results.filter(res => res.status === 204).length;
+            if (successCount > 0) showToastMessage(`${successCount} produto(s) excluído(s) com sucesso.`);
+            if (successCount < ids.length) showToastMessage(`${ids.length - successCount} produto(s) não puderam ser excluído(s).`);
+            await carregarProdutos(currentPage);
+        }
 
-                tr.style.display = (codigo.includes(filtro) || nome.includes(filtro) || notaFiscal.includes(filtro)) ? '' : 'none';
+        function updateButtonVisibility() {
+            const selectedRows = document.querySelectorAll('#product-table-body tr.selected');
+            const deleteButton = document.getElementById('delete-selected-btn');
+            const selectedCount = selectedRows.length;
+            deleteButton.style.display = 'none';
+            document.getElementById('export-btn').style.display = 'flex';
+            document.getElementById('add-btn').style.display = 'flex';
+            if (selectedCount > 0) {
+                deleteButton.style.display = 'flex';
+                document.getElementById('export-btn').style.display = 'none';
+                document.getElementById('add-btn').style.display = 'none';
+            }
+        }
+
+        function setupMultiDelete() {
+            document.getElementById('delete-selected-btn').addEventListener('click', () => {
+                const selectedIds = Array.from(document.querySelectorAll('#product-table-body tr.selected')).map(tr => tr.dataset.id);
+                if (selectedIds.length > 0) openConfirmModal(selectedIds, true);
+                else showToastMessage('Nenhum produto selecionado para exclusão.');
             });
         }
 
-        // Inicialização ao carregar página
-        window.onload = () => {
-            carregarProdutos();
-        };
+        function setupRowSelection() {
+            document.getElementById('product-table-body').addEventListener('click', function (event) {
+                if (event.target.closest('.actions')) return;
+                const row = event.target.closest('tr');
+                if (row) {
+                    row.classList.toggle('selected');
+                    updateButtonVisibility();
+                }
+            });
+        }
 
-    </script>
-</head>
-<body>
-    {% include 'barra.html' %}
-    <div class="all">
-        <!-- Barra de pesquisa -->
-        <div class="search-container">
-            <div class="search-input">
-                <i class="fas fa-search"></i>
-                <input type="text" id="search-bar" placeholder="Buscar produto..." oninput="filtrarProdutos()" />
-            </div>
-        </div>
-        <!-- Botão "novo item" para abrir o modal -->
-        <button class="expand-btn" onclick="openModal()">Novo Item +</button>
+        function deselectAllRows() {
+            document.querySelectorAll('#product-table-body tr.selected').forEach(row => row.classList.remove('selected'));
+            updateButtonVisibility();
+        }
 
-        <!-- Modal com o formulário -->
-        <div id="product-modal" class="modal" onclick="closeModal()">
-            <div class="modal-content" onclick="event.stopPropagation()">
-                <h2>Adicionar Produto</h2>
-                <form id="product-form" onsubmit="adicionarProduto(event)">
-                    <input type="hidden" name="id" id="product-id" />
-                    <div class="input-group">
-                        <input type="text" name="nome" placeholder="Nome" required />
-                        <input type="number" name="quantidade" placeholder="Quantidade" min="1" required />
-                    </div>
-                    <div class="input-group">
-                        <input type="text" name="preco_compra" placeholder="Preço de Compra (R$ xx,xx)" oninput="formatPrice(event)" required />
-                        <input type="text" name="preco_venda" placeholder="Preço de Venda (R$ xx,xx)" oninput="formatPrice(event)" required />
-                    </div>
-                    <div class="input-group">
-                        <input type="text" name="nota_fiscal" placeholder="Nota Fiscal" required />
-                    </div>
-                    <div class="form-buttons">
-                        <button type="submit">Adicionar Produto</button>
-                        <button type="button" class="cancel" onclick="closeModal()">Cancelar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        function setupClickOutsideDeselect() {
+            document.addEventListener('click', function (event) {
+                const tableContainer = document.querySelector('.table-container');
+                const header = document.querySelector('.header');
+                if (!tableContainer.contains(event.target) && !header.contains(event.target) && !event.target.closest('.modal')) {
+                    deselectAllRows();
+                }
+            });
+        }
+
+        function showToastMessage(message, type) {
+            const toast = document.getElementById("toast-message");
+            toast.textContent = message;
+            toast.style.backgroundColor = type === 'error' ? '#dc3545' : '#28a745';
+            toast.className = "toast-message show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 1200);
+        }
+
+        function setupFornecedorSearch() {
+            const searchInput = document.getElementById('fornecedor-search');
+            const suggestionsList = document.getElementById('fornecedor-suggestions');
+            const hiddenCnpj = document.getElementById('fornecedor-cnpj-hidden');
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.toLowerCase();
+                suggestionsList.innerHTML = '';
+                hiddenCnpj.value = '';
+                if (query.length > 0) {
+                    const matches = fornecedores.filter(f => f.nome.toLowerCase().includes(query));
+                    matches.forEach(fornecedor => {
+                        const li = document.createElement('li');
+                        li.textContent = fornecedor.nome;
+                        li.onclick = () => selectFornecedor(fornecedor);
+                        suggestionsList.appendChild(li);
+                    });
+                    if (matches.length === 0) {
+                        const li = document.createElement('li');
+                        li.innerHTML = `Cadastrar: <strong>${searchInput.value}</strong>`;
+                        li.onclick = () => { document.getElementById('quick-add-nome').value = searchInput.value; openFornecedorModal(); };
+                        suggestionsList.appendChild(li);
+                    }
+                    suggestionsList.style.display = 'block';
+                } else {
+                    suggestionsList.style.display = 'none';
+                }
+            });
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.autocomplete-container')) {
+                    suggestionsList.style.display = 'none';
+                }
+            });
+        }
+
+        function selectFornecedor(fornecedor) {
+            document.getElementById('fornecedor-search').value = fornecedor.nome;
+            document.getElementById('fornecedor-cnpj-hidden').value = fornecedor.cnpj;
+            document.getElementById('fornecedor-suggestions').style.display = 'none';
+            const warningElement = document.getElementById('fornecedor-warning');
+            if (warningElement) warningElement.style.display = 'none';
+        }
+
+        function exportarPlanilha() {
+            window.location.href = API_URLS.produtos_exportar;
+        }
+
+        async function openNotesModalForProduct(productId) {
+            selectedProductId = productId; // Guarda o ID do produto selecionado
+            const modal = document.getElementById('notes-modal');
+            modal.style.display = 'flex';
+            try {
+                const response = await fetch(`${API_NOTAS_FISCAIS_URL}?produto_id=${productId}`);
+                if (!response.ok) throw new Error('Erro ao carregar notas.');
+                notasFiscais = await response.json();
+                renderNotesTable();
+            } catch (error) {
+                showToastMessage('Erro ao carregar notas fiscais.', 'error');
+            }
+        }
+
+        function closeNotesModal() {
+            document.getElementById('notes-modal').style.display = 'none';
+        }
+
+        function openNoteConfirmModal(noteIds, isBulk = false) {
+            const modal = document.getElementById('note-confirm-modal');
+            modal.style.display = 'flex';
+            document.getElementById('note-confirm-modal-text').textContent = isBulk ?
+                `Tem certeza que deseja excluir ${noteIds.length} notas fiscais? Essa ação não pode ser desfeita.` :
+                "Tem certeza que deseja excluir esta nota fiscal? Essa ação não pode ser desfeita.";
+            document.getElementById('note-confirm-delete-btn').onclick = () => {
+                isBulk ? excluirMultiplasNotas(noteIds) : deleteNote(noteIds);
+                closeNoteConfirmModal();
+            };
+        }
+
+        function closeNoteConfirmModal() {
+            document.getElementById('note-confirm-modal').style.display = 'none';
+        }
+
+        function renderNotesTable() {
+            const tbody = document.getElementById('notes-table-body');
+            tbody.innerHTML = '';
+            if (notasFiscais.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center;">Nenhuma nota fiscal registrada.</td></tr>`;
+                return;
+            }
+            notasFiscais.forEach(nota => {
+                const tr = document.createElement('tr');
+                tr.dataset.id = nota.id;
+                tr.classList.add('note-select-row');
+                const dataFormatada = new Date(nota.data_entrada).toLocaleDateString('pt-BR');
+                tr.innerHTML = `
+                    <td><input type="checkbox" class="note-select-checkbox" data-note-id="${nota.id}" onclick="event.stopPropagation()"></td>
+                    <td>${nota.numero_nota}</td>
+                    <td>${nota.quantidade_adicionada}</td>
+                    <td>${dataFormatada}</td>`;
+                tbody.appendChild(tr);
+            });
+            setupNotesSelection();
+        }
+
+        function setupNotesSelection() {
+            const noteRows = document.querySelectorAll('.note-select-row');
+            noteRows.forEach(row => {
+                row.addEventListener('click', () => {
+                    const checkbox = row.querySelector('.note-select-checkbox');
+                    checkbox.checked = !checkbox.checked;
+                    updateNotesDeleteButton();
+                });
+            });
+
+            const selectAllBtn = document.getElementById('select-all-notes-btn');
+            selectAllBtn.addEventListener('click', () => {
+                const checkboxes = document.querySelectorAll('.note-select-checkbox');
+                const allSelected = Array.from(checkboxes).every(cb => cb.checked);
+                checkboxes.forEach(cb => {
+                    cb.checked = !allSelected;
+                });
+                updateNotesDeleteButton();
+            });
+
+            document.getElementById('delete-selected-notes-btn').addEventListener('click', () => {
+                const selectedIds = Array.from(document.querySelectorAll('.note-select-checkbox:checked')).map(cb => cb.dataset.noteId);
+                if (selectedIds.length > 0) openNoteConfirmModal(selectedIds, true);
+            });
+        }
+
+        function updateNotesDeleteButton() {
+            const checkboxes = document.querySelectorAll('.note-select-checkbox');
+            const selectedCount = document.querySelectorAll('.note-select-checkbox:checked').length;
+            const selectAllBtn = document.getElementById('select-all-notes-btn');
+
+            document.getElementById('delete-selected-notes-btn').style.display = selectedCount > 0 ? 'flex' : 'none';
+
+            if (selectedCount === checkboxes.length && checkboxes.length > 0) {
+                selectAllBtn.textContent = 'Desmarcar Todos';
+            } else {
+                selectAllBtn.textContent = 'Selecionar Todos';
+            }
+        }
+
+        async function excluirMultiplasNotas(ids) {
+            const deletePromises = ids.map(id =>
+                fetch(`${API_NOTAS_FISCAIS_URL}${id}/`, { method: 'DELETE', headers: { 'X-CSRFToken': CSRF_TOKEN } })
+            );
+            const results = await Promise.all(deletePromises);
+            const successCount = results.filter(res => res.status === 204).length;
+            if (successCount > 0) showToastMessage(`${successCount} nota(s) fiscal(is) excluída(s) com sucesso.`);
+            if (successCount < ids.length) showToastMessage(`${ids.length - successCount} nota(s) não puderam ser excluída(s).`);
+            await carregarProdutos();
+            await openNotesModalForProduct(selectedProductId);
+        }
+
+        async function deleteNote(noteId) {
+            try {
+                const response = await fetch(`${API_NOTAS_FISCAIS_URL}${noteId}/`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRFToken': CSRF_TOKEN }
+                });
+                if (response.status === 204) {
+                    showToastMessage('Nota fiscal excluída com sucesso!', 'success');
+                    await carregarProdutos();
+                    await openNotesModalForProduct(selectedProductId);
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro ao excluir nota fiscal.');
+                }
+            } catch (error) {
+                console.error("Erro ao excluir nota fiscal:", error);
+                showToastMessage('Erro ao excluir nota fiscal.', 'error');
+            }
+        }
         
+        // === MUDANÇA 3: Nova função para a busca inteligente de produtos ===
+        function setupProductSearch() {
+            const searchInput = document.getElementById('nome-input');
+            const suggestionsList = document.getElementById('product-suggestions');
 
-    <!-- Tabela -->
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nome</th>
-                    <th>Qtd</th>
-                    <th>Preço Compra</th>
-                    <th>Preço Venda</th>
-                    <th>Nota Fiscal</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody id="product-table-body">
-                <!-- Linhas da tabela são preenchidas via JS -->
-            </tbody>
-        </table>
-    </div>
-</div>
-</body> 
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.toLowerCase();
+                suggestionsList.innerHTML = '';
+
+                if (query.length > 1) { // Começa a buscar após 1 caractere
+                    const matches = produtos.filter(p => p.nome.toLowerCase().includes(query));
+                    
+                    if(matches.length > 0) {
+                        matches.forEach(produto => {
+                            const li = document.createElement('li');
+                            li.textContent = produto.nome;
+                            li.onclick = () => selectProductToEdit(produto.id);
+                            suggestionsList.appendChild(li);
+                        });
+                        suggestionsList.style.display = 'block';
+                    } else {
+                         suggestionsList.style.display = 'none';
+                    }
+                } else {
+                    suggestionsList.style.display = 'none';
+                }
+            });
+
+             document.addEventListener('click', (event) => {
+                if (!event.target.closest('.autocomplete-container')) {
+                    suggestionsList.style.display = 'none';
+                }
+            });
+        }
+        
+        // === MUDANÇA 4: Nova função para selecionar um produto da lista e entrar em modo de edição ===
+        function selectProductToEdit(productId) {
+            // Esconde a lista de sugestões
+            document.getElementById('product-suggestions').style.display = 'none';
+            // Chama a função já existente para preencher o formulário em modo de edição
+            abrirEdicao(productId);
+        }
+
+        async function initialize() {
+            await carregarFornecedores();
+            await carregarProdutos(); // Carrega todos os produtos para a busca funcionar
+            setupFornecedorSearch();
+            setupProductSearch(); // <--- MUDANÇA 5: Inicia a nova funcionalidade
+            setupMultiDelete();
+            setupRowSelection();
+            setupClickOutsideDeselect();
+            
+            document.getElementById('search-bar').addEventListener('focus', deselectAllRows);
+            
+            document.getElementById('quick-add-cnpj').addEventListener('input', allowOnlyNumbers);
+            document.getElementById('quick-add-telefone').addEventListener('input', allowOnlyNumbers);
+            document.getElementById('quick-add-cep').addEventListener('input', allowOnlyNumbers);
+        }
+
+       window.addEventListener('load', initialize);
+    </script>
+</body>
 </html>

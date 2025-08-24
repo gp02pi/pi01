@@ -1,4 +1,4 @@
-{% load static %} 
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -11,7 +11,7 @@
         /* Estilos */
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f0f4f8; 
+            background-color: #f0f4f8;
             margin: 0;
             padding: 0;
             display: flex;
@@ -21,7 +21,6 @@
             flex-direction: column;
         }
 
-        /* Container do formulário */
         .reset-container {
             background-color: #ffffff;
             border-radius: 8px;
@@ -32,14 +31,12 @@
             position: relative;
         }
 
-        /* Título */
         h2 {
             text-align: center;
             margin-bottom: 20px;
             color: #333;
         }
 
-        /* Estilo dos campos de entrada */
         .input-field {
             width: 100%;
             padding: 15px;
@@ -50,7 +47,6 @@
             box-sizing: border-box;
         }
 
-        /* Estilo do botão de enviar */
         .reset-btn {
             width: 100%;
             padding: 15px;
@@ -67,7 +63,6 @@
             background-color: #1B91AC;
         }
 
-        /* Link para retornar ao login */
         .login-link {
             text-align: center;
             margin-top: 20px;
@@ -83,7 +78,6 @@
             text-decoration: underline;
         }
 
-        /* Mensagem de feedback */
         .message {
             text-align: center;
             margin-bottom: 20px;
@@ -97,15 +91,16 @@
             color: #155724;
             background-color: #d4edda;
             border: 1px solid #c3e6cb;
+            display: block;
         }
 
         .message.error {
             color: #721c24;
             background-color: #f8d7da;
             border: 1px solid #f5c6cb;
+            display: block;
         }
 
-        /* Responsividade */
         @media (max-width: 768px) {
             .reset-container {
                 padding: 30px;
@@ -115,24 +110,30 @@
 </head>
 <body>
 
-    <!-- Container do formulário de "Esqueci minha senha" -->
     <div class="reset-container">
-        <h2>Recupere sua senha</h2>
+        <h2 id="formTitle">Recupere sua senha</h2>
 
         <div id="message" class="message"></div>
 
-        <!-- Formulário de recuperação -->
-        <form id="resetForm" action="/esqueci-minha-senha/" method="POST">
-            {% csrf_token %} <!-- Token de segurança do Django -->
-
-            <!-- Campo para email ou celular -->
-            <input type="text" name="email_telefone" id="email_telefone" class="input-field" placeholder="Email ou número de celular" required>
-
-            <!-- Botão para enviar solicitação -->
-            <button type="submit" class="reset-btn">Enviar solicitação</button>
+        <form id="emailForm" action="/recuperar-senha/" method="POST">
+            {% csrf_token %}
+            <input type="email" name="email" id="email" class="input-field" placeholder="Email" required>
+            <button type="submit" class="reset-btn">Enviar código</button>
         </form>
 
-        <!-- Link para retornar ao login -->
+        <form id="codeForm" action="/validar-codigo/" method="POST" style="display:none;">
+            {% csrf_token %}
+            <input type="text" name="codigo" id="codigo" class="input-field" placeholder="Código de 6 dígitos" required>
+            <button type="submit" class="reset-btn">Validar código</button>
+        </form>
+
+        <form id="passwordForm" action="/redefinir-senha/" method="POST" style="display:none;">
+            {% csrf_token %}
+            <input type="password" name="nova_senha" id="nova_senha" class="input-field" placeholder="Nova senha" required minlength="8" title="A senha deve ter no mínimo 8 caracteres.">
+            <input type="password" name="repetir_nova_senha" id="repetir_nova_senha" class="input-field" placeholder="Repetir nova senha" required>
+            <button type="submit" class="reset-btn">Alterar senha</button>
+        </form>
+
         <div class="login-link">
             <a href="/login/">Já tem uma conta? Faça login</a>
         </div>
@@ -140,52 +141,98 @@
 
     <script>
         (function(){
-            const form = document.getElementById('resetForm');
+            const emailForm = document.getElementById('emailForm');
+            const codeForm = document.getElementById('codeForm');
+            const passwordForm = document.getElementById('passwordForm');
             const messageBox = document.getElementById('message');
-
-            form.addEventListener('submit', function(event){
-                event.preventDefault();
-
-                // Obter token CSRF do input hidden gerado pelo Django
-                const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
-                const emailTelefone = document.getElementById('email_telefone').value.trim();
-
-                if(!emailTelefone){
-                    showMessage('Por favor, preencha o campo Email ou número de celular.', 'error');
-                    return;
-                }
-
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken,
-                        'Accept': 'application/json',
-                    },
-                    body: JSON.stringify({ email_telefone: emailTelefone })
-                })
-                .then(response => {
-                    if(!response.ok) throw new Error('Erro na requisição');
-                    return response.json();
-                })
-                .then(data => {
-                    if(data.success){
-                        showMessage(data.message || 'Código de recuperação enviado com sucesso.', 'success');
-                        form.reset();
-                    } else {
-                        showMessage(data.message || 'Falha ao enviar código de recuperação.', 'error');
-                    }
-                })
-                .catch(() => {
-                    showMessage('Erro na comunicação com o servidor. Tente novamente.', 'error');
-                });
-            });
+            const formTitle = document.getElementById('formTitle');
+            let userEmail = ''; // Variável para armazenar o email entre os passos
 
             function showMessage(msg, type) {
                 messageBox.textContent = msg;
                 messageBox.className = 'message ' + type;
-                messageBox.style.display = 'block';
             }
+
+            // Passo 1: Enviar o e-mail para receber o código
+            emailForm.addEventListener('submit', function(event){
+                event.preventDefault();
+                userEmail = document.getElementById('email').value.trim();
+                
+                fetch(emailForm.action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value, },
+                    body: JSON.stringify({ email: userEmail })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success){
+                        showMessage(data.message, 'success');
+                        emailForm.style.display = 'none';
+                        codeForm.style.display = 'block';
+                        formTitle.textContent = 'Verifique seu código';
+                    } else {
+                        showMessage(data.message, 'error');
+                    }
+                })
+                .catch(() => showMessage('Erro na comunicação com o servidor. Tente novamente.', 'error'));
+            });
+
+            // Passo 2: Validar o código recebido
+            codeForm.addEventListener('submit', function(event){
+                event.preventDefault();
+                const codigo = document.getElementById('codigo').value.trim();
+                
+                fetch(codeForm.action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value, },
+                    body: JSON.stringify({ email: userEmail, codigo: codigo })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success){
+                        showMessage(data.message, 'success');
+                        codeForm.style.display = 'none';
+                        passwordForm.style.display = 'block';
+                        formTitle.textContent = 'Definir nova senha';
+                    } else {
+                        showMessage(data.message, 'error');
+                    }
+                })
+                .catch(() => showMessage('Erro na comunicação com o servidor. Tente novamente.', 'error'));
+            });
+
+            // Passo 3: Redefinir a senha
+            passwordForm.addEventListener('submit', function(event){
+                event.preventDefault();
+                const novaSenha = document.getElementById('nova_senha').value;
+                const repetirSenha = document.getElementById('repetir_nova_senha').value;
+
+                if (novaSenha !== repetirSenha) {
+                    showMessage('As senhas não coincidem. Por favor, tente novamente.', 'error');
+                    return;
+                }
+                
+                fetch(passwordForm.action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value, },
+                    body: JSON.stringify({ email: userEmail, nova_senha: novaSenha })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success){
+                        showMessage(data.message, 'success');
+                        passwordForm.style.display = 'none';
+                        // Opcional: Redirecionar para a página de login após 3 segundos
+                        setTimeout(() => {
+                           window.location.href = '/login/'; 
+                        }, 3000);
+                    } else {
+                        showMessage(data.message, 'error');
+                    }
+                })
+                .catch(() => showMessage('Erro na comunicação com o servidor. Tente novamente.', 'error'));
+            });
+
         })();
     </script>
 

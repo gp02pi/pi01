@@ -1,0 +1,502 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gestão de Vendas</title>
+<link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+:root { --bg-color: #f0f2f5; --card-bg-color: #ffffff; --primary-color: #26A0B8; --secondary-color: #f7b731; --danger-color: #d9534f; --text-color: #333; --light-text-color: #888; --border-radius: 12px; --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); --modal-bg: #ffffff; --modal-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); --input-border: #dcdcdc; --input-focus: #26A0B8; --btn-confirm: #26A0B8; --btn-cancel: #f0f2f5; --btn-text-dark: #333; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; padding: 30px; padding-top: 90px; }
+.container { width: 100%; max-width: 1200px; margin: 0 auto; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
+.header h1 { font-size: 2.2rem; font-weight: 600; color: var(--primary-color); }
+.search-container { position: relative; flex-grow: 1; min-width: 250px; }
+.search-container i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--light-text-color); }
+#search-bar { width: 100%; padding: 12px 12px 12px 45px; border: 1px solid #ddd; border-radius: 50px; outline: none; transition: all 0.3s ease; }
+#search-bar:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); }
+.add-btn { background-color: var(--primary-color); color: white; border: none; border-radius: 50px; padding: 12px 24px; font-size: 1rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); transition: transform 0.2s, box-shadow 0.2s; }
+.add-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25); }
+.sales-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 0; list-style: none; }
+.sale-card { background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: var(--box-shadow); padding: 20px; transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; }
+.sale-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
+.sale-card h3 { font-size: 1.25rem; margin-bottom: 10px; color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 5px; }
+.sale-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.95rem; }
+.sale-info strong { font-weight: 500; }
+.sale-info span { color: var(--text-color); text-align: right; }
+.sale-info small { color: var(--light-text-color); }
+.sale-actions { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; }
+.sale-actions .edit-btn, .sale-actions .delete-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--light-text-color); transition: color 0.3s ease; margin-left: 10px; }
+.sale-actions .edit-btn:hover { color: var(--primary-color); }
+.sale-actions .delete-btn:hover { color: var(--danger-color); }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 1000; }
+.modal-content { background-color: var(--modal-bg); padding: 30px; border-radius: 10px; width: 90%; max-width: 500px; box-shadow: var(--modal-shadow); animation: fadeIn 0.3s ease-out; overflow: hidden; }
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.modal-header { text-align: center; margin-bottom: 25px; }
+.modal-header h2 { font-size: 1.6rem; font-weight: 600; color: #333; }
+.modal-body .input-group { margin-bottom: 20px; }
+.modal-body label { font-weight: 500; color: #555; margin-bottom: 8px; display: block; font-size: 0.9rem; text-transform: uppercase; }
+.modal-body input, .modal-body select { width: 100%; padding: 12px; border: 1px solid var(--input-border); border-radius: 8px; font-size: 1rem; transition: border-color 0.3s, box-shadow 0.3s; }
+.modal-body input:focus, .modal-body select:focus { outline: none; border-color: var(--input-focus); box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1); }
+.modal-body .search-select-container { position: relative; }
+.modal-body .select-options { border: 1px solid var(--input-border); border-radius: 8px; max-height: 180px; overflow-y: auto; position: absolute; width: 100%; background-color: var(--modal-bg); z-index: 10; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: none; margin-top: 4px; }
+.modal-body .select-options div { padding: 12px; cursor: pointer; transition: background-color 0.2s; }
+.modal-body .select-options div:hover { background-color: #f5f5f5; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 15px; margin-top: 25px; }
+.modal-footer button { padding: 12px 25px; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
+.modal-footer .confirm-btn { background-color: var(--btn-confirm); color: white; border: none; }
+.modal-footer .confirm-btn:hover { background-color: #1f7f92; }
+.modal-footer .cancel-btn { background-color: var(--btn-cancel); color: var(--btn-text-dark); border: 1px solid #e0e0e0; }
+.modal-footer .cancel-btn:hover { background-color: #e6e8eb; }
+.label-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.label-container label { margin-bottom: 0; }
+.quick-add-btn { background-color: #eaf3fe; color: var(--primary-color); border: 1px solid var(--primary-color); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
+.quick-add-btn i { margin-right: 5px; }
+.quick-add-btn:hover { background-color: var(--primary-color); color: white; }
+.input-warning { display: block; font-size: 0.8rem; color: var(--light-text-color); margin-top: 5px; padding-left: 2px; }
+#confirm-delete-modal .modal-content { max-width: 420px; }
+#confirm-delete-modal .modal-header { text-align: left; margin-bottom: 20px; }
+#confirm-delete-modal .modal-header h3 { font-size: 1.4rem; display: flex; align-items: center; }
+#confirm-delete-modal .modal-header .fa-exclamation-triangle { color: var(--secondary-color); margin-right: 15px; font-size: 1.8rem; }
+#confirm-delete-modal .modal-body p { font-size: 1rem; line-height: 1.6; margin-bottom: 15px; }
+#confirm-delete-modal .stock-warning { background-color: #fffbe6; border-left: 4px solid var(--secondary-color); padding: 10px 15px; font-size: 0.9rem; color: #664d03; border-radius: 4px; }
+#confirm-delete-btn { background-color: var(--danger-color); }
+#confirm-delete-btn:hover { background-color: #c9302c; }
+.toast-message { visibility: hidden; min-width: 250px; background-color: #4CAF50; color: #fff; text-align: center; border-radius: 6px; padding: 16px; position: fixed; z-index: 1001; top: 0px; right: 30px; font-size: 17px; opacity: 0; transition: opacity 0.5s, top 0.5s; }
+.toast-message.show { visibility: visible; opacity: 1; top: 30px; }
+.success-message { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #4CAF50; color: white; text-align: center; padding: 15px 30px; border-radius: 8px; z-index: 1002; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); opacity: 0; transition: opacity 0.5s ease-in-out; }
+.success-message.show { opacity: 1; }
+#cliente-rapido-modal { z-index: 1001; }
+#cliente-rapido-modal .modal-content { max-width: 550px; border-radius: 16px; padding: 35px 40px; }
+#cliente-rapido-modal .modal-header h2 { font-size: 1.75rem; font-weight: 600; margin-bottom: 30px; }
+#cliente-rapido-modal .modal-body { display: flex; flex-wrap: wrap; gap: 20px 20px; }
+#cliente-rapido-modal .input-group { width: calc(50% - 10px); margin-bottom: 0; }
+#cliente-rapido-modal .full-width { width: 100%; }
+#cliente-rapido-modal .modal-body label { font-size: 0.75rem; font-weight: 600; color: #555; }
+#cliente-rapido-modal .modal-footer { margin-top: 30px; }
+</style>
+
+</head>
+<body>
+{% include 'barra.html' %}
+{% include 'session_timeout_modal.html' %}
+<div class="container">
+<div class="header">
+<div class="search-container">
+<i class="fas fa-search"></i>
+<input type="text" id="search-bar" placeholder="Buscar por produto, cliente ou data..." oninput="filtrarVendas()" />
+</div>
+<button class="add-btn" onclick="openModal()">+ Nova Venda</button>
+</div>
+
+<div id="sales-grid" class="sales-grid">
+</div>
+
+<div id="venda-modal" class="modal" onclick="closeModal()">
+<div class="modal-content" onclick="event.stopPropagation()">
+<div class="modal-header">
+<h2 id="modal-title">Registrar Venda</h2>
+</div>
+<form id="venda-form" onsubmit="registrarVenda(event)">
+<input type="hidden" name="id" id="venda-id" />
+<div class="modal-body">
+<div class="input-group">
+<label for="produto-search">Produto</label>
+<div class="search-select-container" id="produto-select-container"></div>
+</div>
+<div class="input-group">
+<div class="label-container">
+<label for="cliente-search">Cliente</label>
+<button type="button" class="quick-add-btn" onclick="openClienteRapidoModal(event)">
+<i class="fas fa-plus"></i> Cadastro Rápido
+</button>
+</div>
+<div class="search-select-container" id="cliente-select-container"></div>
+</div>
+<div class="input-group">
+<label for="quantidade-venda">Quantidade</label>
+<input type="number" name="quantidade_venda" id="quantidade-venda" placeholder="Quantidade vendida" min="1" required />
+</div>
+</div>
+<div class="modal-footer">
+<button type="button" class="cancel-btn" onclick="closeModal()">Cancelar</button>
+<button type="submit" id="confirm-button" class="confirm-btn">Registrar Venda</button>
+</div>
+</form>
+</div>
+</div>
+
+<div id="cliente-rapido-modal" class="modal" onclick="closeClienteRapidoModal()">
+<div class="modal-content" onclick="event.stopPropagation()">
+<div class="modal-header">
+<h2>Cadastro Rápido de Cliente</h2>
+</div>
+<form id="cliente-rapido-form" onsubmit="registrarClienteRapido(event)">
+<div class="modal-body">
+<div class="input-group">
+<label for="cliente-rapido-nome">Nome Completo</label>
+<input type="text" id="cliente-rapido-nome" placeholder="Nome completo do cliente" required>
+</div>
+<div class="input-group">
+<label for="cliente-rapido-cpf">CPF</label>
+<input type="tel" id="cliente-rapido-cpf" placeholder="Apenas números" required>
+</div>
+<div class="input-group">
+<label for="cliente-rapido-email">Email</label>
+<input type="email" id="cliente-rapido-email" placeholder="email@exemplo.com">
+</div>
+<div class="input-group">
+<label for="cliente-rapido-telefone">Telefone</label>
+<input type="tel" id="cliente-rapido-telefone" placeholder="Com DDD, apenas números">
+</div>
+<div class="input-group full-width">
+<label for="cliente-rapido-endereco">Endereço</label>
+<input type="text" id="cliente-rapido-endereco" placeholder="Rua, Número, Bairro...">
+</div>
+<div class="input-group full-width">
+<label for="cliente-rapido-cep">CEP</label>
+<input type="tel" id="cliente-rapido-cep" placeholder="Apenas números">
+</div>
+</div>
+<div class="modal-footer">
+<button type="button" class="cancel-btn" onclick="closeClienteRapidoModal()">Cancelar</button>
+<button type="submit" class="confirm-btn">Salvar Cliente</button>
+</div>
+</form>
+</div>
+</div>
+
+<div id="confirm-delete-modal" class="modal" onclick="closeDeleteModal()">
+<div class="modal-content" onclick="event.stopPropagation()">
+<div class="modal-header">
+<h3><i class="fas fa-exclamation-triangle"></i>Confirmar Exclusão</h3>
+</div>
+<div class="modal-body">
+<p id="delete-message">Você tem certeza que deseja excluir esta venda?</p>
+<p class="stock-warning" id="stock-warning-message">
+Atenção: A quantidade vendida retornará ao estoque do produto.
+</p>
+</div>
+<div class="modal-footer">
+<button type="button" class="cancel-btn" onclick="closeDeleteModal()">Cancelar</button>
+<button type="button" id="confirm-delete-btn" class="confirm-btn">Excluir Venda</button>
+</div>
+</div>
+</div>
+</div>
+<div id="success-message" class="success-message"></div>
+
+<div id="toast-message" class="toast-message"></div>
+<script>
+let vendas = [];
+let produtosDisponiveis = [];
+let clientesDisponiveis = [];
+
+const API_VENDAS_URL = '/api/vendas/';
+const API_PRODUTOS_URL = '/api/produtos/';
+const API_CLIENTES_URL = '/api/clientes/';
+
+function openModal(edit = false) {
+document.getElementById('venda-modal').style.display = 'flex';
+const form = document.getElementById('venda-form');
+form.reset();
+document.getElementById('modal-title').textContent = edit ? "Editar Venda" : "Registrar Venda";
+document.getElementById('confirm-button').textContent = edit ? "Salvar Alterações" : "Registrar Venda";
+document.getElementById('venda-id').value = '';
+}
+function closeModal() {
+document.getElementById('venda-modal').style.display = 'none';
+}
+function openClienteRapidoModal(event) {
+event.stopPropagation();
+document.getElementById('cliente-rapido-modal').style.display = 'flex';
+}
+function closeClienteRapidoModal() {
+document.getElementById('cliente-rapido-form').reset();
+document.getElementById('cliente-rapido-modal').style.display = 'none';
+}
+function openDeleteModal() {
+document.getElementById('confirm-delete-modal').style.display = 'flex';
+}
+function closeDeleteModal() {
+document.getElementById('confirm-delete-modal').style.display = 'none';
+}
+function getCookie(name) {
+let cookieValue = null;
+if (document.cookie && document.cookie !== '') {
+const cookies = document.cookie.split(';');
+for (let i = 0; i < cookies.length; i++) {
+const cookie = cookies[i].trim();
+if (cookie.substring(0, name.length + 1) === (name + '=')) {
+cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+break;
+}
+}
+}
+return cookieValue;
+}
+async function carregarDadosIniciais() {
+await Promise.all([
+carregarProdutosDisponiveis(),
+carregarClientesDisponiveis(),
+carregarVendas()
+]);
+}
+async function carregarVendas() {
+try {
+const response = await fetch(API_VENDAS_URL);
+if (!response.ok) throw new Error('Erro ao carregar vendas');
+vendas = await response.json();
+renderizarVendas();
+} catch (error) {
+console.error("Erro ao carregar vendas:", error);
+document.getElementById('sales-grid').innerHTML = `<p style="text-align:center; color: var(--light-text-color);">Não foi possível carregar as vendas.</p>`;
+}
+}
+async function carregarProdutosDisponiveis() {
+try {
+const response = await fetch(API_PRODUTOS_URL);
+if (!response.ok) throw new Error('Erro ao carregar produtos');
+produtosDisponiveis = await response.json();
+preencherSelectProdutos();
+} catch (error) { console.error("Erro ao carregar produtos:", error); }
+}
+async function carregarClientesDisponiveis() {
+try {
+const response = await fetch(API_CLIENTES_URL);
+if (!response.ok) throw new Error('Erro ao carregar clientes');
+clientesDisponiveis = await response.json();
+preencherSelectClientes();
+} catch (error) { console.error("Erro ao carregar clientes:", error); }
+}
+function renderizarVendas() {
+const grid = document.getElementById('sales-grid');
+grid.innerHTML = '';
+if (vendas.length === 0) {
+grid.innerHTML = `<p style="text-align:center; color: var(--light-text-color);">Nenhuma venda registrada.</p>`;
+return;
+}
+vendas.forEach(venda => {
+const card = document.createElement('div');
+card.classList.add('sale-card');
+
+const precoTotalFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(venda.preco_total);
+const dataFormatada = new Date(venda.data_venda).toLocaleDateString('pt-BR');
+
+card.innerHTML = `
+<h3>Venda #${venda.id.substring(0, 8)}</h3>
+<div class="sale-info">
+<strong>Produto:</strong> <span>${venda.produto__nome}</span>
+</div>
+<div class="sale-info">
+<strong>Cliente:</strong> <span>${venda.cliente__nome}</span>
+</div>
+<div class="sale-info">
+<strong>Quantidade:</strong> <span>${venda.quantidade}</span>
+</div>
+<div class="sale-info">
+<strong>Valor Total:</strong> <span>${precoTotalFormatado}</span>
+</div>
+<div class="sale-info">
+<strong>Data:</strong> <span>${dataFormatada}</span>
+</div>
+<div class="sale-actions">
+<button class="delete-btn" onclick="excluirVenda('${venda.id}')">
+<i class="fas fa-trash-alt"></i>
+</button>
+</div>
+`;
+grid.appendChild(card);
+});
+filtrarVendas();
+}
+
+function showSuccessMessage(message) {
+const msgElement = document.getElementById('success-message');
+msgElement.textContent = message;
+msgElement.classList.add('show');
+setTimeout(() => {
+msgElement.classList.remove('show');
+}, 1500); 
+}
+
+async function registrarClienteRapido(event) {
+event.preventDefault();
+const csrftoken = getCookie('csrftoken');
+
+const clienteData = {
+nome: document.getElementById('cliente-rapido-nome').value.trim(),
+cpf: document.getElementById('cliente-rapido-cpf').value.trim(),
+email: document.getElementById('cliente-rapido-email').value.trim(),
+telefone: document.getElementById('cliente-rapido-telefone').value.trim(),
+endereco: document.getElementById('cliente-rapido-endereco').value.trim(),
+cep: document.getElementById('cliente-rapido-cep').value.trim(),
+};
+if (!clienteData.nome || !clienteData.cpf) {
+showSuccessMessage("Nome e CPF são campos obrigatórios.");
+return;
+}
+try {
+const response = await fetch(API_CLIENTES_URL, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+body: JSON.stringify(clienteData),
+});
+const novoCliente = await response.json();
+if (!response.ok) throw new Error(novoCliente.cpf?.[0] || novoCliente.error || 'Erro desconhecido');
+
+showSuccessMessage('Cliente cadastrado com sucesso!');
+
+closeClienteRapidoModal();
+await carregarClientesDisponiveis();
+const clienteSearchInput = document.getElementById('cliente-search');
+clienteSearchInput.value = novoCliente.nome;
+clienteSearchInput.dataset.selectedCpf = novoCliente.cpf;
+} catch (error) {
+console.error("Erro ao cadastrar cliente:", error);
+alert(`Erro: ${error.message}`);
+}
+}
+async function registrarVenda(event) {
+event.preventDefault();
+const csrftoken = getCookie('csrftoken');
+const form = event.target;
+
+const vendaData = {
+id: form.id.value.trim() || null,
+produto_id: document.getElementById('produto-search').dataset.selectedId,
+cliente_cpf: document.getElementById('cliente-search').dataset.selectedCpf,
+quantidade: parseInt(form.quantidade_venda.value.trim()),
+};
+if (!vendaData.produto_id || !vendaData.cliente_cpf || isNaN(vendaData.quantidade) || vendaData.quantidade <= 0) {
+alert("Por favor, preencha todos os campos corretamente.");
+return;
+}
+const produtoSelecionado = produtosDisponiveis.find(p => p.id === vendaData.produto_id);
+if (vendaData.quantidade > produtoSelecionado.quantidade) {
+alert(`Estoque insuficiente. Quantidade disponível: ${produtoSelecionado.quantidade}`);
+return;
+}
+try {
+const url = vendaData.id ? `${API_VENDAS_URL}${vendaData.id}/` : API_VENDAS_URL;
+const method = vendaData.id ? 'PUT' : 'POST';
+const response = await fetch(url, {
+method: method,
+headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+body: JSON.stringify(vendaData),
+});
+if (!response.ok) {
+const errorData = await response.json();
+throw new Error(errorData.error || 'Erro ao registrar a venda');
+}
+await carregarDadosIniciais();
+closeModal();
+} catch (error) {
+console.error("Erro na venda:", error);
+alert(`Erro ao registrar a venda: ${error.message}`);
+}
+}
+function excluirVenda(id) {
+const venda = vendas.find(v => v.id === id);
+if (!venda) return;
+const deleteMessage = document.getElementById('delete-message');
+const stockWarningMessage = document.getElementById('stock-warning-message');
+const confirmBtn = document.getElementById('confirm-delete-btn');
+deleteMessage.innerHTML = `Tem certeza que deseja excluir a venda do produto <strong>${venda.produto__nome}</strong> para o cliente <strong>${venda.cliente__nome}</strong>?`;
+stockWarningMessage.innerHTML = `⚠️ <strong>Atenção:</strong> A quantidade vendida (<strong>${venda.quantidade}</strong>) retornará ao estoque do produto.`;
+confirmBtn.dataset.vendaId = id;
+openDeleteModal();
+}
+async function confirmarExclusao() {
+const id = document.getElementById('confirm-delete-btn').dataset.vendaId;
+if (!id) {
+alert("Erro: ID da venda não encontrado.");
+return;
+}
+try {
+const csrftoken = getCookie('csrftoken');
+const url = `${API_VENDAS_URL}${id}/`;
+const response = await fetch(url, { 
+method: 'DELETE',
+headers: { 'X-CSRFToken': csrftoken }
+});
+if (response.status === 204) {
+closeDeleteModal();
+await carregarDadosIniciais();
+} else {
+const errorData = await response.json();
+throw new Error(errorData.error || 'Erro ao excluir venda');
+}
+} catch (error) {
+console.error(error);
+alert(`Erro ao excluir venda: ${error.message}`);
+}
+}
+function preencherSelectProdutos(selectedId = null) {
+const container = document.getElementById('produto-select-container');
+container.innerHTML = `
+<input type="text" id="produto-search" placeholder="Buscar produto..." oninput="filtrarOpcoes('produto')" autocomplete="off">
+<div id="produto-options" class="select-options"></div>
+`;
+const optionsDiv = document.getElementById('produto-options');
+produtosDisponiveis.forEach(produto => {
+const option = document.createElement('div');
+option.textContent = `${produto.nome} (Estoque: ${produto.quantidade})`;
+option.dataset.value = produto.id;
+option.onclick = () => {
+document.getElementById('produto-search').value = produto.nome;
+document.getElementById('produto-search').dataset.selectedId = produto.id;
+optionsDiv.style.display = 'none';
+};
+optionsDiv.appendChild(option);
+});
+document.getElementById('produto-search').onfocus = () => optionsDiv.style.display = 'block';
+document.getElementById('produto-search').onblur = () => setTimeout(() => optionsDiv.style.display = 'none', 200);
+}
+function preencherSelectClientes(selectedCpf = null) {
+const container = document.getElementById('cliente-select-container');
+container.innerHTML = `
+<input type="text" id="cliente-search" placeholder="Buscar cliente por nome ou CPF..." oninput="filtrarOpcoes('cliente')" autocomplete="off">
+<div id="cliente-options" class="select-options"></div>
+`;
+const optionsDiv = document.getElementById('cliente-options');
+clientesDisponiveis.forEach(cliente => {
+const option = document.createElement('div');
+option.textContent = `${cliente.nome} (${cliente.cpf})`;
+option.dataset.value = cliente.cpf;
+option.onclick = () => {
+document.getElementById('cliente-search').value = cliente.nome;
+document.getElementById('cliente-search').dataset.selectedCpf = cliente.cpf;
+optionsDiv.style.display = 'none';
+};
+optionsDiv.appendChild(option);
+});
+document.getElementById('cliente-search').onfocus = () => optionsDiv.style.display = 'block';
+document.getElementById('cliente-search').onblur = () => setTimeout(() => optionsDiv.style.display = 'none', 200);
+}
+function filtrarOpcoes(tipo) {
+const searchTerm = document.getElementById(`${tipo}-search`).value.toLowerCase();
+const options = document.getElementById(`${tipo}-options`).children;
+Array.from(options).forEach(option => {
+option.style.display = option.textContent.toLowerCase().includes(searchTerm) ? 'block' : 'none';
+});
+}
+function filtrarVendas() {
+const filtro = document.getElementById('search-bar').value.toLowerCase();
+const cards = document.querySelectorAll('.sale-card');
+cards.forEach(card => {
+card.style.display = card.textContent.toLowerCase().includes(filtro) ? 'flex' : 'none';
+});
+}
+document.addEventListener('DOMContentLoaded', () => {
+carregarDadosIniciais();
+document.getElementById('confirm-delete-btn').addEventListener('click', confirmarExclusao);
+});
+</script>
+</body>
+</html>

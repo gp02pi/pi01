@@ -1,460 +1,591 @@
 {% load static %}
-
 <!DOCTYPE html>
-
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Relatórios de Estoque</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <style>
-    :root {
-      --primary: #1e3a8a;
-      --secondary: #f1f5f9;
-      --danger: #2196F3;
-      --success: #EB9941;
-      --card-bg: #ffffff;
-      --text-color: #1f2937;
-    }
-
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: var(--secondary);
-        color: var(--text-color);
-        padding-top: 80px;
-
+    {% csrf_token %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relatórios</title>
+    <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        :root{--bg-color:#f4f6f9;--card-bg-color:#ffffff;--primary-color:#26A0B8;--primary-dark:#26A0B8;--text-color:#343a40;--light-text-color:#6c757d;--border-color:#e9ecef;--border-radius:8px;--box-shadow:0 4px 15px rgba(0, 0, 0, 0.05);}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
         }
-
-    main {
-        max-width: 100vw; 
-        margin: 0 auto;
-        height: calc(100vh - 80px);
-        display: flex;
-        flex-direction: column;
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-
-    .export-buttons {
-        margin-bottom: 1rem;
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        flex-wrap: wrap;
-        flex-shrink: 0;
-    }
-
-    button {
-      padding: 0.6rem 1.2rem;
-      border: none;
-      border-radius: 6px;
-      font-weight: 700;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background-color 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .pdf-btn {
-      background-color: var(--danger);
-      color: white;
-    }
-    .pdf-btn:hover {
-      background-color: #1976D2;
-    }
-
-    .excel-btn {
-      background-color: var(--success);
-      color: white;
-    }
-    .excel-btn:hover {
-      background-color: #DD6936;
-    }
-
-    .card {
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    padding: 1.5rem 1.8rem;
-    display: flex;
-    flex-direction: column;
-    min-height: 180px;
-    border: 1px solid #e5e7eb;
-    transition: box-shadow 0.3s ease;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    white-space: normal;
-    max-height: 250px;
-    overflow-y: auto;
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: #cbd5e1 transparent;
-    }
-
-    /* WebKit (Chrome, Edge, Safari) */
-    .card::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .card::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .card::-webkit-scrollbar-thumb {
-      background-color: #cbd5e1;
-      border-radius: 3px;
-    }
-
-    .card p, .card li, .card span {
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-      word-break: break-word;
-      white-space: normal;
-    }
-
-    .card:hover {
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    }
-
-    .card h2 {
-        font-size: 1.2rem;
-        margin-bottom: 1rem;
-        color: #2c3e50;
-        font-weight: 600;
-        border: none;
-        padding-bottom: 0;
-    }
-
-    .card p {
-        margin: 0.4rem 0;
-        font-size: 0.96rem;
-        font-weight: 500;
-        color: #374151;
-    }
-
-    .cards-container {
-      max-height: 70vh;
-      overflow-y: auto;
-      padding-right: 0.5rem;
-    }
-
-    ul {
-        padding-left: 0;
-        list-style: none;
-        font-size: 0.95rem;
-        color: #374151;
-    }
-
-    .card ul li {
-        padding: 0.3rem 0;
-        border-bottom: 1px solid #f3f4f6;
-    }
-
-    ul li:last-child {
-        border-bottom: none;
-    }
-
-    .cards-wrapper {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 2rem;
-        overflow-y: auto;
-        padding-right: 0.5rem;
-        padding-bottom: 4rem;
-        max-width: none; 
-        width: 80vw;
-        box-sizing: border-box;
-}
-  </style>
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            padding-top: 90px;
+        }
+        h1 {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            padding-bottom: 50px;
+        }
+        .header-buttons {
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-end;
+            position: relative;
+            z-index: 10;
+        }
+        .card {
+            background-color: var(--card-bg-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease-in-out;
+            cursor: default;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .card-header .icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+        .card-header h2 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin: 0;
+            color: var(--text-color);
+        }
+        .card-body {
+            flex-grow: 1;
+        }
+        .card-body .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+        .card-body .description {
+            font-size: 0.9rem;
+            color: var(--light-text-color);
+        }
+        .card-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        .card-list li {
+            padding: 8px 0;
+            font-size: 1rem;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-list li:last-child {
+            border-bottom: none;
+        }
+        .card-list li .name {
+            font-weight: 500;
+        }
+        .card-list li .value {
+            font-weight: 400;
+            color: var(--primary-dark);
+        }
+        .loading-container {
+            width: 100%;
+            text-align: center;
+            margin-top: 50px;
+            font-size: 1.2rem;
+            color: var(--light-text-color);
+            display: none;
+        }
+        .loading-container i {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        /* Estilos para centralizar a mensagem de aviso no topo */
+        .toast-message {
+            position: fixed;
+            top: 20px; /* Distância do topo */
+            left: 50%; /* Alinha o lado esquerdo no centro */
+            transform: translateX(-50%); /* Move a mensagem para trás 50% da própria largura para centralizar */
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            font-size: 0.9rem;
+        }
+        .toast-message.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .toast-message.error {
+            background-color: #dc3545;
+        }
+        /* Estilos para o menu dropdown */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .main-export-btn {
+            background-color: #26A0B8;
+            color: white;
+            border: none;
+            border-radius: 10%;
+            padding: 15px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+        .main-export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--card-bg-color);
+            box-shadow: var(--box-shadow);
+            z-index: 10;
+            border-radius: var(--border-radius);
+            padding: 10px;
+            right: 100%;
+            top: 50%;
+            margin-right: 10px;
+            white-space: nowrap;
+            flex-direction: row;
+            gap: 10px;
+            transform-origin: right top;
+            animation: fadeIn 0.3s ease-in-out forwards;
+            transform: translateY(-50%) scaleX(0);
+        }
+        .dropdown-content.show {
+            display: flex;
+            transform: translateY(-50%) scaleX(1);
+        }
+        /* Estilos para o container do campo de e-mail */
+        .email-input-container {
+            display: none;
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            margin-right: 10px;
+            transform: translateY(-50%) scaleX(0);
+            transform-origin: right top;
+            animation: fadeIn 0.3s ease-in-out forwards;
+        }
+        .email-input-container.show {
+            display: flex;
+            transform: translateY(-50%) scaleX(1);
+        }
+        /* Estilos do campo de texto minimalista */
+        .email-input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .email-input-group input {
+            padding: 10px 35px 10px 12px;
+            border: none;
+            background-color: #f0f0f0;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            width: 300px;
+        }
+        .email-input-group input:focus {
+            outline: none;
+            background-color: #e8e8e8;
+        }
+        /* Estilos do botão de envio minimalista */
+        .email-input-group .send-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            color: var(--primary-color);
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+        .email-input-group .send-btn:hover {
+            color: var(--primary-dark);
+        }
+        @keyframes fadeIn {
+            from { transform: translateY(-50%) scaleX(0); opacity: 0; }
+            to { transform: translateY(-50%) scaleX(1); opacity: 1; }
+        }
+        .dropdown-content button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: 500;
+            background-color: var(--primary-color);
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            flex-shrink: 0;
+            margin-bottom: 0;
+        }
+        .dropdown-content button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .dropdown-content button .icon {
+            margin-right: 8px;
+            color: white;
+        }
+        /* Cores das opções e ícones */
+        .dropdown-content .btn-pdf { background-color: #e74c3c; }
+        .dropdown-content .btn-word { background-color: #3498db; }
+        .dropdown-content .btn-excel { background-color: #2ecc71; }
+        .dropdown-content .btn-email { background-color: #9b59b6; }
+        .dropdown-content .btn-pdf:hover { background-color: #c0392b; }
+        .dropdown-content .btn-word:hover { background-color: #2980b9; }
+        .dropdown-content .btn-excel:hover { background-color: #27ae60; }
+        .dropdown-content .btn-email:hover { background-color: #8e44ad; }
+    </style>
 </head>
 <body>
     {% include 'barra.html' %}
-    <main>
-        <div class="export-buttons">
-          <button class="pdf-btn" onclick="exportPDF()">+ PDF</button>
-          <button class="excel-btn" onclick="exportExcel()">+ Planilha</button>
+    {% include 'session_timeout_modal.html' %}
+    <div id="toast-message" class="toast-message"></div>
+    <div class="header-buttons">
+        <div class="dropdown">
+            <button class="main-export-btn">
+                <i class="fas fa-plus icon"></i>
+            </button>
+            <div class="dropdown-content">
+                <button onclick="exportToPDF()" class="btn-pdf">
+                    <i class="fas fa-file-pdf icon"></i> PDF
+                </button>
+                <button onclick="exportToWord()" class="btn-word">
+                    <i class="fas fa-file-word icon"></i> Word
+                </button>
+                <button onclick="exportToExcel()" class="btn-excel">
+                    <i class="fas fa-file-excel icon"></i> Excel
+                </button>
+                <button onclick="openEmailInput()" class="btn-email">
+                    <i class="fas fa-envelope icon"></i> E-mail
+                </button>
+            </div>
+            <div class="email-input-container">
+                <div class="email-input-group">
+                    <input type="email" id="emailInput" placeholder="E-mail" />
+                    <button class="send-btn" onclick="sendAllFiles()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-
-    <div class="cards-wrapper">
-      <section class="card" id="card-estoque">
-        <h2>Estoque Atual</h2>
-        <p><strong>Total de Produtos:</strong> <span id="produtos-estoque">Carregando...</span></p>
-        <p><strong>Valor Total:</strong> <span id="valor-estoque">Carregando...</span></p>
-      </section>
-  
-      <section class="card" id="card-produtos-falta">
-        <h2>Em Falta</h2>
-        <ul id="lista-produtos-falta">Carregando...</ul>
-      </section>
-  
-      <section class="card" id="card-produtos-mais-vendidos">
-        <h2>Mais Vendidos</h2>
-        <ul id="lista-produtos-mais-saem">Carregando...</ul>
-      </section>
-  
-      <section class="card" id="card-produtos-excesso">
-        <h2>Em Excesso</h2>
-        <ul id="lista-produtos-excesso">Carregando...</ul>
-      </section>
-  
-      <section class="card" id="card-produtos-menos-vendidos">
-        <h2>Menos Vendidos</h2>
-        <ul id="lista-produtos-menos-saem">Carregando...</ul>
-      </section>
-  
-      <section class="card" id="card-principal-fornecedor">
-        <h2>Principal Fornecedor</h2>
-        <p><strong>Fornecedor:</strong> <span id="principal-fornecedor">Carregando...</span></p>
-        <p><strong>Volume de Compras:</strong> <span id="volume-compras">Carregando...</span></p>
-      </section>
-  
-      <section class="card" id="card-top-clientes">
-        <h2>Principais Clientes</h2>
-        <ul id="lista-top-clientes">Carregando...</ul>
-      </section>
-  
-      <section class="card" id="card-cadastro">
-        <h2>Cadastros no Sistema</h2>
-        <p><strong>Fornecedores Cadastrados:</strong> <span id="fornecedores">Carregando...</span></p>
-        <p><strong>Clientes Cadastrados:</strong> <span id="clientes">Carregando...</span></p>
-      </section>
     </div>
-  </main>
+      
+    <div class="loading-container" id="loading-container">
+        <i class="fas fa-sync fa-spin"></i> Carregando dados...
+    </div>
+    <div class="container" id="reports-container">
+    </div>
 
-<script>
-  // Canal para comunicação entre páginas via BroadcastChannel (funciona em abas/janelas do mesmo domínio)
-  const channel = new BroadcastChannel('estoque_channel');
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable@3.5.20/dist/jspdf.plugin.autotable.js"></script>
+    <script>
+        const API_URL = '/api/relatorios/';
+        const reportsContainer = document.getElementById('reports-container');
+        const loadingContainer = document.getElementById('loading-container');
+        const toastMsg = document.getElementById('toast-message');
+          
+        let reportData = null;
 
-  // Função para atualizar o conteúdo do card com dados recebidos
-  function atualizarCards(dados) {
-    if (!dados) return;
+        const mainExportBtn = document.querySelector('.main-export-btn');
+        const dropdownContent = document.querySelector('.dropdown-content');
+        const emailInputContainer = document.querySelector('.email-input-container');
+        const emailInput = document.getElementById('emailInput');
 
-    if (dados.produtosEstoque !== undefined) {
-      document.getElementById("produtos-estoque").textContent = dados.produtosEstoque;
-    }
-    if (dados.valorEstoque !== undefined) {
-      document.getElementById("valor-estoque").textContent = dados.valorEstoque;
-    }
-    if (dados.produtosFalta !== undefined) {
-      preencherLista("lista-produtos-falta", dados.produtosFalta);
-    }
-    if (dados.produtosMaisSaem !== undefined) {
-      preencherLista("lista-produtos-mais-saem", dados.produtosMaisSaem);
-    }
-    if (dados.produtosExcesso !== undefined) {
-      preencherLista("lista-produtos-excesso", dados.produtosExcesso);
-    }
-    if (dados.produtosMenosSaem !== undefined) {
-      preencherLista("lista-produtos-menos-saem", dados.produtosMenosSaem);
-    }
-    if (dados.topClientes !== undefined) {
-      preencherLista("lista-top-clientes", limitarLista(dados.topClientes));
-    }
-    if (dados.fornecedores !== undefined) {
-      document.getElementById("fornecedores").textContent = dados.fornecedores;
-    }
-    if (dados.clientes !== undefined) {
-      document.getElementById("clientes").textContent = dados.clientes;
-    }
-    if (dados.principalFornecedor !== undefined) {
-      document.getElementById("principal-fornecedor").textContent = dados.principalFornecedor.nome || "N/A";
-      document.getElementById("volume-compras").textContent = dados.principalFornecedor.volumeCompras || "N/A";
-    }
-  }
-
-  // Mantém lógica para preencher listas
-  function limitarLista(lista, maxItens = 3) {
-    return lista.slice(0, maxItens);
-  }
-
-  function preencherLista(id, itens) {
-    const ul = document.getElementById(id);
-    ul.innerHTML = "";
-    if (!itens || itens.length === 0) {
-      ul.innerHTML = "<li>Nenhum item disponível.</li>";
-      return;
-    }
-    limitarLista(itens).forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = item;
-      ul.appendChild(li);
-    });
-  }
-
-  // Busca inicial dos dados (simulado) e envia para atualização e transmissão para outras páginas
-  async function buscarDados() {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve({
-          produtosEstoque: 3200,
-          valorEstoque: 'R$ 153.500,00000000000000000000000000000000',
-          produtosFalta: ['Anel', 'Colar', 'Brinco', 'Pulseira'],
-          produtosExcesso: ['Anel', 'Colar', 'Brinco', 'Pulseira'],
-          produtosMaisSaem: ['Anel', 'Colar', 'Brinco', 'Pulseira'],
-          produtosMenosSaem: ['Anel', 'Colar', 'Brinco', 'Pulseira'],
-          fornecedores: 18,
-          clientes: 246,
-          principalFornecedor: {
-            nome: "Distribuidora ABC Ltda.",
-            volumeCompras: "R$ 87.200,00"
-          },
-          topClientes: [
-            "Fulano 1",
-            "Fulano 2",
-            "Fulano 3",
-          ]
+        // Adiciona um listener para a tecla 'Enter'
+        emailInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendAllFiles();
+            }
         });
-      }, 800);
-    });
-  }
 
-  async function carregarDados() {
-    const dados = await buscarDados();
-    atualizarCards(dados);
-    // Transmitir dados para outras abas/janelas
-    channel.postMessage(dados);
-  }
+        mainExportBtn.addEventListener('click', function(event) {
+            event.stopPropagation();
+            dropdownContent.classList.toggle('show');
+            emailInputContainer.classList.remove('show');
+        });
 
-  // Escutar dados enviados por outras páginas e atualizar o card em tempo real
-  channel.onmessage = (event) => {
-    if (event.data) {
-      atualizarCards(event.data);
-    }
-  };
+        window.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.dropdown');
+            if (!dropdown.contains(event.target)) {
+                dropdownContent.classList.remove('show');
+                emailInputContainer.classList.remove('show');
+            }
+        });
 
-  // Inicializar carregamento dos dados
-  carregarDados();
+        function openEmailInput() {
+            dropdownContent.classList.remove('show');
+            emailInputContainer.classList.add('show');
+            emailInput.focus();
+        }
 
-  // Exportações PDF e Excel seguem iguais, sem alterações
-  function exportPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4"
-    });
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
 
-    const pageWidth = doc.internal.pageSize.getWidth();
-    let y = 15;
-    const lineHeight = 8;
-    const margin = 15;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.setTextColor("#1e3a8a");
-    doc.text("Relatório de Estoque", pageWidth / 2, y, { align: "center" });
-    y += 12;
+        async function sendAllFiles() {
+            const email = emailInput.value;
+            if (!email || !email.includes('@')) {
+                showToast('Por favor, insira um e-mail válido.', 'error');
+                return;
+            }
 
-    doc.setFontSize(12);
-    doc.setTextColor("#374151");
+            emailInputContainer.classList.remove('show');
+            emailInput.value = '';
+            showToast('E-mail enviado com sucesso!', 'success', 1500);
+              
+            const backendUrl = '/api/enviar-relatorios-email/';
 
-    function desenharBloco(titulo, conteudo, yStart) {
-      doc.setDrawColor(30, 58, 138);
-      doc.setFillColor(240, 243, 250);
-      doc.roundedRect(margin, yStart, pageWidth - 2 * margin, 45, 4, 4, "FD");
+            try {
+                const response = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ email: email }),
+                });
 
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor("#1e3a8a");
-      doc.text(titulo, margin + 5, yStart + 10);
+                const result = await response.json();
+                  
+                if (!response.ok) {
+                    showToast(result.message, 'error');
+                }
 
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor("#374151");
-      let offsetY = yStart + 20;
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                showToast('Erro ao tentar conectar com o servidor.', 'error');
+            }
+        }
 
-      if (Array.isArray(conteudo)) {
-          conteudo.forEach(line => {
-          doc.text(line, margin + 10, offsetY);
-          offsetY += lineHeight;
-          });
-      } else {
-          Object.entries(conteudo).forEach(([key, value]) => {
-          doc.text(`${key}: ${value}`, margin + 10, offsetY);
-          offsetY += lineHeight;
-          });
-      }
+        async function fetchAndRenderReports() {
+            loadingContainer.style.display = 'block';
+            reportsContainer.innerHTML = '';
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar os dados dos relatórios.');
+                }
+                reportData = await response.json();
+                renderReports(reportData);
+            } catch (error) {
+                console.error("Erro:", error);
+                showToast(error.message, 'error');
+                reportsContainer.innerHTML = `<p style="text-align: center; width: 100%; color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Não foi possível carregar os dados. Tente novamente mais tarde.</p>`;
+            } finally {
+                loadingContainer.style.display = 'none';
+            }
+        }
 
-      return yStart + 50;
-    }
+        function createCard(icon, title, value, description) {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.innerHTML = `<div class="card-header"><i class="fas ${icon} icon"></i><h2>${title}</h2></div><div class="card-body"><div class="value">${value}</div><div class="description">${description}</div></div>`;
+            return card;
+        }
 
-    const dados = {
-      "Estoque Atual": {
-        "Total de Produtos": document.getElementById("produtos-estoque").textContent,
-        "Valor Total": document.getElementById("valor-estoque").textContent
-      },
-      "Em Falta": Array.from(document.querySelectorAll("#lista-produtos-falta li")).map(li => li.textContent),
-      "Mais Vendidos": Array.from(document.querySelectorAll("#lista-produtos-mais-saem li")).map(li => li.textContent),
-      "Em Excesso": Array.from(document.querySelectorAll("#lista-produtos-excesso li")).map(li => li.textContent),
-      "Menos Vendidos": Array.from(document.querySelectorAll("#lista-produtos-menos-saem li")).map(li => li.textContent),
-      "Principal Fornecedor": {
-        "Fornecedor": document.getElementById("principal-fornecedor").textContent,
-        "Volume de Compras": document.getElementById("volume-compras").textContent
-      },
-      "Principais Clientes": Array.from(document.querySelectorAll("#lista-top-clientes li")).map(li => li.textContent),
-      "Cadastros no Sistema": {
-        "Fornecedores Cadastrados": document.getElementById("fornecedores").textContent,
-        "Clientes Cadastrados": document.getElementById("clientes").textContent
-      }
-    };
+        function createListCard(icon, title, listItems, description) {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            const listHtml = listItems.length > 0 ? `<ul class="card-list">${listItems.map(item => `<li><span class="name">${item.nome || item}</span> <span class="value">${item.vendas !== undefined ? item.vendas : item.valorGasto || ''}</span></li>`).join('')}</ul>` : `<p style="text-align: center; color: var(--light-text-color);">Nenhum dado encontrado.</p>`;
+            card.innerHTML = `<div class="card-header"><i class="fas ${icon} icon"></i><h2>${title}</h2></div><div class="card-body">${listHtml}<div class="description" style="margin-top: 15px;">${description}</div></div>`;
+            return card;
+        }
 
-    for (const [titulo, conteudo] of Object.entries(dados)) {
-      y = desenharBloco(titulo, conteudo, y);
-      if (y > 250) {
-        doc.addPage();
-        y = 15;
-      }
-    }
+        function renderReports(data) {
+            reportsContainer.appendChild(createCard('fa-box-open', 'Total de Produtos em Estoque', data.produtosEstoque, 'Quantidade total de itens no inventário.'));
+            reportsContainer.appendChild(createCard('fa-dollar-sign', 'Valor Total do Estoque', data.valorEstoque, 'Valor total com base no preço de venda.'));
+            reportsContainer.appendChild(createListCard('fa-exclamation-triangle', 'Produtos em Falta', data.produtosFalta.map(item => ({ nome: item })), 'Produtos com quantidade abaixo do estoque mínimo.'));
+            reportsContainer.appendChild(createListCard('fa-arrow-up', 'Produtos que Mais Saem', data.produtosMaisSaem, 'Top 3 produtos mais vendidos.'));
+            reportsContainer.appendChild(createListCard('fa-arrow-down', 'Produtos que Menos Saem', data.produtosMenosSaem, 'Top 3 produtos menos vendidos.'));
+            const principalFornecedor = data.principalFornecedor;
+            reportsContainer.appendChild(createCard('fa-truck', 'Principal Fornecedor', principalFornecedor.nome, `Valor gasto: ${principalFornecedor.valorGasto}`));
+            reportsContainer.appendChild(createListCard('fa-users', 'Principais Clientes', data.topClientes.map(item => ({ nome: item })), 'Top 3 clientes com maior valor de compras.'));
+            reportsContainer.appendChild(createCard('fa-handshake', 'Total de Fornecedores', data.fornecedores, 'Número de fornecedores cadastrados.'));
+            reportsContainer.appendChild(createCard('fa-user-tie', 'Total de Clientes', data.clientes, 'Número de clientes cadastrados.'));
+            reportsContainer.appendChild(createCard('fa-shopping-cart', 'Total de Vendas', data.totalVendas, 'Total de itens vendidos no sistema.'));
+            reportsContainer.appendChild(createCard('fa-sack-dollar', 'Valor Total Ganho', data.valorGanho, 'Total de receita gerada pelas vendas.'));
+        }
 
-    doc.save("relatorio_estoque.pdf");
-    }
+        function showToast(message, type = 'success', duration = 3000) {
+            toastMsg.textContent = message;
+            toastMsg.classList.remove('success', 'error');
+            toastMsg.classList.add(type);
+            toastMsg.classList.add('show');
+            
+            setTimeout(() => {
+                toastMsg.classList.remove('show');
+            }, duration);
+        }
 
-    function exportExcel() {
-    const workbook = XLSX.utils.book_new();
-    workbook.Props = {
-    Title: "Relatório de Estoque",
-    CreatedDate: new Date()
-    };
-    function criarPlanilha(titulo, conteudo) {
-      let dados = [];
+        setInterval(fetchAndRenderReports, 30000);
+        document.addEventListener('DOMContentLoaded', fetchAndRenderReports);
+          
+        function exportToPDF() {
+            if (!reportData) {
+                showToast('Nenhum dado para exportar.', 'error');
+                return;
+            }
+            const doc = new window.jspdf.jsPDF();
+            const margin = 15;
+            let y = margin;
+            const addTitle = (text, size = 16) => { doc.setFontSize(size); doc.text(text, margin, y); y += 10; };
+            const addText = (text, size = 12) => { doc.setFontSize(size); doc.text(text, margin, y); y += 7; };
+            const addTable = (headers, data, startY = null) => {
+                doc.autoTable({ startY: startY || y, head: [headers], body: data, theme: 'grid', styles: { fontSize: 10, cellPadding: 3, minCellHeight: 8 }, headStyles: { fillColor: '#4a90e2' } });
+                y = doc.autoTable.previous.finalY + 10;
+            };
 
-      if (Array.isArray(conteudo)) {
-        dados = conteudo.map(item => [item]);
-      } else {
-        dados = Object.entries(conteudo);
-      }
+            addTitle("Relatório Completo do Sistema", 24);
+            doc.setProperties({ title: 'Relatório do Sistema', subject: 'Relatório de Vendas e Estoque', author: 'Seu Sistema', keywords: 'relatorio, vendas, estoque, financeiro', creator: 'jsPDF' });
+            addText(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 10);
+            y += 10;
 
-      const ws = XLSX.utils.aoa_to_sheet([[titulo], [], ...dados]);
-      XLSX.utils.book_append_sheet(workbook, ws, titulo.slice(0, 30));
-    }
+            addTitle("Visão Geral do Estoque e Vendas");
+            addTable(["Métrica", "Valor"], [
+                [`Produtos em Estoque`, reportData.produtosEstoque],
+                [`Valor Total do Estoque`, reportData.valorEstoque],
+                [`Total de Vendas`, reportData.totalVendas],
+                [`Valor Total Ganho`, reportData.valorGanho],
+            ]);
 
-    const dados = {
-      "Estoque Atual": {
-        "Total de Produtos": document.getElementById("produtos-estoque").textContent,
-        "Valor Total": document.getElementById("valor-estoque").textContent
-      },
-      "Em Falta": Array.from(document.querySelectorAll("#lista-produtos-falta li")).map(li => li.textContent),
-      "Mais Vendidos": Array.from(document.querySelectorAll("#lista-produtos-mais-saem li")).map(li => li.textContent),
-      "Em Excesso": Array.from(document.querySelectorAll("#lista-produtos-excesso li")).map(li => li.textContent),
-      "Menos Vendidos": Array.from(document.querySelectorAll("#lista-produtos-menos-saem li")).map(li => li.textContent),
-      "Principal Fornecedor": {
-        "Fornecedor": document.getElementById("principal-fornecedor").textContent,
-        "Volume de Compras": document.getElementById("volume-compras").textContent
-      },
-      "Principais Clientes": Array.from(document.querySelectorAll("#lista-top-clientes li")).map(li => li.textContent),
-      "Cadastros no Sistema": {
-        "Fornecedores Cadastrados": document.getElementById("fornecedores").textContent,
-        "Clientes Cadastrados": document.getElementById("clientes").textContent
-      }
-    };
+            addTitle("Resumo de Clientes e Fornecedores");
+            addTable(["Tipo", "Quantidade"], [
+                [`Fornecedores Cadastrados`, reportData.fornecedores],
+                [`Clientes Cadastrados`, reportData.clientes],
+            ]);
+            
+            addTitle("Ranking de Produtos (Mais e Menos Vendidos)");
+            addTable(["Posição", "Nome do Produto", "Vendas"], 
+                reportData.produtosMaisSaem.map((item, i) => ([`Top ${i+1}`, item.nome, item.vendas]))
+                .concat(reportData.produtosMenosSaem.map((item, i) => ([`Menos V. ${i+1}`, item.nome, item.vendas])))
+            );
 
-    for (const [titulo, conteudo] of Object.entries(dados)) {
-      criarPlanilha(titulo, conteudo);
-    }
+            addTitle("Produtos com Estoque Crítico");
+            const produtosFaltaData = reportData.produtosFalta.map(item => ([item]));
+            if (produtosFaltaData.length > 0) {
+                addTable(["Nome do Produto"], produtosFaltaData);
+            } else {
+                addText("Nenhum produto em falta. O estoque está saudável!", 12);
+                y += 5;
+            }
+            
+            addTitle("Análise de Clientes e Fornecedores");
+            const topClientesData = reportData.topClientes.map(item => ([item]));
+            if (topClientesData.length > 0) {
+                addTable(["Principais Clientes"], topClientesData);
+            } else {
+                addText("Nenhum cliente com compras significativas encontrado.", 12);
+                y += 5;
+            }
 
-    XLSX.writeFile(workbook, "relatorio_estoque.xlsx");
-    }
-</script>
+            addTable(["Principal Fornecedor", "Valor Gasto"], [ [`${reportData.principalFornecedor.nome || 'N/A'}`, reportData.principalFornecedor.valorGasto] ]);
 
-</body> 
+            doc.save("relatorio_completo_sistema.pdf");
+            dropdownContent.classList.remove('show');
+        }
+
+        function exportToWord() {
+            if (!reportData) {
+                showToast('Nenhum dado para exportar.', 'error');
+                return;
+            }
+            const content = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Relatório do Sistema</title></head><body><h1>Relatório Completo do Sistema</h1><p><strong>Gerado em:</strong> ${new Date().toLocaleDateString('pt-BR')}</p><h2>Visão Geral do Estoque e Vendas</h2><ul><li><strong>Produtos em Estoque:</strong> ${reportData.produtosEstoque}</li><li><strong>Valor Total do Estoque:</strong> ${reportData.valorEstoque}</li><li><strong>Total de Vendas:</strong> ${reportData.totalVendas}</li><li><strong>Valor Total Ganho:</strong> ${reportData.valorGanho}</li></ul><h2>Resumo de Clientes e Fornecedores</h2><ul><li><strong>Fornecedores Cadastrados:</strong> ${reportData.fornecedores}</li><li><strong>Clientes Cadastrados:</strong> ${reportData.clientes}</li></ul><h2>Produtos em Falta</h2><p>${reportData.produtosFalta.length > 0 ? `<ul>${reportData.produtosFalta.map(item => `<li>${item}</li>`).join('')}</ul>` : `Nenhum produto em falta. O estoque está saudável!`}</p><h2>Ranking de Produtos</h2><h3>Produtos que Mais Saem</h3><ul>${reportData.produtosMaisSaem.map(item => `<li>${item.nome}: ${item.vendas} unidades</li>`).join('') || `<li>Nenhum produto encontrado.</li>`}</ul><h3>Produtos que Menos Saem</h3><ul>${reportData.produtosMenosSaem.map(item => `<li>${item.nome}: ${item.vendas} unidades</li>`).join('') || `<li>Nenhum produto encontrado.</li>`}</ul><h2>Análise de Clientes e Fornecedores</h2><h3>Principais Clientes</h3><p>${reportData.topClientes.length > 0 ? `<ul>${reportData.topClientes.map(item => `<li>${item}</li>`).join('')}</ul>` : `Nenhum cliente com compras significativas encontrado.`}</p><h3>Principal Fornecedor</h3><p>${reportData.principalFornecedor.nome || 'N/A'}: ${reportData.principalFornecedor.valorGasto}</p></body></html>`;
+            const blob = new Blob([content], { type: 'application/msword;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'relatorio_completo_sistema.doc';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            dropdownContent.classList.remove('show');
+        }
+
+        function exportToExcel() {
+            if (!reportData) {
+                showToast('Nenhum dado para exportar.', 'error');
+                return;
+            }
+            const htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>table{border-collapse:collapse;width:100%;font-family:Arial,sans-serif;margin-bottom:20px;}th,td{border:1px solid #000;padding:8px;text-align:left;}th{background-color:#4a90e2;color:#fff;font-weight:bold;text-align:center;}tr:nth-child(even){background-color:#f2f2f2;}</style></head><body><h1>Relatório Completo do Sistema</h1><p>Gerado em: ${new Date().toLocaleDateString('pt-BR')}</p><table><thead><tr><th colspan="2" style="background-color:#3498db;">Visão Geral do Estoque e Vendas</th></tr></thead><tbody><tr><td>Produtos em Estoque</td><td>${reportData.produtosEstoque}</td></tr><tr><td>Valor Total do Estoque</td><td>${reportData.valorEstoque}</td></tr><tr><td>Total de Vendas</td><td>${reportData.totalVendas}</td></tr><tr><td>Valor Total Ganho</td><td>${reportData.valorGanho}</td></tr></tbody></table><table><thead><tr><th colspan="2" style="background-color:#2ecc71;">Resumo de Clientes e Fornecedores</th></tr><tr><th>Tipo</th><th>Quantidade</th></tr></thead><tbody><tr><td>Fornecedores Cadastrados</td><td>${reportData.fornecedores}</td></tr><tr><td>Clientes Cadastrados</td><td>${reportData.clientes}</td></tr></tbody></table><table><thead><tr><th colspan="3" style="background-color:#e67e22;">Ranking de Produtos (Mais e Menos Vendidos)</th></tr><tr><th>Posição</th><th>Nome do Produto</th><th>Vendas</th></tr></thead><tbody>${reportData.produtosMaisSaem.map(item => `<tr><td>Top</td><td>${item.nome}</td><td>${item.vendas} unidades</td></tr>`).join('')}${reportData.produtosMenosSaem.map(item => `<tr><td>Menos V.</td><td>${item.nome}</td><td>${item.vendas} unidades</td></tr>`).join('')}</tbody></table><table><thead><tr><th style="background-color:#e74c3c;">Produtos com Estoque Crítico</th></tr><tr><th>Nome do Produto</th></tr></thead><tbody>${reportData.produtosFalta.map(item => `<tr><td>${item}</td></tr>`).join('') || `<tr><td>Nenhum produto em falta. O estoque está saudável!</td></tr>`}</tbody></table><table><thead><tr><th colspan="2" style="background-color:#9b59b6;">Análise de Clientes e Fornecedores</th></tr><tr><th>Métrica</th><th>Valor</th></tr></thead><tbody><tr><td>Principais Clientes</td><td><ul>${reportData.topClientes.map(item => `<li>${item}</li>`).join('') || `Nenhum cliente com compras significativas encontrado.`}</ul></td></tr><tr><td>Principal Fornecedor</td><td>${reportData.principalFornecedor.nome || 'N/A'}: ${reportData.principalFornecedor.valorGasto}</td></tr></tbody></table></body></html>`;
+            const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'relatorio_completo_sistema.xls';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            dropdownContent.classList.remove('show');
+        }
+    </script>
+</body>
 </html>

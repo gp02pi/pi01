@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurações de Perfil</title>
-
-    <!-- Link para o FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -29,7 +26,6 @@
             position: relative;
         }
 
-        /* Estilizando o ícone "X" com FontAwesome */
         .close-icon {
             position: absolute;
             top: 10px;
@@ -155,66 +151,114 @@
             border: 1px solid #ddd;
             pointer-events: none;
         }
+
+        #codeField {
+            display: none;
+        }
+
+        .skeleton {
+            background-color: #ddd;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .skeleton-text {
+            height: 1.2em;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .skeleton-input {
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        @keyframes pulse {
+            0% {
+                background-color: #ddd;
+            }
+
+            50% {
+                background-color: #f0f0f0;
+            }
+
+            100% {
+                background-color: #ddd;
+            }
+        }
+
+        .success-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            font-size: 16px;
+            text-align: center;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
     </style>
 </head>
 <body>
+    {% include 'session_timeout_modal.html' %}
+    <div id="successMessage" class="success-message">Informações atualizadas com sucesso!</div>
     <div class="container">
-        <a href="{% url 'inicio' %}" class="close-icon">
-            <i class="fas fa-times"></i>
-        </a>
-
+        <a id="close-btn" class="close-icon"><i class="fas fa-times"></i></a>
         <div class="profile-header">
             <div class="info">
-                <h1 id="displayName">Fulano</h1>
-                <p id="emailInfo">E-mail: fulano@email.com</p>
-                <p id="phoneInfo">Celular: (XX) XXXXX-XXXX</p>
+                <h1 id="displayName" class="skeleton-text"></h1>
+                <p id="emailInfo" class="skeleton-text"></p>
+                <p id="phoneInfo" class="skeleton-text"></p>
             </div>
         </div>
-
         <div class="settings-panel">
             <div class="section">
                 <h2>Informações Pessoais</h2>
                 <form id="personalInfoForm">
                     <label for="username">Usuário:</label>
-                    <input type="text" id="username" name="username" value="exemplo" class="readonly" readonly>
-                
+                    <input type="text" id="username" name="username" value="" class="readonly skeleton-input" readonly>
                     <label for="fullname">Nome Completo:</label>
-                    <input type="text" id="fullname" name="fullname" value="">
-                
+                    <input type="text" id="fullname" name="fullname" value="" class="skeleton-input">
                     <label for="email">E-mail:</label>
-                    <input type="email" id="email" name="email" value="">
-                
+                    <input type="email" id="email" name="email" value="" class="skeleton-input">
                     <label for="phone">Celular:</label>
-                    <input type="tel" id="phone" name="phone" inputmode="numeric" pattern="[0-9]*">
+                    <input type="tel" id="phone" name="phone" inputmode="numeric" pattern="[0-9]*" class="skeleton-input">
                     <span id="phoneError"></span>
-
-                
                     <button type="submit">Salvar Informações</button>
                 </form>
             </div>
-
             <div class="section">
                 <h2>Alterar Senha</h2>
                 <form id="changePasswordForm">
                     <label for="currentPassword">Senha Atual:</label>
                     <input type="password" id="currentPassword" name="currentPassword" required>
-                
                     <label for="newPassword">Nova Senha:</label>
                     <input type="password" id="newPassword" name="newPassword" required>
-                
                     <label for="confirmPassword">Confirmar Nova Senha:</label>
                     <input type="password" id="confirmPassword" name="confirmPassword" required>
-                
-                    <button type="submit">Alterar Senha</button>
+                    <div id="codeField">
+                        <label for="code">Código de Verificação:</label>
+                        <input type="text" id="code" name="code" required>
+                    </div>
+                    <button type="button" id="sendCodeBtn">Alterar Senha</button>
+                    <button type="submit" id="changePasswordBtn" style="display:none;">Redefinir Senha</button>
                 </form>
-                
-                <!-- Mensagens de feedback -->
                 <div id="passwordMessage" style="margin-top: 10px; font-size: 14px;"></div>
+            </div>
         </div>
     </div>
-
     <script>
-        // Função para pegar token CSRF do cookie (Django) - deixar pronta para uso futuro
+        document.getElementById('close-btn').addEventListener('click', function(event) {
+            event.preventDefault();
+            window.history.back();
+        });
+
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -230,32 +274,37 @@
             return cookieValue;
         }
         const csrftoken = getCookie('csrftoken');
-    
-        // Placeholder: função para carregar dados do usuário do backend (ainda não implementada)
+
         async function loadUserProfile() {
-            // Aqui no futuro, você pode usar fetch('/api/user/profile') para popular os campos
-            // Por enquanto, nada é feito para não alterar nada
+            try {
+                const response = await fetch('/api/user/profile/');
+                if (response.ok) {
+                    const userData = await response.json();
+                    document.getElementById('displayName').textContent = userData.fullname;
+                    document.getElementById('emailInfo').textContent = `E-mail: ${userData.email}`;
+                    document.getElementById('phoneInfo').textContent = `Celular: ${userData.celular || 'N/A'}`;
+                    document.getElementById('username').value = userData.username;
+                    document.getElementById('fullname').value = userData.fullname;
+                    document.getElementById('email').value = userData.email;
+                    document.getElementById('phone').value = userData.celular;
+                    document.getElementById('displayName').classList.remove('skeleton-text');
+                    document.getElementById('emailInfo').classList.remove('skeleton-text');
+                    document.getElementById('phoneInfo').classList.remove('skeleton-text');
+                    document.getElementById('username').classList.remove('skeleton-input');
+                    document.getElementById('fullname').classList.remove('skeleton-input');
+                    document.getElementById('email').classList.remove('skeleton-input');
+                    document.getElementById('phone').classList.remove('skeleton-input');
+                } else {
+                    console.error('Falha ao carregar os dados do usuário:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Erro na requisição para carregar o perfil:', error);
+            }
         }
-    
-        // Placeholder: função para enviar dados pessoais para backend (ainda não implementada)
-        async function submitPersonalInfo(data) {
-            // No futuro: fetch PUT para '/api/user/profile' com JSON data
-            // Por enquanto, apenas retorna sucesso para não bloquear a UX atual
-            return { success: true, updatedData: data };
-        }
-    
-        // Placeholder: função para enviar alteração de senha para backend (ainda não implementada)
-        async function submitChangePassword(data) {
-            // No futuro: fetch POST para '/api/user/change-password' com JSON data
-            // Por enquanto, apenas retorna sucesso para não bloquear a UX atual
-            return { success: true };
-        }
-    
-        // Manter a validação atual do telefone (permite só números)
         const phoneInput = document.getElementById('phone');
         const phoneError = document.getElementById('phoneError');
-    
-        phoneInput.addEventListener('input', function () {
+
+        phoneInput.addEventListener('input', function() {
             if (/\D/.test(this.value)) {
                 phoneError.style.display = 'block';
                 phoneInput.setCustomValidity('Digite apenas números.');
@@ -266,92 +315,214 @@
                 this.style.borderColor = '';
             }
         });
-    
-        // Ao submeter o formulário de informações pessoais, mantém comportamento atual e prepara para integração futura
-        document.getElementById('personalInfoForm').addEventListener('submit', async function (event) {
+
+        document.getElementById('personalInfoForm').addEventListener('submit', async function(event) {
             event.preventDefault();
-    
-            // Validação atual da página
             const fullname = document.getElementById('fullname').value.trim();
             const email = document.getElementById('email').value.trim();
             const phone = phoneInput.value.trim();
-    
-            if (fullname === '' || email === '' || phone === '' || /\D/.test(phone)) {
+            if (fullname === '' || email === '' || phone === '') {
                 alert('Por favor, preencha todos os campos corretamente.');
                 return;
             }
-    
-            // Aqui chama a função futura para enviar dados para backend (no momento só simula)
-            const result = await submitPersonalInfo({ fullname, email, phone });
-    
+            const result = await submitPersonalInfo({
+                fullname: fullname,
+                email: email,
+                celular: phone
+            });
             if (result.success) {
-                // Atualiza os elementos do topo da página conforme valores atuais
                 document.getElementById('displayName').textContent = fullname;
                 document.getElementById('emailInfo').textContent = `E-mail: ${email}`;
                 document.getElementById('phoneInfo').textContent = `Celular: ${phone}`;
-    
-                alert('Informações atualizadas com sucesso!');
+                showSuccessMessage('Informações atualizadas com sucesso!');
             } else {
-                alert('Erro ao atualizar informações. Tente novamente mais tarde.');
+                alert(`Erro ao atualizar informações: ${result.message}`);
             }
         });
-    
-        // Ao submeter o formulário de alteração de senha, mantém validação e UX atual e prepara para backend futuro
-        document.getElementById('changePasswordForm').addEventListener('submit', async function (event) {
-            event.preventDefault();
-    
-            const currentPassword = document.getElementById('currentPassword');
-            const newPassword = document.getElementById('newPassword');
-            const confirmPassword = document.getElementById('confirmPassword');
-            const messageDiv = document.getElementById('passwordMessage');
-    
-            const newPass = newPassword.value.trim();
-            const confirmPass = confirmPassword.value.trim();
-    
-            messageDiv.textContent = '';
-            messageDiv.style.color = '';
-    
-            if (newPass.length < 8) {
-                messageDiv.textContent = 'A nova senha deve ter pelo menos 8 caracteres.';
-                messageDiv.style.color = 'red';
-                return;
+
+        async function submitPersonalInfo(data) {
+            try {
+                const response = await fetch('/api/user/profile/update/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify(data),
+                });
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Erro na requisição para atualizar o perfil:', error);
+                return {
+                    success: false,
+                    message: 'Erro de conexão. Tente novamente.'
+                };
             }
-    
-            if (newPass !== confirmPass) {
-                messageDiv.textContent = 'As senhas não coincidem!';
-                messageDiv.style.color = 'red';
-                return;
+        }
+
+        async function submitChangePassword(data) {
+            try {
+                const response = await fetch('/api/user/profile/update/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify(data),
+                });
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Erro na requisição para alterar a senha:', error);
+                return {
+                    success: false,
+                    message: 'Erro de conexão. Tente novamente.'
+                };
             }
-    
-            // Aqui chama a função futura para enviar a senha para backend (no momento só simula)
-            const result = await submitChangePassword({
-                current_password: currentPassword.value.trim(),
-                new_password: newPass
-            });
-    
-            if (result.success) {
-                messageDiv.textContent = 'Senha alterada com sucesso!';
-                messageDiv.style.color = 'green';
-    
-                // Limpa campos
-                currentPassword.value = '';
-                newPassword.value = '';
-                confirmPassword.value = '';
-    
+        }
+
+        async function sendVerificationCode(current_password) {
+            try {
+                const response = await fetch('/api/user/profile/send-code/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify({
+                        current_password: current_password
+                    }),
+                });
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Erro ao enviar código de verificação:', error);
+                return {
+                    success: false,
+                    message: 'Erro de conexão ao enviar código. Tente novamente.'
+                };
+            }
+        }
+
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const codeField = document.getElementById('codeField');
+        const currentPasswordInput = document.getElementById('currentPassword');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const codeInput = document.getElementById('code');
+        const passwordMessageDiv = document.getElementById('passwordMessage');
+        const successMessageDiv = document.getElementById('successMessage');
+
+        function togglePasswordFields(disabled) {
+            currentPasswordInput.disabled = disabled;
+            newPasswordInput.disabled = disabled;
+            confirmPasswordInput.disabled = disabled;
+        }
+
+        function toggleCodeField(show) {
+            codeField.style.display = show ? 'block' : 'none';
+            sendCodeBtn.style.display = show ? 'none' : 'block';
+            changePasswordBtn.style.display = show ? 'block' : 'none';
+        }
+
+        function showSuccessMessage(message) {
+            successMessageDiv.textContent = message;
+            successMessageDiv.style.display = 'block';
+            setTimeout(() => {
+                successMessageDiv.style.opacity = '1';
+            }, 10);
+            setTimeout(() => {
+                successMessageDiv.style.opacity = '0';
                 setTimeout(() => {
-                    messageDiv.textContent = '';
+                    successMessageDiv.style.display = 'none';
+                }, 500);
+            }, 3000);
+        }
+
+        sendCodeBtn.addEventListener('click', async function(event) {
+            event.preventDefault();
+            const currentPass = currentPasswordInput.value.trim();
+            const newPass = newPasswordInput.value.trim();
+            const confirmPass = confirmPasswordInput.value.trim();
+            if (!currentPass || !newPass || !confirmPass) {
+                passwordMessageDiv.textContent = 'Por favor, preencha todos os campos.';
+                passwordMessageDiv.style.color = 'red';
+                return;
+            }
+            if (newPass.length < 8) {
+                passwordMessageDiv.textContent = 'A nova senha deve ter pelo menos 8 caracteres.';
+                passwordMessageDiv.style.color = 'red';
+                return;
+            }
+            if (newPass !== confirmPass) {
+                passwordMessageDiv.textContent = 'As novas senhas não coincidem!';
+                passwordMessageDiv.style.color = 'red';
+                return;
+            }
+            passwordMessageDiv.textContent = 'Verificando senha e enviando código de verificação...';
+            passwordMessageDiv.style.color = 'blue';
+            togglePasswordFields(true);
+            const result = await sendVerificationCode(currentPass);
+            if (result.success) {
+                passwordMessageDiv.textContent = result.message;
+                passwordMessageDiv.style.color = 'green';
+                toggleCodeField(true);
+                codeInput.focus();
+            } else {
+                passwordMessageDiv.textContent = `Erro: ${result.message}`;
+                passwordMessageDiv.style.color = 'red';
+                togglePasswordFields(false);
+            }
+        });
+
+        changePasswordBtn.addEventListener('click', async function(event) {
+            event.preventDefault();
+            const currentPass = currentPasswordInput.value.trim();
+            const newPass = newPasswordInput.value.trim();
+            const code = codeInput.value.trim();
+            if (!code) {
+                passwordMessageDiv.textContent = 'Por favor, digite o código de verificação.';
+                passwordMessageDiv.style.color = 'red';
+                return;
+            }
+            passwordMessageDiv.textContent = 'Redefinindo senha...';
+            passwordMessageDiv.style.color = 'blue';
+            const data = {
+                current_password: currentPass,
+                new_password: newPass,
+                code: code
+            };
+            const result = await submitChangePassword(data);
+            if (result.success) {
+                passwordMessageDiv.textContent = 'Senha alterada com sucesso!';
+                passwordMessageDiv.style.color = 'green';
+                currentPasswordInput.value = '';
+                newPasswordInput.value = '';
+                confirmPasswordInput.value = '';
+                codeInput.value = '';
+                setTimeout(() => {
+                    passwordMessageDiv.textContent = '';
+                    togglePasswordFields(false);
+                    toggleCodeField(false);
                 }, 3000);
             } else {
-                messageDiv.textContent = 'Erro ao alterar senha. Tente novamente.';
-                messageDiv.style.color = 'red';
+                passwordMessageDiv.textContent = `Erro ao alterar senha: ${result.message}`;
+                passwordMessageDiv.style.color = 'red';
             }
         });
-    
-        // No carregamento da página, chama a função que vai buscar dados (ainda vazia)
+
+        changePasswordForm.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+            }
+        });
+
         window.addEventListener('DOMContentLoaded', () => {
             loadUserProfile();
         });
     </script>
-    
 </body>
 </html>
