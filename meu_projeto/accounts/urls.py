@@ -60,4 +60,10 @@ urlpatterns = [
     path('api/user/profile/', views.api_user_profile, name='api_user_profile'),
     path('api/user/profile/update/', views.api_update_user_profile, name='api_update_user_profile'),
     path('api/user/profile/send-code/', views.api_enviar_codigo_alteracao_senha, name='api_send_code'),
+
+    path('recuperar-senha/', views.recuperar_senha, name='recuperar_senha_view'),
+    
+    # NOVAS APIs para o front-end
+    path('validar-codigo/', views.validar_codigo, name='validar_codigo_api'),
+    path('redefinir-senha/', views.redefinir_senha, name='redefinir_senha_api'),
 ]

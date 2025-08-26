@@ -38,8 +38,8 @@ from docx import Document
 from geopy.exc import GeocoderTimedOut, GeocoderUnavailable
 from geopy.geocoders import Nominatim
 from openpyxl import Workbook
-from openpyxl.styles import Font, Alignment, PatternFill, NamedStyle # Linha atualizada
-from openpyxl.utils import get_column_letter # Linha nova
+from openpyxl.styles import Font, Alignment, PatternFill, NamedStyle
+from openpyxl.utils import get_column_letter
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
@@ -56,7 +56,7 @@ except locale.Error:
     try:
         locale.setlocale(locale.LC_ALL, 'Portuguese_Brazil')
     except locale.Error:
-        pass # Ignora se não for possível setar
+        pass
 # Formulário de Login com Captcha
 class LoginFormWithCaptcha(forms.Form):
     login_usuario = forms.CharField()
@@ -553,7 +553,7 @@ def api_fornecedor_detalhe(request, cnpj):
         fornecedor = Fornecedor.objects.get(cnpj=cnpj)
     except Fornecedor.DoesNotExist:
         return JsonResponse({'error': 'Fornecedor não encontrado.'}, status=404)
-        
+    
     if request.method == 'PUT':
         try:
             data = json.loads(request.body.decode('utf-8'))
@@ -625,7 +625,7 @@ def api_cliente_detalhe(request, cpf):
         cliente = Cliente.objects.get(cpf=cpf)
     except Cliente.DoesNotExist:
         return JsonResponse({'error': 'Cliente não encontrado.'}, status=404)
-        
+    
     if request.method == 'PUT':
         try:
             data = json.loads(request.body.decode('utf-8'))
@@ -689,7 +689,7 @@ def api_vendas(request, id=None):
 def api_exportar_produtos(request):
     # 1. Cria um Workbook (o arquivo Excel em memória)
     wb = Workbook()
-    ws = wb.active # Pega a primeira planilha (sheet)
+    ws = wb.active
     ws.title = "Relatório de Estoque"
 
     # 2. Define os cabeçalhos da planilha
@@ -702,7 +702,7 @@ def api_exportar_produtos(request):
 
     # 3. Estiliza o cabeçalho
     header_font = Font(bold=True, color="FFFFFF")
-    header_fill = PatternFill(start_color="26A0B8", end_color="26A0B8", fill_type="solid") # Cor primária do seu CSS
+    header_fill = PatternFill(start_color="26A0B8", end_color="26A0B8", fill_type="solid")
     header_alignment = Alignment(horizontal="center", vertical="center")
     
     for col_num, header_title in enumerate(headers, 1):
@@ -724,7 +724,7 @@ def api_exportar_produtos(request):
         valor_total_custo = produto.quantidade * produto.preco_compra
         
         row_data = [
-            str(produto.id)[:6], # Limita o código a 6 caracteres
+            str(produto.id)[:6],
             produto.nome,
             produto.quantidade,
             produto.preco_compra,
@@ -752,13 +752,13 @@ def api_exportar_produtos(request):
         # Aplica formato de moeda para colunas de preço
         header_name = ws.cell(row=1, column=col_num).value
         if "R$" in header_name or "Valor Total" in header_name:
-            for cell in ws[column_letter][1:]: # Ignora o cabeçalho
+            for cell in ws[column_letter][1:]:
                 cell.style = currency_style
 
     # 7. (BÔNUS) Adiciona uma linha de resumo no final
     total_stock_value = produtos.aggregate(total=Sum(F('quantidade') * F('preco_compra')))['total'] or 0
     
-    ws.append([]) # Linha em branco
+    ws.append([])
     summary_row = ws.max_row + 1
     ws.cell(row=summary_row, column=5, value="Valor Total do Estoque (Custo):").font = Font(bold=True)
     ws.cell(row=summary_row, column=6, value=total_stock_value).style = currency_style
@@ -838,10 +838,10 @@ def generate_pdf(buffer, data):
     story.append(Paragraph(f'<i>Gerado em: {date.today().strftime("%d/%m/%Y")}</i>', styles['Normal']))
     story.append(Paragraph('<br/><b>Visão Geral do Estoque e Vendas</b>', styles['h2']))
     overview_data = [['Métrica', 'Valor'],
-                      ['Produtos em Estoque', data['produtosEstoque']],
-                      ['Valor Total do Estoque', data['valorEstoque']],
-                      ['Total de Vendas', data['totalVendas']],
-                      ['Valor Total Ganho', data['valorGanho']]]
+                     ['Produtos em Estoque', data['produtosEstoque']],
+                     ['Valor Total do Estoque', data['valorEstoque']],
+                     ['Total de Vendas', data['totalVendas']],
+                     ['Valor Total Ganho', data['valorGanho']]]
     story.append(Table(overview_data, colWidths=[200, 300], style=TableStyle([('BOX', (0,0), (-1,-1), 1, colors.black), ('GRID', (0,0), (-1,-1), 1, colors.black)])))
     story.append(Paragraph('<br/><b>Produtos com Estoque Crítico</b>', styles['h2']))
     if data['produtosFalta']:
@@ -899,9 +899,9 @@ def generate_word(buffer, data):
     document.add_paragraph(f'Gerado em: {date.today().strftime("%d/%m/%Y")}')
     document.add_heading('Visão Geral do Estoque e Vendas', level=1)
     for key, value in [('Produtos em Estoque', data['produtosEstoque']),
-                           ('Valor Total do Estoque', data['valorEstoque']),
-                           ('Total de Vendas', data['totalVendas']),
-                           ('Valor Total Ganho', data['valorGanho'])] :
+                         ('Valor Total do Estoque', data['valorEstoque']),
+                         ('Total de Vendas', data['totalVendas']),
+                         ('Valor Total Ganho', data['valorGanho'])] :
         document.add_paragraph(f'• {key}: {value}', style='List Bullet')
     document.add_heading('Produtos com Estoque Crítico', level=1)
     if data['produtosFalta']:
@@ -1080,7 +1080,7 @@ def api_dashboard_data(request):
         total_a_pagar = HistoricoNotaFiscal.objects.aggregate(
             total=Coalesce(Sum(F('quantidade_adicionada') * F('preco_compra_nota')), Decimal(0), output_field=DecimalField())
         )['total']
-        valor_pago = total_a_pagar * Decimal('0.75') # Exemplo: 75% pago
+        valor_pago = total_a_pagar * Decimal('0.75')
         total_restante = total_a_pagar - valor_pago
         
         # Criação do dicionário de dados
@@ -1105,7 +1105,7 @@ def api_dashboard_data(request):
                 'data': vendas_por_produto['data']
             },
             'daysInventoryChart': {
-                'ocupado': total_saida_produtos, # Reutilizando para a Saída de Produtos
+                'ocupado': total_saida_produtos,
                 'livre': 0
             },
             'daysPayableChart': {
