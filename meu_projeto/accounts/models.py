@@ -21,10 +21,14 @@ class PasswordResetCode(models.Model):
 class Fornecedor(models.Model):
     nome = models.CharField(max_length=255)
     cnpj = models.CharField(max_length=18, unique=True, primary_key=True)
-    email = models.EmailField(max_length=255)
-    telefone = models.CharField(max_length=20)
-    endereco = models.CharField(max_length=255)
-    cep = models.CharField(max_length=9)
+    email = models.EmailField(max_length=255, blank=True, null=True)
+    telefone = models.CharField(max_length=20, blank=True, null=True)
+    endereco = models.CharField(max_length=255, blank=True, null=True)
+    cep = models.CharField(max_length=9, blank=True, null=True)
+    # --- CAMPOS ADICIONADOS ---
+    cidade = models.CharField(max_length=100, blank=True, null=True)
+    estado = models.CharField(max_length=2, blank=True, null=True)
+
     def __str__(self):
         return self.nome
         
@@ -54,10 +58,14 @@ class HistoricoNotaFiscal(models.Model):
 class Cliente(models.Model):
     nome = models.CharField(max_length=255)
     cpf = models.CharField(max_length=14, unique=True, primary_key=True)
-    email = models.EmailField(max_length=255)
-    telefone = models.CharField(max_length=20)
-    endereco = models.CharField(max_length=255)
-    cep = models.CharField(max_length=9)
+    email = models.EmailField(max_length=255, blank=True, null=True)
+    telefone = models.CharField(max_length=20, blank=True, null=True)
+    endereco = models.CharField(max_length=255, blank=True, null=True)
+    cep = models.CharField(max_length=9, blank=True, null=True)
+    # --- CAMPOS ADICIONADOS ---
+    cidade = models.CharField(max_length=100, blank=True, null=True)
+    estado = models.CharField(max_length=2, blank=True, null=True)
+
     def __str__(self):
         return self.nome
         
