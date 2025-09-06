@@ -905,43 +905,74 @@ def api_relatorios(request):
         return JsonResponse({'error': 'Erro ao gerar o relatório. Tente novamente mais tarde.'}, status=500)
 # As funções abaixo são auxiliares e não são views, não precisam de decorators.
 def generate_pdf(buffer, data):
-    # ... seu código de gerar PDF ...
+    # ... (código existente para gerar PDF)
     doc = SimpleDocTemplate(buffer, pagesize=A4)
     story = []
     styles = getSampleStyleSheet()
+    
+    # Estilos
+    styles['Heading1'].spaceAfter = 12
+    styles['Heading2'].spaceAfter = 8
+    
+    # Título e Data
     story.append(Paragraph(f'<b>Relatório Completo do Sistema</b>', styles['Title']))
     story.append(Paragraph(f'<i>Gerado em: {date.today().strftime("%d/%m/%Y")}</i>', styles['Normal']))
-    story.append(Paragraph('<br/><b>Visão Geral do Estoque e Vendas</b>', styles['h2']))
+    
+    story.append(Paragraph('<br/>', styles['Normal'])) # Espaço
+    
+    # Tabela: Visão Geral (melhorada)
+    story.append(Paragraph('<b>Visão Geral do Estoque e Vendas</b>', styles['h2']))
     overview_data = [['Métrica', 'Valor'],
                          ['Produtos em Estoque', data['produtosEstoque']],
                          ['Valor Total do Estoque', data['valorEstoque']],
                          ['Total de Vendas', data['totalVendas']],
-                         ['Valor Total Ganho', data['valorGanho']]]
-    story.append(Table(overview_data, colWidths=[200, 300], style=TableStyle([('BOX', (0,0), (-1,-1), 1, colors.black), ('GRID', (0,0), (-1,-1), 1, colors.black)])))
-    story.append(Paragraph('<br/><b>Produtos com Estoque Crítico</b>', styles['h2']))
+                         ['Valor Total Ganho', data['valorGanho']],
+                         ['Principal Fornecedor', data['principalFornecedor']['nome']],
+                         ['Valor Gasto com Principal Fornecedor', data['principalFornecedor']['valorGasto']],
+                         ['Total de Fornecedores Cadastrados', data['fornecedores']],
+                         ['Total de Clientes Cadastrados', data['clientes']]]
+    table_style = TableStyle([('BOX', (0,0), (-1,-1), 1, colors.black), ('GRID', (0,0), (-1,-1), 1, colors.black), ('BACKGROUND', (0,0), (-1,0), colors.lightgrey)])
+    story.append(Table(overview_data, colWidths=[250, 250], style=table_style))
+    
+    story.append(Paragraph('<br/>', styles['Normal']))
+    
+    # Tabela: Produtos em Falta
+    story.append(Paragraph('<b>Produtos com Estoque Crítico</b>', styles['h2']))
     if data['produtosFalta']:
         falta_data = [['Nome do Produto']] + [[item] for item in data['produtosFalta']]
-        story.append(Table(falta_data, colWidths=[500], style=TableStyle([('BOX', (0,0), (-1,-1), 1, colors.black), ('GRID', (0,0), (-1,-1), 1, colors.black)])))
+        story.append(Table(falta_data, colWidths=[500], style=table_style))
     else:
         story.append(Paragraph('Nenhum produto em falta. O estoque está saudável!', styles['Normal']))
-    story.append(Paragraph('<br/><b>Ranking de Produtos</b>', styles['h2']))
+    
+    story.append(Paragraph('<br/>', styles['Normal']))
+    
+    # Tabela: Ranking de Produtos (Mais e Menos Vendidos)
+    story.append(Paragraph('<b>Ranking de Produtos por Vendas</b>', styles['h2']))
     ranking_data = [['Posição', 'Nome do Produto', 'Vendas']]
     for i, item in enumerate(data['produtosMaisSaem']):
-        ranking_data.append([f'Top {i+1}', item['nome'], item['vendas']])
+        ranking_data.append([f'Mais V. {i+1}', item['nome'], item['vendas']])
     for i, item in enumerate(data['produtosMenosSaem']):
         ranking_data.append([f'Menos V. {i+1}', item['nome'], item['vendas']])
-    story.append(Table(ranking_data, colWidths=[100, 200, 200], style=TableStyle([('BOX', (0,0), (-1,-1), 1, colors.black), ('GRID', (0,0), (-1,-1), 1, colors.black)])))
-    story.append(Paragraph('<br/><b>Análise de Clientes e Fornecedores</b>', styles['h2']))
-    clientes_data = [['Nome do Cliente']] + [[item] for item in data['topClientes']]
-    story.append(Table(clientes_data, colWidths=[500], style=TableStyle([('BOX', (0,0), (-1,-1), 1, colors.black), ('GRID', (0,0), (-1,-1), 1, colors.black)])))
-    fornecedor_data = [['Principal Fornecedor', 'Valor Gasto'],
-                            [data['principalFornecedor']['nome'], data['principalFornecedor']['valorGasto']]]
-    story.append(Table(fornecedor_data, colWidths=[250, 250], style=TableStyle([('BOX', (0,0), (-1,-1), 1, colors.black), ('GRID', (0,0), (-1,-1), 1, colors.black)])))
+    story.append(Table(ranking_data, colWidths=[100, 250, 150], style=table_style))
+    
+    story.append(Paragraph('<br/>', styles['Normal']))
+    
+    # Tabela: Principais Clientes
+    story.append(Paragraph('<b>Principais Clientes (Top 3)</b>', styles['h2']))
+    if data['topClientes']:
+        clientes_data = [['Nome do Cliente']] + [[item] for item in data['topClientes']]
+        story.append(Table(clientes_data, colWidths=[500], style=table_style))
+    else:
+        story.append(Paragraph('Nenhum cliente com histórico de compras registrado.', styles['Normal']))
+    
     doc.build(story)
     buffer.seek(0)
+    
 def generate_excel(buffer, data):
-    # ... seu código de gerar Excel ...
+    # ... (código existente para gerar Excel)
     wb = Workbook()
+    
+    # Sheet 1: Visão Geral
     sheet1 = wb.active
     sheet1.title = "Visão Geral"
     sheet1.append(['Métrica', 'Valor'])
@@ -949,42 +980,77 @@ def generate_excel(buffer, data):
     sheet1.append(['Valor Total do Estoque', data['valorEstoque']])
     sheet1.append(['Total de Vendas', data['totalVendas']])
     sheet1.append(['Valor Total Ganho', data['valorGanho']])
+    sheet1.append(['Principal Fornecedor', data['principalFornecedor']['nome']])
+    sheet1.append(['Valor Gasto (Principal Fornecedor)', data['principalFornecedor']['valorGasto']])
+    sheet1.append(['Total de Fornecedores', data['fornecedores']])
+    sheet1.append(['Total de Clientes', data['clientes']])
+    
+    # Sheet 2: Produtos em Falta
     sheet2 = wb.create_sheet(title="Produtos em Falta")
     sheet2.append(['Nome do Produto'])
     if data['produtosFalta']:
         for item in data['produtosFalta']:
             sheet2.append([item])
+    
+    # Sheet 3: Ranking de Produtos
     sheet3 = wb.create_sheet(title="Ranking de Produtos")
     sheet3.append(['Posição', 'Nome do Produto', 'Vendas'])
     for i, item in enumerate(data['produtosMaisSaem']):
-        sheet3.append([f'Top {i+1}', item['nome'], item['vendas']])
+        sheet3.append([f'Mais V. {i+1}', item['nome'], item['vendas']])
     for i, item in enumerate(data['produtosMenosSaem']):
         sheet3.append([f'Menos V. {i+1}', item['nome'], item['vendas']])
-    sheet4 = wb.create_sheet(title="Clientes e Fornecedores")
-    sheet4.append(['Tipo', 'Nome', 'Valor'])
-    sheet4.append(['Principal Fornecedor', data['principalFornecedor']['nome'], data['principalFornecedor']['valorGasto']])
-    for cliente in data['topClientes']:
-        sheet4.append(['Principal Cliente', cliente, ''])
+    
+    # Sheet 4: Principais Clientes
+    sheet4 = wb.create_sheet(title="Principais Clientes")
+    sheet4.append(['Nome do Cliente'])
+    if data['topClientes']:
+        for cliente in data['topClientes']:
+            sheet4.append([cliente])
+    
+    # Ajustar a largura das colunas para cada aba
+    for sheet in wb.worksheets:
+        for col in sheet.columns:
+            max_length = 0
+            column = col[0].column_letter # Obtém a letra da coluna
+            for cell in col:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(str(cell.value))
+                except:
+                    pass
+            adjusted_width = (max_length + 2) * 1.2
+            sheet.column_dimensions[column].width = adjusted_width
+    
     wb.save(buffer)
     buffer.seek(0)
+    
 def generate_word(buffer, data):
-    # ... seu código de gerar Word ...
+    # ... (código existente para gerar Word)
     document = Document()
+    
     document.add_heading('Relatório Completo do Sistema', 0)
     document.add_paragraph(f'Gerado em: {date.today().strftime("%d/%m/%Y")}')
-    document.add_heading('Visão Geral do Estoque e Vendas', level=1)
+    
+    # Visão Geral
+    document.add_heading('1. Visão Geral do Sistema', level=1)
     for key, value in [('Produtos em Estoque', data['produtosEstoque']),
                           ('Valor Total do Estoque', data['valorEstoque']),
                           ('Total de Vendas', data['totalVendas']),
-                          ('Valor Total Ganho', data['valorGanho'])] :
+                          ('Valor Total Ganho', data['valorGanho']),
+                          ('Total de Fornecedores', data['fornecedores']),
+                          ('Total de Clientes', data['clientes'])]:
         document.add_paragraph(f'• {key}: {value}', style='List Bullet')
-    document.add_heading('Produtos com Estoque Crítico', level=1)
+    
+    # Produtos em Falta
+    document.add_heading('2. Produtos com Estoque Crítico', level=1)
     if data['produtosFalta']:
         for item in data['produtosFalta']:
             document.add_paragraph(f'• {item}', style='List Bullet')
     else:
         document.add_paragraph('Nenhum produto em falta. O estoque está saudável!')
-    document.add_heading('Ranking de Produtos', level=1)
+    
+    # Ranking de Produtos
+    document.add_heading('3. Ranking de Produtos', level=1)
     document.add_heading('Produtos que Mais Saem', level=2)
     if data['produtosMaisSaem']:
         for item in data['produtosMaisSaem']:
@@ -993,31 +1059,41 @@ def generate_word(buffer, data):
     if data['produtosMenosSaem']:
         for item in data['produtosMenosSaem']:
             document.add_paragraph(f'• {item["nome"]}: {item["vendas"]} unidades', style='List Bullet')
-    document.add_heading('Análise de Clientes e Fornecedores', level=1)
-    document.add_paragraph(f'• Principal Fornecedor: {data["principalFornecedor"]["nome"]}, Valor Gasto: {data["principalFornecedor"]["valorGasto"]}')
+    
+    # Análise de Clientes e Fornecedores
+    document.add_heading('4. Análise de Clientes e Fornecedores', level=1)
+    document.add_paragraph(f'• Principal Fornecedor: {data["principalFornecedor"]["nome"]}, Valor Gasto: {data["principalFornecedor"]["valorGasto"]}', style='List Bullet')
     document.add_heading('Principais Clientes', level=2)
     if data['topClientes']:
         for item in data['topClientes']:
             document.add_paragraph(f'• {item}', style='List Bullet')
+    else:
+        document.add_paragraph('Nenhum cliente com histórico de compras registrado.')
+    
     document.save(buffer)
     buffer.seek(0)
+
 @csrf_exempt
 @require_POST
 @login_required
 def api_enviar_relatorios_email(request):
-    # ... seu código de enviar email ...
     try:
-        data = json.loads(request.body.decode('utf-8'))
-        email_destino = data.get('email', '').strip()
+        # AQUI É O PONTO DE CORREÇÃO:
+        # Não tente decodificar o corpo como JSON.
+        # Use request.POST para o campo 'email' e request.FILES para os arquivos.
+        email_destino = request.POST.get('email', '').strip()
+
         if not email_destino:
             return JsonResponse({'success': False, 'message': 'E-mail não fornecido.'}, status=400)
+
+        # Gere os dados do relatório uma única vez
         total_produtos_qnt = Produto.objects.aggregate(total_qnt=Coalesce(Sum('quantidade'), 0))['total_qnt']
         valor_total_estoque = Produto.objects.aggregate(total_valor=Coalesce(Sum(F('quantidade') * F('preco_venda')), Decimal(0), output_field=DecimalField()))['total_valor']
         produtos_falta = list(Produto.objects.filter(quantidade__lt=F('quantidade_minima')).values_list('nome', flat=True))
         vendas_por_produto = Venda.objects.values('produto__nome').annotate(total_vendido=Coalesce(Sum('quantidade'), 0))
         produtos_mais_saem = [{"nome": item['produto__nome'], "vendas": item['total_vendido']} for item in vendas_por_produto.order_by('-total_vendido')[:3]]
         produtos_menos_saem = [{"nome": item['produto__nome'], "vendas": item['total_vendido']} for item in vendas_por_produto.order_by('total_vendido')[:3]]
-        principal_fornecedor = Fornecedor.objects.annotate(valor_gasto=Coalesce(Sum(F('produto__quantidade') * F('produto__preco_compra')), Decimal(0), output_field=DecimalField())).order_by('-valor_gasto').first()
+        principal_fornecedor = Fornecedor.objects.annotate(valor_gasto=Coalesce(Sum(F('produto__historico_notas__quantidade_adicionada') * F('produto__preco_compra')), Decimal(0), output_field=DecimalField())).order_by('-valor_gasto').first()
         principal_fornecedor_data = {"nome": principal_fornecedor.nome if principal_fornecedor else "N/A", "valorGasto": f"R$ {principal_fornecedor.valor_gasto:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.') if principal_fornecedor else "R$ 0,00"}
         top_clientes = list(Cliente.objects.annotate(valor_total_vendas=Coalesce(Sum('venda__preco_total'), Decimal(0))).order_by('-valor_total_vendas').values_list('nome', flat=True)[:3])
         fornecedores_cadastrados = Fornecedor.objects.count()
@@ -1037,12 +1113,16 @@ def api_enviar_relatorios_email(request):
             'totalVendas': total_vendas,
             'valorGanho': f"R$ {valor_ganho:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
         }
+
+        # Gera os arquivos em buffers
         buffer_pdf = io.BytesIO()
         generate_pdf(buffer_pdf, dados_relatorio)
         buffer_excel = io.BytesIO()
         generate_excel(buffer_excel, dados_relatorio)
         buffer_word = io.BytesIO()
         generate_word(buffer_word, dados_relatorio)
+
+        # Monta e envia o e-mail
         subject = "Relatórios Gerados do Sistema"
         message_body = "Olá,\n\nEm anexo, você encontrará os relatórios do sistema em diferentes formatos.\n\nAtenciosamente,\nSua Equipe"
         email = EmailMessage(
@@ -1055,12 +1135,15 @@ def api_enviar_relatorios_email(request):
         email.attach('relatorio_completo.xlsx', buffer_excel.getvalue(), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         email.attach('relatorio_completo.docx', buffer_word.getvalue(), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
         email.send()
+
         return JsonResponse({'success': True, 'message': 'Relatórios enviados por e-mail com sucesso!'})
-    except json.JSONDecodeError:
-        return HttpResponseBadRequest('JSON inválido.')
+
     except Exception as e:
         print(f"Erro ao enviar relatórios por e-mail: {e}")
+        # Retorne um erro 500 para indicar um problema no servidor
         return JsonResponse({'success': False, 'message': f'Erro ao enviar e-mail: {str(e)}'}, status=500)
+
+
 @login_required
 def api_dashboard_data(request):
     try:
