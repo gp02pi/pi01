@@ -1,0 +1,401 @@
+/* ==========================================================================
+   1. Estilos Globais e Reset
+   - Define uma base consistente para a página.
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f6f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* ==========================================================================
+   2. Layout Principal e Contêineres
+   ========================================================================== */
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    gap: 20px;
+    margin: 25px auto 0; /* Margem superior ajustada para acomodar a barra fixa */
+    flex-wrap: wrap; /* Permite que os itens quebrem para a linha de baixo em telas menores */
+}
+
+.form-container,
+.client-list {
+    flex: 1; /* Faz com que ambos os contêineres dividam o espaço igualmente */
+    min-width: 400px; /* Largura mínima antes de quebrar a linha */
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #2c3e50;
+}
+
+/* ==========================================================================
+   3. Estilos de Formulário
+   ========================================================================== */
+label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #7f8c8d;
+    margin-bottom: 8px;
+    display: block;
+}
+
+input,
+button {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+input:focus {
+    border-color: #26A0B8;
+}
+
+/* Campos de preenchimento automático desabilitados para edição manual */
+input[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+button[type="submit"] {
+    background-color: #26A0B8;
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #1f7f92;
+}
+
+/* ==========================================================================
+   4. Lista de Clientes
+   ========================================================================== */
+.client-list {
+    max-height: 400px;
+    overflow-y: auto; /* Adiciona scroll vertical se a lista for muito grande */
+}
+
+.client-list h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    text-align: center;
+}
+
+.filter-container {
+    margin-bottom: 20px;
+}
+
+#searchInput {
+    padding: 12px;
+    width: 100%;
+}
+
+.client-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.client-list ul li {
+    background-color: #ecf0f1;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    word-wrap: break-word; /* Garante que textos longos quebrem a linha */
+}
+
+.client-list ul li:hover {
+    background-color: #bdc3c7;
+}
+
+.client-list li .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #303030da;
+}
+
+.client-list li .detail-item .label {
+    font-weight: 600;
+    color: #242323ee;
+    white-space: nowrap; /* Impede que o rótulo quebre a linha */
+}
+
+/* Ícones de Ação (Editar/Excluir) */
+.action-icons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 10; /* Garante que os ícones fiquem sobre outros elementos */
+}
+
+.action-icons i {
+    cursor: pointer;
+    font-size: 16px;
+    transition: color 0.2s ease;
+}
+
+.action-icons i.edit { color: #696868; }
+.action-icons i.edit:hover { color: #4d4d4d; }
+.action-icons i.delete { color: #E74C3C; }
+.action-icons i.delete:hover { color: #C0392B; }
+
+/* ==========================================================================
+   5. Estilos de Edição "In-place"
+   - Estilos aplicados quando um item da lista está sendo editado.
+   ========================================================================== */
+/* Classe de estado aplicada via JS */
+.client-list li.editing {
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid #26A0B8;
+}
+
+/* Esconde os detalhes e ícones originais durante a edição */
+.client-list li.editing .client-details,
+.client-list li.editing .action-icons {
+    display: none;
+}
+
+/* Exibe o formulário de edição */
+.client-list li.editing .edit-form-container {
+    display: block;
+}
+
+/* Contêiner do formulário de edição (escondido por padrão) */
+.edit-form-container {
+    display: none;
+}
+
+.edit-form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.edit-form-container .edit-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.edit-form-container .edit-field label {
+    width: 100px; /* Largura fixa para os rótulos */
+    flex-shrink: 0; /* Impede que o label encolha */
+    margin-bottom: 0;
+}
+
+.edit-form-container input {
+    padding: 8px;
+    font-size: 14px;
+    margin-bottom: 0;
+    flex-grow: 1; /* Faz o input ocupar o espaço restante */
+}
+
+.edit-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.edit-buttons button {
+    width: auto;
+    padding: 8px 15px;
+    border-radius: 4px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.edit-buttons .save { background-color: #26A0B8; }
+.edit-buttons .cancel { background-color: #e74c3c; }
+.edit-buttons .save:hover { background-color: #1f7f92; }
+.edit-buttons .cancel:hover { background-color: #c0392b; }
+
+/* ==========================================================================
+   6. Estilos de Componentes de UI (Modal e Popup)
+   ========================================================================== */
+/* Popup de Notificação */
+.popup-msg {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 12px 20px;
+    font-size: 15px;
+    border-radius: 6px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    min-width: 250px;
+    z-index: 1002;
+    opacity: 0;
+    /* Posição inicial fora da tela para a animação de entrada */
+    transform: translateX(calc(100% + 30px));
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.popup-msg.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.popup-msg i {
+    margin-right: 12px;
+    font-size: 18px;
+}
+
+/* Modal de Confirmação */
+.modal-overlay {
+    position: fixed;
+    inset: 0; /* Atalho para top/right/bottom/left = 0 */
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none; /* Controlado por JS */
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 100px;
+    z-index: 1001; /* Z-index alto para cobrir a página */
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 450px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 22px;
+    color: #333;
+}
+
+.close-button {
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: bold;
+    color: #888;
+    transition: color 0.2s;
+}
+
+.close-button:hover {
+    color: #333;
+}
+
+.modal-body {
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.modal-body p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Estilo base para botões do modal */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn:hover {
+    transform: translateY(-1px); /* Efeito sutil de "levantar" */
+}
+
+.btn-cancel { background-color: #bdc3c7; color: #333; }
+.btn-cancel:hover { background-color: #aeb5b9; }
+.btn-delete { background-color: #e74c3c; color: #fff; }
+.btn-delete:hover { background-color: #c0392b; }
+
+.cep-notice {
+    font-style: italic;  /* Deixa o texto em itálico */
+    color: #888;         /* Define uma cor cinza, mais clara que o texto preto padrão */
+    font-weight: normal;  /* Garante que o aviso não fique em negrito como o label */
+    margin-left: 5px;   /* Adiciona um pequeno espaço após "CEP:" */
+}
+
+/* Se você precisar que o label se alinhe com o input, mas o small esteja na mesma linha: */
+label {
+    display: flex; /* Permite alinhar itens dentro do label */
+    align-items: center; /* Alinha verticalmente o texto e o aviso */
+    gap: 5px; /* Espaço entre "CEP:" e o aviso */
+}
+
+/* Garante que o input CEP tenha sua própria margem ou estilo, se precisar */
+input#cep {
+    margin-top: 5px; /* Ajuste se necessário para espaçamento entre o label e o input */
+}
+
+/* ==========================================================================
+   7. Animações (Keyframes)
+   ========================================================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

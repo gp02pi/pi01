@@ -1,0 +1,205 @@
+/* ==========================================================================
+   1. Estilos Globais
+   ========================================================================== */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    transition: background-color 0.3s ease;
+}
+
+/* ==========================================================================
+   2. Layout do Container Principal
+   ========================================================================== */
+.container {
+    width: 70%;
+    max-width: 1200px;
+    min-width: 700px;
+    margin: 20px auto 0;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    position: relative; /* Contexto para o ícone de fechar */
+}
+
+.close-icon {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 25px;
+    color: rgb(163, 163, 163);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-icon:hover {
+    color: rgb(97, 97, 97);
+}
+
+/* ==========================================================================
+   3. Cabeçalho do Perfil
+   ========================================================================== */
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.profile-header .info {
+    flex-grow: 1;
+}
+
+.profile-header h1 {
+    font-size: 22px;
+    margin: 0;
+    min-height: 1.2em; /* Altura mínima para evitar 'pulos' de layout durante o carregamento */
+}
+
+.profile-header p {
+    font-size: 13px;
+    color: #777;
+    margin: 5px 0;
+    min-height: 1.2em;
+}
+
+/* ==========================================================================
+   4. Painel de Configurações e Formulários
+   ========================================================================== */
+.settings-panel {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.settings-panel .section {
+    width: 100%;
+    background-color: #fafafa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.3s ease;
+}
+
+.settings-panel .section h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.settings-panel .section label {
+    font-size: 13px;
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+}
+
+.settings-panel .section input,
+.settings-panel .section select,
+.settings-panel .section textarea,
+.settings-panel .section button {
+    width: 100%;
+    max-width: 400px;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.settings-panel .section input:focus,
+.settings-panel .section select:focus,
+.settings-panel .section textarea:focus {
+    border-color: #2196F3;
+    box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+}
+
+.settings-panel .section button {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.settings-panel .section button:hover {
+    background-color: #1976D2;
+}
+
+/* ==========================================================================
+   5. Estilos de Estados e Componentes
+   ========================================================================== */
+.readonly {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    pointer-events: none; /* Impede interação com o campo */
+    color: #777;
+}
+
+#codeField {
+    display: none; /* O campo de código começa oculto */
+}
+
+/* Mensagens de feedback para o usuário */
+.error-message {
+    color: red;
+    font-size: 12px;
+    min-height: 18px;
+}
+.feedback-message {
+    margin-top: 10px; 
+    font-size: 14px;
+    min-height: 20px;
+}
+
+/* Efeito de "esqueleto" para indicar carregamento */
+.skeleton {
+    background-color: #e0e0e0;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-text {
+    height: 1.2em;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    color: transparent !important; /* Esconde o texto enquanto carrega */
+}
+
+.skeleton-input {
+    height: 40px;
+    border-radius: 8px;
+}
+
+@keyframes pulse {
+    0% { background-color: #e0e0e0; }
+    50% { background-color: #f0f0f0; }
+    100% { background-color: #e0e0e0; }
+}
+
+/* Mensagem de sucesso flutuante */
+.success-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    font-size: 16px;
+    text-align: center;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}

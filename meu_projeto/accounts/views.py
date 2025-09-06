@@ -15,6 +15,7 @@ from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Python Standard Library Imports
 import calendar
@@ -46,7 +47,6 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 
 # Local Application Imports
-from .decorators import add_session_timeout_context
 from .models import Perfil, PasswordResetCode, Produto, Fornecedor, Cliente, Venda, HistoricoNotaFiscal
 
 # Configura o locale para formatação de moeda
@@ -225,55 +225,84 @@ def redefinir_senha(request):
             'success': False,
             'message': 'Ocorreu um erro ao redefinir a senha. Tente novamente.'
         })
+
+def apresentacao(request):
+    return TemplateResponse(request, 'apresentacao.html', {})
 # --- VIEWS DE PÁGINAS PROTEGIDAS ---
 @login_required
-@add_session_timeout_context
 def inicio(request):
     return TemplateResponse(request, 'inicio.html', {})
 @login_required
-@add_session_timeout_context
 def clientes(request):
     return TemplateResponse(request, 'clientes.html', {})
 @login_required
-@add_session_timeout_context
 def fornecedores(request):
     return TemplateResponse(request, 'fornecedores.html', {})
 @login_required
-@add_session_timeout_context
 def vendas(request):
     return TemplateResponse(request, 'vendas.html', {})
 @login_required
-@add_session_timeout_context
 def relatorios(request):
     return TemplateResponse(request, 'relatorios.html', {})
 @login_required
-@add_session_timeout_context
 def produtos(request):
     return TemplateResponse(request, 'produtos.html', {})
 @login_required
-@add_session_timeout_context
 def configuracoes(request):
     return TemplateResponse(request, 'configuracoes.html', {})
 @login_required
 def barra(request):
     return render(request, 'barra.html')
 # --- VIEWS DE API PROTEGIDAS ---
+# ... importações ...
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+# ... outras views ...
+
+# Remova o decorator @login_required daqui
 @require_POST
-@login_required
 def api_reauthenticate(request):
-    # ... seu código de reautenticação ...
+    """
+    Verifica a senha do usuário logado e, se correta, reautentica a sessão.
+    Se a senha estiver incorreta, desloga o usuário.
+    Esta view precisa ser acessível mesmo com a sessão expirada, por isso o @login_required foi removido.
+    """
     try:
         data = json.loads(request.body)
         password = data.get('password')
         if not password:
-            return JsonResponse({'success': False, 'error': 'Senha não fornecida.'}, status=400)
+            return JsonResponse({'error': 'Senha não fornecida.'}, status=400)
     except json.JSONDecodeError:
-        return JsonResponse({'success': False, 'error': 'Requisição inválida.'}, status=400)
-    user = request.user
-    if user.check_password(password):
+        return JsonResponse({'error': 'Requisição inválida.'}, status=400)
+
+    # Verifica se o usuário da requisição é válido.
+    # Se a sessão expirou, `request.user` se torna um AnonymousUser.
+    if not request.user.is_authenticated:
+        # Tenta reautenticar usando o username guardado na requisição (se houver)
+        # O Django não guarda o username por padrão, então precisamos de uma forma de obtê-lo.
+        # Por segurança, o front-end não deve enviar o username.
+        # Uma forma é usar o session key ou outra informação.
+        # No seu caso, o front-end não está enviando, então vamos focar no comportamento esperado.
+        
+        # A requisição de reautenticação só deve ocorrer se a sessão existia.
+        # Se ela expira, `request.user` se torna anônimo.
+        # Ao deslogar o usuário com `auth_logout`, garantimos que o front-end
+        # receba um status de erro para redirecionar.
+        auth_logout(request)
+        return JsonResponse({'error': 'Sessão expirada.'}, status=401)
+    
+    # Se o usuário está autenticado, tenta checar a senha.
+    user = authenticate(request, username=request.user.username, password=password)
+
+    if user is not None:
+        # Senha correta: re-loga o usuário para renovar a sessão
+        auth_login(request, user)
         return JsonResponse({'success': True})
     else:
-        return JsonResponse({'success': False, 'error': 'Senha incorreta.'}, status=401)
+        # Senha incorreta: desloga o usuário no backend
+        auth_logout(request)
+        return JsonResponse({'error': 'Senha incorreta.'}, status=401)
     
 @login_required
 def api_user_profile(request):
@@ -405,7 +434,7 @@ def api_update_user_profile(request):
                     
                     except Exception as e:
                         return JsonResponse({'success': False, 'message': f'Erro ao atualizar informações: {str(e)}'}, status=400)
-            
+                
             else:
                 return JsonResponse({'success': False, 'message': 'Dados de requisição inválidos.'}, status=400)
 
@@ -418,20 +447,37 @@ def api_update_user_profile(request):
     return JsonResponse({'error': 'Método não permitido.'}, status=405)
 @login_required
 def api_produtos(request):
-    # ... seu código de produtos ...
     if request.method == 'GET':
         search_query = request.GET.get('search', None)
+        page = request.GET.get('page', 1)
+        items_per_page = 6
+        
         produtos_queryset = Produto.objects.all().select_related('fornecedor').prefetch_related(
             Prefetch('historico_notas', queryset=HistoricoNotaFiscal.objects.order_by('-data_entrada'), to_attr='last_note_list')
-        )
+        ).order_by('id')
+        
         if search_query:
             produtos_queryset = produtos_queryset.filter(
                 Q(nome__icontains=search_query) |
                 Q(id__icontains=search_query) |
                 Q(fornecedor__nome__icontains=search_query)
             )
+
+        # Configura a paginação no backend
+        paginator = Paginator(produtos_queryset, items_per_page)
+        try:
+            produtos_paginados = paginator.page(page)
+        except PageNotAnInteger:
+            produtos_paginados = paginator.page(1)
+        except EmptyPage:
+            # Se a página estiver vazia, retorna a última página
+            produtos_paginados = paginator.page(paginator.num_pages)
+        # Se a página de um produto excluído esvaziou, retorna a página anterior
+        if not produtos_paginados.object_list and produtos_paginados.number > 1:
+            produtos_paginados = paginator.page(produtos_paginados.previous_page_number())
+
         produtos_list = []
-        for produto in produtos_queryset:
+        for produto in produtos_paginados:
             fornecedor_data = {}
             if produto.fornecedor:
                 fornecedor_data = {'nome': produto.fornecedor.nome, 'cnpj': produto.fornecedor.cnpj}
@@ -444,7 +490,16 @@ def api_produtos(request):
                 'preco_venda': produto.preco_venda, 'fornecedor': fornecedor_data,
                 'last_nota_fiscal': last_note_data,
             })
-        return JsonResponse(produtos_list, safe=False)
+        
+        response_data = {
+            'produtos': produtos_list,
+            'current_page': produtos_paginados.number,
+            'total_pages': paginator.num_pages,
+            'total_items': paginator.count,
+            'has_next': produtos_paginados.has_next(),
+            'has_previous': produtos_paginados.has_previous()
+        }
+        return JsonResponse(response_data, safe=False)
     elif request.method == 'POST':
         try:
             data = json.loads(request.body.decode('utf-8'))
@@ -470,12 +525,27 @@ def api_produtos(request):
             return JsonResponse({'error': str(e)}, status=400)
 @login_required
 def api_produto_detalhe(request, id):
-    # ... seu código de detalhe do produto ...
     try:
         produto = Produto.objects.get(id=id)
     except Produto.DoesNotExist:
         return JsonResponse({'error': 'Produto não encontrado.'}, status=404)
-    if request.method == 'PUT':
+        
+    if request.method == 'GET':
+        produto_data = {
+            'id': produto.id,
+            'nome': produto.nome,
+            'quantidade': produto.quantidade,
+            'quantidade_minima': produto.quantidade_minima,
+            'preco_compra': produto.preco_compra,
+            'preco_venda': produto.preco_venda,
+            'fornecedor': {
+                'nome': produto.fornecedor.nome,
+                'cnpj': produto.fornecedor.cnpj
+            } if produto.fornecedor else None
+        }
+        return JsonResponse(produto_data, safe=False)
+        
+    elif request.method == 'PUT':
         try:
             data = json.loads(request.body.decode('utf-8'))
             fornecedor_cnpj = data.get('fornecedor_cnpj')
@@ -648,8 +718,10 @@ def api_cliente_detalhe(request, cpf):
     return JsonResponse({'error': 'Método não permitido.'}, status=405)
 
 @login_required
+@csrf_exempt
 def api_vendas(request, id=None):
-    # ... seu código de vendas ...
+    # ... seu código de GET e POST ...
+
     if request.method == 'GET':
         vendas = list(Venda.objects.select_related('produto', 'cliente').all().order_by('-data_venda').values(
             'id', 'quantidade', 'preco_total', 'data_venda',
@@ -657,6 +729,7 @@ def api_vendas(request, id=None):
             'cliente__nome', 'cliente__cpf'
         ))
         return JsonResponse(vendas, safe=False)
+
     elif request.method == 'POST':
         try:
             data = json.loads(request.body.decode('utf-8'))
@@ -676,6 +749,7 @@ def api_vendas(request, id=None):
             return JsonResponse({'message': 'Venda registrada com sucesso!', 'venda_id': venda.id}, status=201)
         except Exception as e:
             return JsonResponse({'error': f'Erro ao registrar venda: {str(e)}'}, status=400)
+
     elif request.method == 'DELETE':
         venda = get_object_or_404(Venda, id=id)
         with transaction.atomic():
@@ -684,6 +758,7 @@ def api_vendas(request, id=None):
             produto.save()
             venda.delete()
         return HttpResponse(status=204)
+
     return JsonResponse({'error': 'Método não permitido'}, status=405)
 @login_required
 def api_exportar_produtos(request):
@@ -838,10 +913,10 @@ def generate_pdf(buffer, data):
     story.append(Paragraph(f'<i>Gerado em: {date.today().strftime("%d/%m/%Y")}</i>', styles['Normal']))
     story.append(Paragraph('<br/><b>Visão Geral do Estoque e Vendas</b>', styles['h2']))
     overview_data = [['Métrica', 'Valor'],
-                     ['Produtos em Estoque', data['produtosEstoque']],
-                     ['Valor Total do Estoque', data['valorEstoque']],
-                     ['Total de Vendas', data['totalVendas']],
-                     ['Valor Total Ganho', data['valorGanho']]]
+                         ['Produtos em Estoque', data['produtosEstoque']],
+                         ['Valor Total do Estoque', data['valorEstoque']],
+                         ['Total de Vendas', data['totalVendas']],
+                         ['Valor Total Ganho', data['valorGanho']]]
     story.append(Table(overview_data, colWidths=[200, 300], style=TableStyle([('BOX', (0,0), (-1,-1), 1, colors.black), ('GRID', (0,0), (-1,-1), 1, colors.black)])))
     story.append(Paragraph('<br/><b>Produtos com Estoque Crítico</b>', styles['h2']))
     if data['produtosFalta']:
@@ -860,7 +935,7 @@ def generate_pdf(buffer, data):
     clientes_data = [['Nome do Cliente']] + [[item] for item in data['topClientes']]
     story.append(Table(clientes_data, colWidths=[500], style=TableStyle([('BOX', (0,0), (-1,-1), 1, colors.black), ('GRID', (0,0), (-1,-1), 1, colors.black)])))
     fornecedor_data = [['Principal Fornecedor', 'Valor Gasto'],
-                       [data['principalFornecedor']['nome'], data['principalFornecedor']['valorGasto']]]
+                            [data['principalFornecedor']['nome'], data['principalFornecedor']['valorGasto']]]
     story.append(Table(fornecedor_data, colWidths=[250, 250], style=TableStyle([('BOX', (0,0), (-1,-1), 1, colors.black), ('GRID', (0,0), (-1,-1), 1, colors.black)])))
     doc.build(story)
     buffer.seek(0)
@@ -899,9 +974,9 @@ def generate_word(buffer, data):
     document.add_paragraph(f'Gerado em: {date.today().strftime("%d/%m/%Y")}')
     document.add_heading('Visão Geral do Estoque e Vendas', level=1)
     for key, value in [('Produtos em Estoque', data['produtosEstoque']),
-                         ('Valor Total do Estoque', data['valorEstoque']),
-                         ('Total de Vendas', data['totalVendas']),
-                         ('Valor Total Ganho', data['valorGanho'])] :
+                          ('Valor Total do Estoque', data['valorEstoque']),
+                          ('Total de Vendas', data['totalVendas']),
+                          ('Valor Total Ganho', data['valorGanho'])] :
         document.add_paragraph(f'• {key}: {value}', style='List Bullet')
     document.add_heading('Produtos com Estoque Crítico', level=1)
     if data['produtosFalta']:
@@ -974,8 +1049,7 @@ def api_enviar_relatorios_email(request):
             subject,
             message_body,
             settings.EMAIL_HOST_USER,
-            [email_destino],
-            fail_silently=False,
+            [email_destino]
         )
         email.attach('relatorio_completo.pdf', buffer_pdf.getvalue(), 'application/pdf')
         email.attach('relatorio_completo.xlsx', buffer_excel.getvalue(), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
@@ -1017,73 +1091,63 @@ def api_dashboard_data(request):
         estoque_mensal = []
         sales_growth_labels = []
         sales_growth_data = []
-        # Gráfico principal (Vendas e Estoque por mês) e Crescimento de Vendas (Line Chart)
+        
         for i in range(12):
             mes = hoje - timedelta(days=30 * (11 - i))
+            nome_mes_completo = calendar.month_name[mes.month]
+            nome_mes_abreviado = nome_mes_completo[:3].capitalize()
+            labels_meses.append(nome_mes_abreviado)
+            sales_growth_labels.append(nome_mes_abreviado)
             
-            # Use `calendar` para obter o nome do mês em português
-            nome_mes = calendar.month_name[mes.month]
-            labels_meses.append(nome_mes[:3].capitalize())
-            sales_growth_labels.append(nome_mes[:3].capitalize())
-            
-            # Vendas (Saídas de Estoque)
             vendas_no_mes = Venda.objects.filter(
                 data_venda__year=mes.year,
                 data_venda__month=mes.month
-            ).aggregate(
-                total=Coalesce(Sum('quantidade'), 0)
-            )['total']
+            ).aggregate(total=Coalesce(Sum('quantidade'), 0))['total']
             vendas_mensais.append(vendas_no_mes)
             
-            # Entradas de Estoque
             entradas_no_mes = HistoricoNotaFiscal.objects.filter(
                 data_entrada__year=mes.year,
                 data_entrada__month=mes.month
-            ).aggregate(
-                total=Coalesce(Sum('quantidade_adicionada'), 0)
-            )['total']
+            ).aggregate(total=Coalesce(Sum('quantidade_adicionada'), 0))['total']
             estoque_mensal.append(entradas_no_mes)
-            # Crescimento de Vendas (Line Chart)
+            
             vendas_valor_no_mes = Venda.objects.filter(
                 data_venda__year=mes.year,
                 data_venda__month=mes.month
-            ).aggregate(
-                total_venda=Coalesce(Sum('preco_total'), Decimal(0))
-            )['total_venda']
+            ).aggregate(total_venda=Coalesce(Sum('preco_total'), Decimal(0)))['total_venda']
             sales_growth_data.append(float(vendas_valor_no_mes))
             
-        # Vendas por Produto (Top 5)
+        # Vendas por Produto (Top 5 mais vendidos) - LÓGICA INTOCADA E CORRETA
         vendas_por_produto_query = Venda.objects.values('produto__nome').annotate(
             total_vendido=Coalesce(Sum('quantidade'), 0)
         ).order_by('-total_vendido')[:5]
         
         vendas_por_produto = {
-            'labels': [item['produto__nome'] for item in vendas_por_produto_query],
-            'data': [item['total_vendido'] for item in vendas_por_produto_query]
+            'labels': [item['produto__nome'] for item in vendas_por_produto_query if item['total_vendido'] > 0],
+            'data': [item['total_vendido'] for item in vendas_por_produto_query if item['total_vendido'] > 0]
         }
         
-        # Compras por Fornecedor (Top 4)
-        compras_por_fornecedor_query = Fornecedor.objects.annotate(
-            total_gasto=Coalesce(Sum(F('produto__historico_notas__quantidade_adicionada') * F('produto__preco_compra')), Decimal(0))
-        ).order_by('-total_gasto')[:4]
+        # Análise Financeira (Custos vs. Receita) - NOVA LÓGICA
+        total_custo_compras = HistoricoNotaFiscal.objects.aggregate(
+            total=Coalesce(Sum(F('quantidade_adicionada') * F('preco_compra_nota')), Decimal(0), output_field=DecimalField())
+        )['total']
         
-        compras_por_fornecedor = {
-            'labels': [item.nome for item in compras_por_fornecedor_query],
-            'data': [float(item.total_gasto) for item in compras_por_fornecedor_query]
+        analise_financeira = {
+            'labels': ['Custos (Compras)', 'Receita (Vendas)'],
+            'data': [float(total_custo_compras), float(total_vendas_valor)]
         }
         
-        # Saída de Produtos (Novo card)
+        # Cálculos intermediários que foram removidos por engano e agora restaurados
         total_saida_produtos = Venda.objects.aggregate(
             total=Coalesce(Sum('quantidade'), 0)
         )['total']
-        # Contas a Pagar
         total_a_pagar = HistoricoNotaFiscal.objects.aggregate(
             total=Coalesce(Sum(F('quantidade_adicionada') * F('preco_compra_nota')), Decimal(0), output_field=DecimalField())
         )['total']
         valor_pago = total_a_pagar * Decimal('0.75')
         total_restante = total_a_pagar - valor_pago
-        
-        # Criação do dicionário de dados
+
+        # Criação do dicionário de dados final, agora completo
         dados_dashboard = {
             'kpis': {
                 'totalVendas': locale.format_string("%.2f", total_vendas_valor, grouping=True),
@@ -1117,8 +1181,8 @@ def api_dashboard_data(request):
                 'data': sales_growth_data
             },
             'payableAgingChart': {
-                'labels': compras_por_fornecedor['labels'],
-                'data': compras_por_fornecedor['data']
+                'labels': analise_financeira['labels'],
+                'data': analise_financeira['data']
             }
         }
         
@@ -1126,11 +1190,42 @@ def api_dashboard_data(request):
     except Exception as e:
         print(f"Erro na API de dashboard: {e}")
         return JsonResponse({'error': 'Erro ao carregar dados do dashboard.'}, status=500)
-@login_required
+    
 def api_keep_alive(request):
-    return JsonResponse({'success': True, 'message': 'Sessão estendida.'})
+    return JsonResponse({'success': request.user.is_authenticated, 'message': 'Sessão estendida.'})
 @login_required
-def api_historico_notas(request):
+def api_historico_notas(request, id=None):
+    # --- Rota para Excluir uma Nota Específica (ex: /api/historico-notas/123/) ---
+    if id:
+        try:
+            nota = HistoricoNotaFiscal.objects.get(id=id)
+        except HistoricoNotaFiscal.DoesNotExist:
+            return JsonResponse({'error': 'Nota fiscal não encontrada.'}, status=404)
+
+        if request.method == 'DELETE':
+            try:
+                with transaction.atomic():
+                    produto = nota.produto
+                    # Validação para não deixar o estoque negativo
+                    if produto.quantidade < nota.quantidade_adicionada:
+                        error_msg = (
+                            f'Não é possível excluir a nota. A quantidade em estoque do produto ficaria negativa. '
+                            f'(Removeria: {nota.quantidade_adicionada}, Estoque atual: {produto.quantidade})'
+                        )
+                        return JsonResponse({'error': error_msg}, status=400)
+                    
+                    produto.quantidade -= nota.quantidade_adicionada
+                    produto.save()
+                    nota.delete()
+                return HttpResponse(status=204) # 204 No Content é a resposta padrão para DELETE bem-sucedido
+            except Exception as e:
+                return JsonResponse({'error': f'Erro ao excluir nota: {str(e)}'}, status=400)
+        
+        # Se o método for diferente de DELETE para uma rota com ID
+        return JsonResponse({'error': 'Método não permitido para esta rota.'}, status=405)
+
+    # --- Rotas para a Coleção de Notas (ex: /api/historico-notas/) ---
+    # Listar notas de um produto
     if request.method == 'GET':
         produto_id = request.GET.get('produto_id')
         if not produto_id:
@@ -1143,6 +1238,8 @@ def api_historico_notas(request):
             return JsonResponse(notas, safe=False)
         except Produto.DoesNotExist:
             return JsonResponse({'error': 'Produto não encontrado.'}, status=404)
+
+    # Adicionar uma nova nota (e atualizar o estoque)
     elif request.method == 'POST':
         try:
             data = json.loads(request.body.decode('utf-8'))
@@ -1151,8 +1248,10 @@ def api_historico_notas(request):
             numero_nota = data.get('numero_nota')
             preco_compra_nota = data.get('preco_compra_nota')
             preco_venda_nota = data.get('preco_venda_nota') 
+
             if not all([produto_id, quantidade_adicionada > 0, numero_nota, preco_compra_nota, preco_venda_nota]):
                 return JsonResponse({'error': 'Dados incompletos para criar a nota fiscal.'}, status=400)
+            
             with transaction.atomic():
                 produto = get_object_or_404(Produto, id=produto_id)
                 produto.quantidade += quantidade_adicionada
@@ -1169,25 +1268,8 @@ def api_historico_notas(request):
         
         except Exception as e:
             return JsonResponse({'error': f'Erro ao adicionar nota: {str(e)}'}, status=400)
-            
-@login_required
-def api_historico_nota_detalhe(request, id):
-    try:
-        nota = HistoricoNotaFiscal.objects.get(id=id)
-    except HistoricoNotaFiscal.DoesNotExist:
-        return JsonResponse({'error': 'Nota fiscal não encontrada.'}, status=404)
-    if request.method == 'DELETE':
-        try:
-            with transaction.atomic():
-                produto = nota.produto
-                if produto.quantidade < nota.quantidade_adicionada:
-                    return JsonResponse({'error': f'Não é possível excluir a nota. A quantidade em estoque do produto ficaria negativa. (Removeria: {nota.quantidade_adicionada}, Estoque atual: {produto.quantidade})'}, status=400)
-                produto.quantidade -= nota.quantidade_adicionada
-                produto.save()
-                nota.delete()
-            return HttpResponse(status=204)
-        except Exception as e:
-            return JsonResponse({'error': f'Erro ao excluir nota: {str(e)}'}, status=400)
+
+    # Se o método não for GET ou POST para a rota sem ID
     return JsonResponse({'error': 'Método não permitido.'}, status=405)
 
 @login_required
@@ -1202,10 +1284,10 @@ def api_cidade_rankings(request):
                                      .order_by('-count')[:5])
 
         top_fornecedores_cidades = list(Fornecedor.objects.exclude(cidade__isnull=True).exclude(cidade__exact='')
-                                         .values('cidade', 'estado')
-                                         .annotate(count=Count('cnpj'))
-                                         .order_by('-count')[:5])
-                                         
+                                             .values('cidade', 'estado')
+                                             .annotate(count=Count('cnpj'))
+                                             .order_by('-count')[:5])
+                                             
         return JsonResponse({
             'top_clientes': top_clientes_cidades,
             'top_fornecedores': top_fornecedores_cidades

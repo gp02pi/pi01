@@ -1,0 +1,365 @@
+/* ====================
+   Variáveis e Reset Global
+   ==================== */
+
+:root {
+  /* Cores de Fundo e Card */
+  --bg-color: #f4f6f9;
+  --card-bg-color: #ffffff;
+
+  /* Cores Principais e de Destaque */
+  --primary-color: #26A0B8;
+  --primary-dark: #26A0B8;
+
+  /* Cores de Texto */
+  --text-color: #343a40;
+  --light-text-color: #6c757d;
+
+  /* Estilos de Componentes */
+  --border-color: #e9ecef;
+  --border-radius: 8px;
+  --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  padding-top: 30px;
+  margin: 25px auto;
+}
+
+h1 {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--primary-color);
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+/* ====================
+   Layout Principal e Cards
+   ==================== */
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  padding-bottom: 50px;
+}
+
+.header-buttons {
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+  position: relative;
+  z-index: 10;
+}
+
+.card {
+  background-color: var(--card-bg-color);
+  padding: 25px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease-in-out;
+  cursor: default;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.card-header .icon {
+  font-size: 2rem;
+  color: var(--primary-color);
+}
+
+.card-header h2 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.card-body {
+  flex-grow: 1;
+}
+
+.card-body .value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 5px;
+}
+
+.card-body .description {
+  font-size: 0.9rem;
+  color: var(--light-text-color);
+}
+
+.card-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.card-list li {
+  padding: 8px 0;
+  font-size: 1rem;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-list li:last-child {
+  border-bottom: none;
+}
+
+.card-list li .name {
+  font-weight: 500;
+}
+
+.card-list li .value {
+  font-weight: 400;
+  color: var(--primary-dark);
+}
+
+/* ====================
+   Animações e Componentes de UI
+   ==================== */
+
+.loading-container {
+  width: 100%;
+  text-align: center;
+  margin-top: 50px;
+  font-size: 1.2rem;
+  color: var(--light-text-color);
+  display: none;
+}
+
+.loading-container i {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Estilos para centralizar a mensagem de aviso (toast) */
+.toast-message {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  font-size: 0.9rem;
+}
+
+.toast-message.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.toast-message.error {
+  background-color: #dc3545;
+}
+
+/* Estilos para o menu dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.main-export-btn {
+  background-color: #26A0B8;
+  color: white;
+  border: none;
+  border-radius: 10%;
+  padding: 15px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.main-export-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: var(--card-bg-color);
+  box-shadow: var(--box-shadow);
+  z-index: 10;
+  border-radius: var(--border-radius);
+  padding: 10px;
+  right: 100%;
+  top: 50%;
+  margin-right: 10px;
+  white-space: nowrap;
+  flex-direction: row;
+  gap: 10px;
+  transform-origin: right top;
+  animation: fadeIn 0.3s ease-in-out forwards;
+  transform: translateY(-50%) scaleX(0);
+}
+
+.dropdown-content.show {
+  display: flex;
+  transform: translateY(-50%) scaleX(1);
+}
+
+/* Estilos para o container do campo de e-mail */
+.email-input-container {
+  display: none;
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  margin-right: 10px;
+  transform: translateY(-50%) scaleX(0);
+  transform-origin: right top;
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+.email-input-container.show {
+  display: flex;
+  transform: translateY(-50%) scaleX(1);
+}
+
+/* Estilos do campo de texto minimalista */
+.email-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.email-input-group input {
+  padding: 10px 35px 10px 12px;
+  border: none;
+  background-color: #f0f0f0;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  width: 300px;
+}
+
+.email-input-group input:focus {
+  outline: none;
+  background-color: #e8e8e8;
+}
+
+/* Estilos do botão de envio minimalista */
+.email-input-group .send-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--primary-color);
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.email-input-group .send-btn:hover {
+  color: var(--primary-dark);
+}
+
+@keyframes fadeIn {
+  from {
+    transform: translateY(-50%) scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(-50%) scaleX(1);
+    opacity: 1;
+  }
+}
+
+.dropdown-content button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: 500;
+  background-color: var(--primary-color);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+
+.dropdown-content button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.dropdown-content button .icon {
+  margin-right: 8px;
+  color: white;
+}
+
+/* Cores das opções e ícones do dropdown */
+.dropdown-content .btn-pdf { background-color: #e74c3c; }
+.dropdown-content .btn-word { background-color: #3498db; }
+.dropdown-content .btn-excel { background-color: #2ecc71; }
+.dropdown-content .btn-email { background-color: #9b59b6; }
+
+.dropdown-content .btn-pdf:hover { background-color: #c0392b; }
+.dropdown-content .btn-word:hover { background-color: #2980b9; }
+.dropdown-content .btn-excel:hover { background-color: #27ae60; }
+.dropdown-content .btn-email:hover { background-color: #8e44ad; }

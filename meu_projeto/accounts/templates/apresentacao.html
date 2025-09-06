@@ -1,0 +1,986 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Integrador</title>
+    <meta name="description"
+        content="Apresentação do projeto integrador dos cursos de Engenharia da Computação, Ciência de Dados e Tecnologia da Informação da UNIVESP, focado no desenvolvimento de um software web para gestão de estoque.">
+    <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- :ROOT (VARIÁVEIS GLOBAIS) --- */
+        :root {
+            --color-primary: #26A0B8;
+            --color-primary-dark: #1E8395;
+            --color-secondary: #8c8c8c;
+            --color-dark: #222222;
+            --color-text: #444444;
+            --color-light-gray: #f5f5f5;
+            --color-white: #ffffff;
+            --color-accent: #EB9941;
+            --font-heading: 'Roboto Slab', serif;
+            --font-body: 'Source Sans Pro', sans-serif;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 6px;
+            --transition: all 0.3s ease-in-out;
+            --container-width: 1100px;
+        }
+
+        /* --- ESTILOS GERAIS E RESET --- */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            color: var(--color-text);
+            line-height: 1.7;
+            background-color: var(--color-white);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: var(--font-heading);
+            color: var(--color-dark);
+            line-height: 1.3;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        a {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--color-primary-dark);
+            text-decoration: underline;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* --- CLASSES UTILITÁRIAS --- */
+        .container {
+            max-width: var(--container-width);
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 24px;
+        }
+
+        .section {
+            padding: 80px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 24px;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            margin-top: 16px;
+        }
+
+        .btn:hover {
+            background-color: var(--color-primary-dark);
+            color: var(--color-white);
+            text-decoration: none;
+        }
+
+        /* --- CABEÇALHO (HEADER) --- */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 12px 0;
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(5px);
+            transition: padding 0.3s ease-in-out;
+        }
+
+        .header.scrolled {
+            padding: 8px 0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-images {
+            display: flex;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 45px;
+            width: 105px;
+            object-fit: contain;
+            transition: var(--transition);
+        }
+
+        /* Removido o efeito de hover da logo */
+        /* .logo:hover .logo-images img {
+            transform: scale(1.05); 
+        } */
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: var(--color-text);
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .icon-menu {
+            width: 32px;
+            height: 32px;
+            color: var(--color-dark);
+        }
+
+        .btn-nav {
+            padding: 8px 20px;
+            background-color: var(--color-primary);
+            color: var(--color-white) !important;
+            border-radius: 50px;
+            margin-top: 0;
+        }
+
+        .btn-nav:hover {
+            background-color: var(--color-primary-dark);
+        }
+
+        /* --- SEÇÃO DE TÍTULO (APRESENTAÇÃO) --- */
+        #title-section {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            padding: 160px 0 80px;
+            text-align: center;
+        }
+
+        #title-section .university-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        #title-section .project-title {
+            font-family: var(--font-heading);
+            font-size: 3.2rem;
+            color: var(--color-white);
+            margin-bottom: 32px;
+            line-height: 1.2;
+        }
+
+        #title-section .course-name {
+            font-size: 1.1rem;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+
+        /* --- SEÇÃO DE RESUMO (ABSTRACT) --- */
+        #abstract .abstract-box {
+            background-color: var(--color-light-gray);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            margin: 0 auto;
+            max-width: 900px;
+            border-left: 5px solid var(--color-primary);
+        }
+
+        #abstract .abstract-box h2 {
+            margin-top: 0;
+        }
+
+        .keywords {
+            font-style: italic;
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .keywords strong {
+            font-style: normal;
+        }
+
+        /* --- LAYOUT PRINCIPAL (GRID COM SIDEBAR) --- */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 48px;
+            align-items: flex-start;
+        }
+
+        aside {
+            position: sticky;
+            top: 120px;
+        }
+
+        .aside-nav {
+            list-style: none;
+        }
+
+        .aside-nav li a {
+            display: block;
+            padding: 12px 16px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            color: var(--color-text);
+            border-left: 3px solid transparent;
+        }
+
+        .aside-nav li a:hover {
+            background-color: var(--color-light-gray);
+            color: var(--color-primary);
+        }
+
+        .aside-nav li a.active {
+            color: var(--color-primary);
+            border-left: 3px solid var(--color-accent);
+            background-color: var(--color-light-gray);
+        }
+
+        /* --- CONTEÚDO PRINCIPAL (ARTIGOS) --- */
+        main-content article {
+            margin-bottom: 64px;
+        }
+
+        article h2 {
+            font-size: 2.5rem;
+            text-align: left;
+            margin-bottom: 24px;
+            position: relative;
+            padding-bottom: 16px;
+        }
+
+        article h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            transform: translateX(0%);
+            width: 60px;
+            height: 4px;
+            background-color: var(--color-primary);
+        }
+
+        article h3 {
+            font-size: 1.8rem;
+            color: var(--color-primary-dark);
+            margin-bottom: 16px;
+            border-bottom: 2px solid var(--color-light-gray);
+            padding-bottom: 8px;
+        }
+
+        .list {
+            list-style-position: outside;
+            padding-left: 20px;
+        }
+
+        .list li {
+            margin-bottom: 8px;
+        }
+
+        /* --- COMPONENTE ACORDEÃO (DISCIPLINAS) --- */
+        .disciplines-container {
+            margin-top: 32px;
+        }
+
+        .discipline-item {
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .discipline-question {
+            width: 100%;
+            background-color: #f9f9f9;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-primary-dark);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: none;
+            text-align: left;
+        }
+
+        .discipline-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+            background-color: var(--color-white);
+        }
+
+        .discipline-answer-content {
+            padding: 0 16px;
+        }
+
+        .discipline-item.active .discipline-answer {
+            max-height: 500px;
+        }
+
+        .discipline-item.active .discipline-answer-content {
+            padding: 16px;
+        }
+
+        .discipline-arrow {
+            transition: transform 0.4s ease;
+            font-size: 1.2rem;
+        }
+
+        .discipline-item.active .discipline-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* --- GALERIA DE RESULTADOS --- */
+        .results-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .gallery-item {
+            text-align: center;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .gallery-item figcaption {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--color-dark);
+        }
+
+        /* --- RECURSOS DO PROJETO --- */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+        }
+
+        .resource-card {
+            background-color: var(--color-light-gray);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .resource-card .icon {
+            font-size: 3rem;
+            color: var(--color-primary);
+            margin-bottom: 16px;
+        }
+
+        .resource-card h3 {
+            font-size: 1.5rem;
+            color: var(--color-primary-dark);
+        }
+
+        /* --- RODAPÉ (FOOTER) --- */
+        .footer {
+            background-color: var(--color-dark);
+            color: #cccccc;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .footer p {
+            margin: 4px 0;
+        }
+
+        /* --- BOTÃO VOLTAR AO TOPO --- */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            line-height: 50px;
+            text-align: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1000;
+            transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
+        }
+
+        .scroll-to-top:hover {
+            background-color: var(--color-primary-dark);
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+
+        /* --- ANIMAÇÕES DE SCROLL --- */
+        .animated-element {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .animated-element.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- RESPONSIVIDADE --- */
+        @media(max-width: 992px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            aside {
+                position: static;
+                margin-bottom: 48px;
+            }
+
+            .aside-nav {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 12px;
+            }
+
+            .aside-nav li a {
+                border-bottom: 3px solid transparent;
+                border-left: none;
+            }
+
+            .aside-nav li a.active {
+                border-bottom: 3px solid var(--color-accent);
+                border-left: none;
+            }
+        }
+
+        @media(max-width: 768px) {
+            h2 {
+                font-size: 2rem;
+            }
+
+            #title-section .project-title {
+                font-size: 2.5rem;
+            }
+
+            #title-section .info-bar {
+                flex-direction: column;
+                gap: 16px;
+                align-items: center;
+            }
+
+            .menu-toggle {
+                display: block;
+                z-index: 1001;
+                position: relative;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                height: 100vh;
+                background-color: var(--color-primary-dark);
+                flex-direction: column;
+                justify-content: center;
+                gap: 24px;
+                transition: right 0.5s ease-in-out;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links a {
+                color: var(--color-white);
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="container navbar">
+            <div class="logo">
+                <div class="logo-images">
+                    <img src="{% static 'img/univesp.png' %}" alt="Logo 1">
+                    <img src="{% static 'img/icon2.png' %}" alt="Logo 2">
+                </div>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#introducao">Introdução</a></li>
+                    <li><a href="#desenvolvimento">Desenvolvimento</a></li>
+                    <li><a href="#resultados">Resultados</a></li>
+                    <li><a href="#conclusao">Conclusão</a></li>
+                    <li><a href="{% url 'login' %}" class="btn btn-nav">Acessar Sistema</a></li>
+                </ul>
+            </nav>
+            <button class="menu-toggle" aria-label="Abrir Menu">
+                <svg class="icon-menu" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+    </header>
+    <main>
+        <section id="title-section">
+            <div class="container">
+                <p class="university-name">Universidade Virtual do Estado de São Paulo (UNIVESP)</p>
+                <h1 class="project-title">Implantação e automatização de operações de um comércio de bijuterias e
+                    acessórios por meio de software web</h1>
+                <p class="course-name">Projeto Integrador para os cursos de Engenharia da Computação, Ciências de Dados
+                    e Bacharelado em Tecnologia da Informação</p>
+            </div>
+        </section>
+        <section id="abstract" class="section">
+            <div class="container animated-element">
+                <div class="abstract-box">
+                    <h2>RESUMO</h2>
+                    <p>Este relatório tem como objetivo apresentar o desenvolvimento do projeto integrador focado na
+                        criação de um software web com banco de dados para controle de estoque, visando facilitar e
+                        otimizar a organização e gestão do estoque de uma loja de bijuterias e acessórios. O comércio
+                        utilizava planilhas simplificadas que já não atendiam às necessidades do negócio, gerando
+                        dificuldades no controle de entrada e saída de produtos, compras desnecessárias e falta de
+                        visibilidade sobre o estoque disponível. O software foi desenvolvido com o foco principal em
+                        automatizar processos, reduzir erros e aumentar a eficiência na gestão do estoque, otimizando os
+                        processos de gerenciamento do negócio. Foi aplicada a metodologia de desenvolvimento web
+                        utilizando a tecnologia Python e o framework Django, praticando controle de versão através da
+                        plataforma GitHub e integração ao banco de dados com SQL. Adotando uma linguagem de
+                        desenvolvimento simples, mas com alta eficiência, e uma interface de fácil utilização,
+                        proporcionamos uma solução prática para os problemas de estoque encontrados na loja, tornando os
+                        processos diários mais ágeis.</p>
+                    <p class="keywords"><strong>PALAVRAS-CHAVE:</strong> controle de estoques; desenvolvimento web;
+                        automatização de processos; microempresas; banco de dados.</p>
+                </div>
+            </div>
+        </section>
+        <section class="section">
+            <div class="container content-grid">
+                <aside class="animated-element">
+                    <nav>
+                        <ul class="aside-nav">
+                            <li><a href="#introducao">1. Introdução</a></li>
+                            <li><a href="#objetivos">2. Objetivos</a></li>
+                            <li><a href="#metodologia">3. Metodologia</a></li>
+                            <li><a href="#desenvolvimento">4. Desenvolvimento</a></li>
+                            <li><a href="#ppc-alinhamento">5. Alinhamento com o PPC</a></li>
+                            <li><a href="#resultados">6. Resultados</a></li>
+                            <li><a href="#conclusao">7. Conclusão</a></li>
+                            <li><a href="#referencias">8. Referências</a></li>
+                        </ul>
+                    </nav>
+                </aside>
+                <main-content>
+                    <article id="introducao" class="animated-element">
+                        <h2>1. Introdução e Justificativa</h2>
+                        <p>A evolução tecnológica tem impactado significativamente o gerenciamento de negócios, tornando a
+                            utilização de ferramentas automatizadas essencial para a eficiência e rentabilidade.
+                            Observou-se que problemas de estoque e gerenciamento de produtos são comuns em diversos
+                            segmentos de comerciantes locais.</p>
+                        <p>Para este trabalho, a empresa Lamavie, do ramo de acessórios e bijuterias, relatou
+                            dificuldades na gestão de suas operações, principalmente no controle de estoque. O uso de
+                            métodos manuais resultava em compras excessivas e desnecessárias, aumentando os custos e
+                            impactando os recursos financeiros da empresa. Diante dessa problemática, o projeto propõe a
+                            criação de um software web acessível e de fácil manejo para solucionar essa deficiência. A
+                            solução foi desenvolvida utilizando tecnologias como Python, Django, SQL e GitHub,
+                            baseando-se nos conceitos adquiridos nas disciplinas do curso.</p>
+                    </article>
+                    <article id="objetivos" class="animated-element">
+                        <h2>2. Objetivos do Projeto</h2>
+                        <p>O propósito principal do projeto é desenvolver um sistema digital para que a empresa estudada
+                            tenha mais controle sobre suas operações, visando a otimização de tempo e recursos e
+                            contribuindo para seu crescimento.</p>
+                        <h3>Objetivos Específicos</h3>
+                        <ul class="list">
+                            <li>Identificar as dificuldades nos processos atuais da empresa.</li>
+                            <li>Analisar e propor soluções de software aplicáveis ao negócio.</li>
+                            <li>Desenvolver um software web com banco de dados para controle de estoque.</li>
+                            <li>Automatizar processos para reduzir erros e aumentar a eficiência na gestão.</li>
+                        </ul>
+                    </article>
+                    <article id="metodologia" class="animated-element">
+                        <h2>3. Metodologia</h2>
+                        <p>Para a elaboração do projeto, foi adotada uma metodologia para sistemas web integrada,
+                            segregada em três etapas principais: interpretar, criar e aplicar. O objetivo foi
+                            compreender as atividades e necessidades reais do comércio para que a solução fosse eficaz e
+                            de fácil utilização.</p>
+                        <p>A coleta de informações envolveu entrevistas, formulários e observação direta com os
+                            proprietários da empresa. A partir da análise qualitativa dos dados, foram identificados os
+                            principais problemas, como controle de estoque deficiente e falta de integração entre vendas
+                            e compras. O desenvolvimento seguiu uma abordagem iterativa, com a criação de um protótipo,
+                            coleta de feedback dos usuários e ajustes contínuos até a obtenção de um produto funcional e
+                            compatível com a realidade do negócio.</p>
+                    </article>
+                    <article id="desenvolvimento" class="animated-element">
+                        <h2>4. Desenvolvimento e Aplicação das Disciplinas</h2>
+                        <p>O projeto integrou conhecimentos de diversas disciplinas cursadas na UNIVESP, sendo
+                            fundamental para a transformação do conceito teórico em uma aplicação prática.</p>
+                        <div class="disciplines-container">
+                            <div class="discipline-item">
+                                <button class="discipline-question"><span>Pensamento Computacional e
+                                        Algoritmos</span><span class="discipline-arrow">▼</span></button>
+                                <div class="discipline-answer">
+                                    <div class="discipline-answer-content">
+                                        <p>Conceitos de pensamento computacional foram aplicados para decompor o
+                                            problema em partes menores e planejar as funcionalidades do sistema. A
+                                            lógica de programação, variáveis, estruturas de decisão e repetição, vistas
+                                            em Algoritmos e Programação, foram a base para a codificação do sistema.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="discipline-item">
+                                <button class="discipline-question"><span>Programação Orientada a Objetos e
+                                        Desenvolvimento Web</span><span class="discipline-arrow">▼</span></button>
+                                <div class="discipline-answer">
+                                    <div class="discipline-answer-content">
+                                        <p>A construção do sistema seguiu o modelo de Programação Orientada a Objetos.
+                                            Foi utilizada a linguagem Python com o framework Django, além de
+                                            tecnologias como HTML, CSS e Javascript. Conceitos como encapsulamento,
+                                            herança e tratamento de exceções foram aplicados para criar as
+                                            funcionalidades.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="discipline-item">
+                                <button class="discipline-question"><span>Banco de Dados e
+                                        Infraestrutura</span><span class="discipline-arrow">▼</span></button>
+                                <div class="discipline-answer">
+                                    <div class="discipline-answer-content">
+                                        <p>Na disciplina de Banco de Dados, foram criados os modelos lógico e físico
+                                            usando MySQL. Conhecimentos de Infraestrutura para Sistemas de Software
+                                            foram essenciais para entender o modelo cliente-servidor, protocolos e
+                                            para testar a aplicação em servidores locais e em nuvem.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    <article id="ppc-alinhamento" class="animated-element">
+                        <h2>5. Alinhamento com o PPC</h2>
+                        <p>O desenvolvimento do software Unistock seguiu estritamente as diretrizes das Práticas como
+                            Componente Curricular (PCC) descritas no Projeto Pedagógico do Curso, em especial as
+                            disciplinas de Projeto Integrador.</p>
+                        <h3>Projeto Integrador em Computação I</h3>
+                        <ul class="list">
+                            <li><strong>Objetivo do PPC:</strong> Desenvolver um software com framework web que utilize
+                                noções de banco de dados, praticando controle de versão.</li>
+                            <li><strong>Ementa do PPC:</strong> Resolução de problemas; Levantamento de requisitos;
+                                Desenvolvimento web com framework; HTML; CSS; Banco de Dados; Controle de Versão.</li>
+                            <li><strong>Aplicação no Projeto:</strong> O grupo atendeu a todos os pontos ao identificar
+                                o problema de gestão de estoque, levantar os requisitos com a comerciante, utilizar o
+                                framework Django para o desenvolvimento web, integrar um banco de dados SQL e gerenciar
+                                o código com Git/GitHub.</li>
+                        </ul>
+                        <h3>Projeto Integrador em Computação II</h3>
+                        <ul class="list">
+                            <li><strong>Objetivo do PPC:</strong> Desenvolver um software com framework web que utilize
+                                banco de dados, inclua script web (Javascript), nuvem, uso de API, acessibilidade,
+                                controle de versão e testes.</li>
+                            <li><strong>Ementa do PPC:</strong> Resolução de problemas; Levantamento de requisitos;
+                                Desenvolvimento web com framework; HTML, CSS; linguagem de script; Banco de Dados;
+                                Controle de Versão; Nuvem; API; Acessibilidade; Testes; Análise de dados.</li>
+                            <li><strong>Aplicação no Projeto:</strong> A evolução do projeto contemplou a utilização de
+                                JavaScript para aprimorar a interface, a aplicação de conceitos de nuvem para
+                                hospedagem e a realização de testes para garantir a funcionalidade da aplicação,
+                                alinhando-se aos requisitos desta etapa.</li>
+                        </ul>
+                    </article>
+                    <article id="resultados" class="animated-element">
+                        <h2>6. Resultados: A Solução Final</h2>
+                        <p>Considerando o feedback dos usuários e o cronograma do projeto, o grupo desenvolveu uma
+                            solução final funcional com as funcionalidades essenciais para o controle das operações da
+                            loja. O sistema, nomeado Unistock, foi estruturado com foco em simplicidade, acessibilidade
+                            e eficiência.</p>
+                        <h3>Funcionalidades Implementadas:</h3>
+                        <ul class="list">
+                            <li><strong>Cadastro e Gerenciamento:</strong> Módulos para cadastrar e gerenciar produtos,
+                                clientes e fornecedores.</li>
+                            <li><strong>Painel de Controle (Dashboard):</strong> Interface visual com gráficos e
+                                indicadores sobre vendas, despesas e estoque.</li>
+                            <li><strong>Relatórios Gerenciais:</strong> Geração de relatórios sobre os produtos mais
+                                vendidos, controle de estoque e movimentação financeira, com opção de exportação para
+                                Excel e PDF.</li>
+                            <li><strong>Acesso Web:</strong> O sistema pode ser acessado via navegador, sem necessidade
+                                de instalação.</li>
+                        </ul>
+                        <div class="results-gallery">
+                            <div class="gallery-item"><img src="{% static 'img/dashboard.png' %}"
+                                    alt="Dashboard do sistema Unistock">
+                                <figcaption>Figura 1 – Dashboard do sistema</figcaption>
+                            </div>
+                            <div class="gallery-item"><img src="{% static 'img/estoque.png' %}"
+                                    alt="Tela de cadastro de produtos">
+                                <figcaption>Figura 2 – Tela de Cadastro de produtos</figcaption>
+                            </div>
+                            <div class="gallery-item"><img src="{% static 'img/cadastro.png' %}"
+                                    alt="Tela de cadastro de usuário">
+                                <figcaption>Figura 3 – Tela de Cadastro de usuários</figcaption>
+                            </div>
+                            <div class="gallery-item"><img src="{% static 'img/vendas.png' %}"
+                                    alt="Página de vendas">
+                                <figcaption>Figura 4 – Página de vendas</figcaption>
+                            </div>
+                        </div>
+                    </article>
+                    <article id="conclusao" class="animated-element">
+                        <h2>7. Considerações Finais</h2>
+                        <p>A aplicação do sistema demonstrou boa aceitação pela interface e utilidade das funções,
+                            especialmente no controle de estoque, trazendo um aspecto mais profissional ao negócio. O
+                            projeto, embora não seja uma solução inovadora, apresenta-se como uma ferramenta de baixo
+                            custo e adaptável à realidade de comércios de pequeno porte sem orçamento para grandes
+                            sistemas.</p>
+                        <p>A experiência revelou a constante evolução dos requisitos como um desafio, reforçando que o
+                            desenvolvimento de software é um processo contínuo. Apesar de nem todas as funcionalidades
+                            previstas terem sido implementadas devido a limitações de tempo e nível técnico,
+                            acredita-se que a proposta da Univesp foi atendida, com a entrega de uma aplicação web
+                            funcional que contempla os requisitos técnicos e de aprendizado do projeto.</p>
+                    </article>
+                    <article id="referencias" class="animated-element">
+                        <h2>8. Referências e Recursos do Projeto</h2>
+                        <p>Abaixo estão os recursos centrais desenvolvidos e utilizados para este projeto.</p>
+                        <div class="resources-grid">
+                            <div class="resource-card">
+                                <div class="icon">▶️</div>
+                                <h3>Vídeo de Apresentação</h3>
+                                <p>Assista ao vídeo demonstrativo das funcionalidades e objetivos do projeto.</p>
+                                <a href="https://www.youtube.com/watch?v=7YxlDuzqnxc" target="_blank" class="btn">Assistir no YouTube</a>
+                            </div>
+                            <div class="resource-card">
+                                <div class="icon">&lt;/&gt;</div>
+                                <h3>Repositório do Código</h3>
+                                <p>Acesse o código-fonte completo do projeto, incluindo back-end e front-end.</p>
+                                <a href="https://github.com/gp02pi/pi01" target="_blank" class="btn">Ver no GitHub</a>
+                            </div>
+                            <div class="resource-card">
+                                <div class="icon">🏛️</div>
+                                <h3>Site Oficial UNIVESP</h3>
+                                <p>Conheça mais sobre a Universidade Virtual do Estado de São Paulo.</p>
+                                <a href="https://univesp.br/" target="_blank" class="btn">Acessar Univesp.br</a>
+                            </div>
+                            <div class="resource-card">
+                                <div class="icon">📚</div>
+                                <h3>Referências do Relatório</h3>
+                                <p>ABNT (2002), CORRÊA et al. (2010), LAUDON & LAUDON (2012), TURBAN et al. (2015).</p>
+                            </div>
+                        </div>
+                    </article>
+                </main-content>
+            </div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div class="container">
+            <p>Projeto Integrador em Computação - Eixo Computação</p>
+            <p>Universidade Virtual do Estado de São Paulo (UNIVESP)</p>
+        </div>
+    </footer>
+    <button class="scroll-to-top" title="Voltar ao topo">▲</button>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            /**
+             * Adiciona/remove uma classe 'scrolled' ao header quando a página é rolada.
+             */
+            const setupHeaderScroll = () => {
+                const header = document.querySelector('.header');
+                if (!header) return;
+
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 50) {
+                        header.classList.add('scrolled');
+                    } else {
+                        header.classList.remove('scrolled');
+                    }
+                });
+            };
+            /**
+             * Configura o menu de navegação móvel (hamburger).
+             */
+            const setupMobileMenu = () => {
+                const menuToggle = document.querySelector('.menu-toggle');
+                const navLinks = document.querySelector('.nav-links');
+                if (!menuToggle || !navLinks) return;
+                menuToggle.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                });
+                // Fecha o menu ao clicar em um link
+                navLinks.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        navLinks.classList.remove('active');
+                    });
+                });
+            };
+            /**
+             * Configura os componentes de acordeão (para as disciplinas).
+             * Ao abrir um item, fecha os outros.
+             */
+            const setupAccordions = () => {
+                const accordions = document.querySelectorAll('.discipline-item');
+                if (accordions.length === 0) return;
+                accordions.forEach(accordion => {
+                    const button = accordion.querySelector('.discipline-question');
+                    button.addEventListener('click', () => {
+                        accordions.forEach(item => {
+                            if (item !== accordion && item.classList.contains('active')) {
+                                item.classList.remove('active');
+                            }
+                        });
+                        accordion.classList.toggle('active');
+                    });
+                });
+            };
+            /**
+             * Configura o "scrollspy" para destacar o link de navegação da seção visível.
+             * Usa IntersectionObserver para performance e precisão.
+             */
+            const setupScrollspy = () => {
+                const sections = document.querySelectorAll('main-content article');
+                const navLinks = document.querySelectorAll('.aside-nav a');
+                if (sections.length === 0 || navLinks.length === 0) return;
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const id = entry.target.getAttribute('id');
+                            navLinks.forEach(link => {
+                                link.classList.remove('active');
+                                if (link.getAttribute('href') === `#${id}`) {
+                                    link.classList.add('active');
+                                }
+                            });
+                        }
+                    });
+                }, {
+                    rootMargin: '-40% 0px -60% 0px'
+                });
+                sections.forEach(section => observer.observe(section));
+            };
+            /**
+             * Adiciona uma classe 'is-visible' aos elementos quando eles entram na tela.
+             */
+            const setupScrollAnimations = () => {
+                const animatedElements = document.querySelectorAll('.animated-element');
+                if (animatedElements.length === 0) return;
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.1
+                });
+
+                animatedElements.forEach(element => observer.observe(element));
+            };
+            /**
+             * Configura o botão "Voltar ao Topo".
+             */
+            const setupScrollToTopButton = () => {
+                const scrollToTopButton = document.querySelector('.scroll-to-top');
+                if (!scrollToTopButton) return;
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 400) { // Mostra o botão após rolar 400px
+                        scrollToTopButton.classList.add('visible');
+                    } else {
+                        scrollToTopButton.classList.remove('visible');
+                    }
+                });
+                scrollToTopButton.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            };
+            // Inicializa todas as funcionalidades
+            setupHeaderScroll();
+            setupMobileMenu();
+            setupAccordions();
+            setupScrollspy();
+            setupScrollAnimations();
+            setupScrollToTopButton();
+        });
+    </script>
+</body>
+
+</html>

@@ -5,303 +5,22 @@
     {% csrf_token %}
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Relatórios</title>
+    <title>Feedback</title>
+
     <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <style>
-        :root{--bg-color:#f4f6f9;--card-bg-color:#ffffff;--primary-color:#26A0B8;--primary-dark:#26A0B8;--text-color:#343a40;--light-text-color:#6c757d;--border-color:#e9ecef;--border-radius:8px;--box-shadow:0 4px 15px rgba(0, 0, 0, 0.05);}
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 30px;
-            padding-top: 90px;
-        }
-        h1 {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--primary-color);
-            font-size: 2.5rem;
-            font-weight: 600;
-        }
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            padding-bottom: 50px;
-        }
-        .header-buttons {
-            width: 100%;
-            max-width: 1200px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: flex-end;
-            position: relative;
-            z-index: 10;
-        }
-        .card {
-            background-color: var(--card-bg-color);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.3s ease-in-out;
-            cursor: default;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        .card-header .icon {
-            font-size: 2rem;
-            color: var(--primary-color);
-        }
-        .card-header h2 {
-            font-size: 1.2rem;
-            font-weight: 500;
-            margin: 0;
-            color: var(--text-color);
-        }
-        .card-body {
-            flex-grow: 1;
-        }
-        .card-body .value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text-color);
-            margin-bottom: 5px;
-        }
-        .card-body .description {
-            font-size: 0.9rem;
-            color: var(--light-text-color);
-        }
-        .card-list {
-            list-style: none;
-            padding-left: 0;
-            margin: 0;
-        }
-        .card-list li {
-            padding: 8px 0;
-            font-size: 1rem;
-            color: var(--text-color);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .card-list li:last-child {
-            border-bottom: none;
-        }
-        .card-list li .name {
-            font-weight: 500;
-        }
-        .card-list li .value {
-            font-weight: 400;
-            color: var(--primary-dark);
-        }
-        .loading-container {
-            width: 100%;
-            text-align: center;
-            margin-top: 50px;
-            font-size: 1.2rem;
-            color: var(--light-text-color);
-            display: none;
-        }
-        .loading-container i {
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        /* Estilos para centralizar a mensagem de aviso no topo */
-        .toast-message {
-            position: fixed;
-            top: 20px; /* Distância do topo */
-            left: 50%; /* Alinha o lado esquerdo no centro */
-            transform: translateX(-50%); /* Move a mensagem para trás 50% da própria largura para centralizar */
-            background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            z-index: 1001;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-            font-size: 0.9rem;
-        }
-        .toast-message.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .toast-message.error {
-            background-color: #dc3545;
-        }
-        /* Estilos para o menu dropdown */
-        .dropdown {
-            position: relative;
-            display: inline-block;
-            margin-left: 10px;
-        }
-        .main-export-btn {
-            background-color: #26A0B8;
-            color: white;
-            border: none;
-            border-radius: 10%;
-            padding: 15px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-        }
-        .main-export-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: var(--card-bg-color);
-            box-shadow: var(--box-shadow);
-            z-index: 10;
-            border-radius: var(--border-radius);
-            padding: 10px;
-            right: 100%;
-            top: 50%;
-            margin-right: 10px;
-            white-space: nowrap;
-            flex-direction: row;
-            gap: 10px;
-            transform-origin: right top;
-            animation: fadeIn 0.3s ease-in-out forwards;
-            transform: translateY(-50%) scaleX(0);
-        }
-        .dropdown-content.show {
-            display: flex;
-            transform: translateY(-50%) scaleX(1);
-        }
-        /* Estilos para o container do campo de e-mail */
-        .email-input-container {
-            display: none;
-            position: absolute;
-            right: 100%;
-            top: 50%;
-            margin-right: 10px;
-            transform: translateY(-50%) scaleX(0);
-            transform-origin: right top;
-            animation: fadeIn 0.3s ease-in-out forwards;
-        }
-        .email-input-container.show {
-            display: flex;
-            transform: translateY(-50%) scaleX(1);
-        }
-        /* Estilos do campo de texto minimalista */
-        .email-input-group {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        .email-input-group input {
-            padding: 10px 35px 10px 12px;
-            border: none;
-            background-color: #f0f0f0;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            width: 300px;
-        }
-        .email-input-group input:focus {
-            outline: none;
-            background-color: #e8e8e8;
-        }
-        /* Estilos do botão de envio minimalista */
-        .email-input-group .send-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            color: var(--primary-color);
-            font-size: 1rem;
-            transition: color 0.2s;
-        }
-        .email-input-group .send-btn:hover {
-            color: var(--primary-dark);
-        }
-        @keyframes fadeIn {
-            from { transform: translateY(-50%) scaleX(0); opacity: 0; }
-            to { transform: translateY(-50%) scaleX(1); opacity: 1; }
-        }
-        .dropdown-content button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            font-weight: 500;
-            background-color: var(--primary-color);
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            flex-shrink: 0;
-            margin-bottom: 0;
-        }
-        .dropdown-content button:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-        .dropdown-content button .icon {
-            margin-right: 8px;
-            color: white;
-        }
-        /* Cores das opções e ícones */
-        .dropdown-content .btn-pdf { background-color: #e74c3c; }
-        .dropdown-content .btn-word { background-color: #3498db; }
-        .dropdown-content .btn-excel { background-color: #2ecc71; }
-        .dropdown-content .btn-email { background-color: #9b59b6; }
-        .dropdown-content .btn-pdf:hover { background-color: #c0392b; }
-        .dropdown-content .btn-word:hover { background-color: #2980b9; }
-        .dropdown-content .btn-excel:hover { background-color: #27ae60; }
-        .dropdown-content .btn-email:hover { background-color: #8e44ad; }
-    </style>
+
+    <link rel="stylesheet" href="{% static 'css/relatorios.css' %}" />
 </head>
 <body>
     {% include 'barra.html' %}
-    {% include 'session_timeout_modal.html' %}
+
     <div id="toast-message" class="toast-message"></div>
+
     <div class="header-buttons">
         <div class="dropdown">
-            <button class="main-export-btn">
+            <button class="main-export-btn" title="Opções de Exportação">
                 <i class="fas fa-plus icon"></i>
             </button>
             <div class="dropdown-content">
@@ -321,271 +40,110 @@
             <div class="email-input-container">
                 <div class="email-input-group">
                     <input type="email" id="emailInput" placeholder="E-mail" />
-                    <button class="send-btn" onclick="sendAllFiles()">
+                    <button class="send-btn" onclick="sendAllFiles()" title="Enviar por E-mail">
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
             </div>
         </div>
     </div>
-      
+    
     <div class="loading-container" id="loading-container">
         <i class="fas fa-sync fa-spin"></i> Carregando dados...
     </div>
+
     <div class="container" id="reports-container">
-    </div>
+        <div class="card">
+            <div class="card-header"><i class="fas fa-box-open icon"></i><h2>Total de Produtos em Estoque</h2></div>
+            <div class="card-body">
+                <div class="value" id="report-produtosEstoque">-</div>
+                <div class="description">Quantidade total de itens no inventário.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-dollar-sign icon"></i><h2>Valor Total do Estoque</h2></div>
+            <div class="card-body">
+                <div class="value" id="report-valorEstoque">-</div>
+                <div class="description">Valor total com base no preço de venda.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-exclamation-triangle icon"></i><h2>Produtos em Falta</h2></div>
+            <div class="card-body">
+                <ul class="card-list" id="report-produtosFalta"></ul>
+                <div class="description" style="margin-top: 15px;">Produtos com quantidade abaixo do estoque mínimo.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-arrow-up icon"></i><h2>Produtos que Mais Saem</h2></div>
+            <div class="card-body">
+                <ul class="card-list" id="report-produtosMaisSaem"></ul>
+                <div class="description" style="margin-top: 15px;">Top 3 produtos mais vendidos.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-arrow-down icon"></i><h2>Produtos que Menos Saem</h2></div>
+            <div class="card-body">
+                <ul class="card-list" id="report-produtosMenosSaem"></ul>
+                <div class="description" style="margin-top: 15px;">Top 3 produtos menos vendidos.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-truck icon"></i><h2>Principal Fornecedor</h2></div>
+            <div class="card-body">
+                <div class="value" id="report-principalFornecedorNome">-</div>
+                <div class="description" id="report-principalFornecedorValor"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-users icon"></i><h2>Principais Clientes</h2></div>
+            <div class="card-body">
+                <ul class="card-list" id="report-topClientes"></ul>
+                <div class="description" style="margin-top: 15px;">Top 3 clientes com maior valor de compras.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-handshake icon"></i><h2>Total de Fornecedores</h2></div>
+            <div class="card-body">
+                <div class="value" id="report-fornecedores">-</div>
+                <div class="description">Número de fornecedores cadastrados.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-user-tie icon"></i><h2>Total de Clientes</h2></div>
+            <div class="card-body">
+                <div class="value" id="report-clientes">-</div>
+                <div class="description">Número de clientes cadastrados.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-shopping-cart icon"></i><h2>Total de Vendas</h2></div>
+            <div class="card-body">
+                <div class="value" id="report-totalVendas">-</div>
+                <div class="description">Total de itens vendidos no sistema.</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><i class="fas fa-sack-dollar icon"></i><h2>Valor Total Ganho</h2></div>
+            <div class="card-body">
+                <div class="value" id="report-valorGanho">-</div>
+                <div class="description">Total de receita gerada pelas vendas.</div>
+            </div>
+        </div>
+        </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://unpkg.com/jspdf-autotable@3.5.20/dist/jspdf.plugin.autotable.js"></script>
-    <script>
-        const API_URL = '/api/relatorios/';
-        const reportsContainer = document.getElementById('reports-container');
-        const loadingContainer = document.getElementById('loading-container');
-        const toastMsg = document.getElementById('toast-message');
-          
-        let reportData = null;
-
-        const mainExportBtn = document.querySelector('.main-export-btn');
-        const dropdownContent = document.querySelector('.dropdown-content');
-        const emailInputContainer = document.querySelector('.email-input-container');
-        const emailInput = document.getElementById('emailInput');
-
-        // Adiciona um listener para a tecla 'Enter'
-        emailInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                sendAllFiles();
-            }
-        });
-
-        mainExportBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            dropdownContent.classList.toggle('show');
-            emailInputContainer.classList.remove('show');
-        });
-
-        window.addEventListener('click', function(event) {
-            const dropdown = document.querySelector('.dropdown');
-            if (!dropdown.contains(event.target)) {
-                dropdownContent.classList.remove('show');
-                emailInputContainer.classList.remove('show');
-            }
-        });
-
-        function openEmailInput() {
-            dropdownContent.classList.remove('show');
-            emailInputContainer.classList.add('show');
-            emailInput.focus();
-        }
-
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.startsWith(name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        async function sendAllFiles() {
-            const email = emailInput.value;
-            if (!email || !email.includes('@')) {
-                showToast('Por favor, insira um e-mail válido.', 'error');
-                return;
-            }
-
-            emailInputContainer.classList.remove('show');
-            emailInput.value = '';
-            showToast('E-mail enviado com sucesso!', 'success', 1500);
-              
-            const backendUrl = '/api/enviar-relatorios-email/';
-
-            try {
-                const response = await fetch(backendUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    body: JSON.stringify({ email: email }),
-                });
-
-                const result = await response.json();
-                  
-                if (!response.ok) {
-                    showToast(result.message, 'error');
-                }
-
-            } catch (error) {
-                console.error('Erro na requisição:', error);
-                showToast('Erro ao tentar conectar com o servidor.', 'error');
-            }
-        }
-
-        async function fetchAndRenderReports() {
-            loadingContainer.style.display = 'block';
-            reportsContainer.innerHTML = '';
-            try {
-                const response = await fetch(API_URL);
-                if (!response.ok) {
-                    throw new Error('Erro ao carregar os dados dos relatórios.');
-                }
-                reportData = await response.json();
-                renderReports(reportData);
-            } catch (error) {
-                console.error("Erro:", error);
-                showToast(error.message, 'error');
-                reportsContainer.innerHTML = `<p style="text-align: center; width: 100%; color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Não foi possível carregar os dados. Tente novamente mais tarde.</p>`;
-            } finally {
-                loadingContainer.style.display = 'none';
-            }
-        }
-
-        function createCard(icon, title, value, description) {
-            const card = document.createElement('div');
-            card.classList.add('card');
-            card.innerHTML = `<div class="card-header"><i class="fas ${icon} icon"></i><h2>${title}</h2></div><div class="card-body"><div class="value">${value}</div><div class="description">${description}</div></div>`;
-            return card;
-        }
-
-        function createListCard(icon, title, listItems, description) {
-            const card = document.createElement('div');
-            card.classList.add('card');
-            const listHtml = listItems.length > 0 ? `<ul class="card-list">${listItems.map(item => `<li><span class="name">${item.nome || item}</span> <span class="value">${item.vendas !== undefined ? item.vendas : item.valorGasto || ''}</span></li>`).join('')}</ul>` : `<p style="text-align: center; color: var(--light-text-color);">Nenhum dado encontrado.</p>`;
-            card.innerHTML = `<div class="card-header"><i class="fas ${icon} icon"></i><h2>${title}</h2></div><div class="card-body">${listHtml}<div class="description" style="margin-top: 15px;">${description}</div></div>`;
-            return card;
-        }
-
-        function renderReports(data) {
-            reportsContainer.appendChild(createCard('fa-box-open', 'Total de Produtos em Estoque', data.produtosEstoque, 'Quantidade total de itens no inventário.'));
-            reportsContainer.appendChild(createCard('fa-dollar-sign', 'Valor Total do Estoque', data.valorEstoque, 'Valor total com base no preço de venda.'));
-            reportsContainer.appendChild(createListCard('fa-exclamation-triangle', 'Produtos em Falta', data.produtosFalta.map(item => ({ nome: item })), 'Produtos com quantidade abaixo do estoque mínimo.'));
-            reportsContainer.appendChild(createListCard('fa-arrow-up', 'Produtos que Mais Saem', data.produtosMaisSaem, 'Top 3 produtos mais vendidos.'));
-            reportsContainer.appendChild(createListCard('fa-arrow-down', 'Produtos que Menos Saem', data.produtosMenosSaem, 'Top 3 produtos menos vendidos.'));
-            const principalFornecedor = data.principalFornecedor;
-            reportsContainer.appendChild(createCard('fa-truck', 'Principal Fornecedor', principalFornecedor.nome, `Valor gasto: ${principalFornecedor.valorGasto}`));
-            reportsContainer.appendChild(createListCard('fa-users', 'Principais Clientes', data.topClientes.map(item => ({ nome: item })), 'Top 3 clientes com maior valor de compras.'));
-            reportsContainer.appendChild(createCard('fa-handshake', 'Total de Fornecedores', data.fornecedores, 'Número de fornecedores cadastrados.'));
-            reportsContainer.appendChild(createCard('fa-user-tie', 'Total de Clientes', data.clientes, 'Número de clientes cadastrados.'));
-            reportsContainer.appendChild(createCard('fa-shopping-cart', 'Total de Vendas', data.totalVendas, 'Total de itens vendidos no sistema.'));
-            reportsContainer.appendChild(createCard('fa-sack-dollar', 'Valor Total Ganho', data.valorGanho, 'Total de receita gerada pelas vendas.'));
-        }
-
-        function showToast(message, type = 'success', duration = 3000) {
-            toastMsg.textContent = message;
-            toastMsg.classList.remove('success', 'error');
-            toastMsg.classList.add(type);
-            toastMsg.classList.add('show');
-            
-            setTimeout(() => {
-                toastMsg.classList.remove('show');
-            }, duration);
-        }
-
-        setInterval(fetchAndRenderReports, 30000);
-        document.addEventListener('DOMContentLoaded', fetchAndRenderReports);
-          
-        function exportToPDF() {
-            if (!reportData) {
-                showToast('Nenhum dado para exportar.', 'error');
-                return;
-            }
-            const doc = new window.jspdf.jsPDF();
-            const margin = 15;
-            let y = margin;
-            const addTitle = (text, size = 16) => { doc.setFontSize(size); doc.text(text, margin, y); y += 10; };
-            const addText = (text, size = 12) => { doc.setFontSize(size); doc.text(text, margin, y); y += 7; };
-            const addTable = (headers, data, startY = null) => {
-                doc.autoTable({ startY: startY || y, head: [headers], body: data, theme: 'grid', styles: { fontSize: 10, cellPadding: 3, minCellHeight: 8 }, headStyles: { fillColor: '#4a90e2' } });
-                y = doc.autoTable.previous.finalY + 10;
-            };
-
-            addTitle("Relatório Completo do Sistema", 24);
-            doc.setProperties({ title: 'Relatório do Sistema', subject: 'Relatório de Vendas e Estoque', author: 'Seu Sistema', keywords: 'relatorio, vendas, estoque, financeiro', creator: 'jsPDF' });
-            addText(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 10);
-            y += 10;
-
-            addTitle("Visão Geral do Estoque e Vendas");
-            addTable(["Métrica", "Valor"], [
-                [`Produtos em Estoque`, reportData.produtosEstoque],
-                [`Valor Total do Estoque`, reportData.valorEstoque],
-                [`Total de Vendas`, reportData.totalVendas],
-                [`Valor Total Ganho`, reportData.valorGanho],
-            ]);
-
-            addTitle("Resumo de Clientes e Fornecedores");
-            addTable(["Tipo", "Quantidade"], [
-                [`Fornecedores Cadastrados`, reportData.fornecedores],
-                [`Clientes Cadastrados`, reportData.clientes],
-            ]);
-            
-            addTitle("Ranking de Produtos (Mais e Menos Vendidos)");
-            addTable(["Posição", "Nome do Produto", "Vendas"], 
-                reportData.produtosMaisSaem.map((item, i) => ([`Top ${i+1}`, item.nome, item.vendas]))
-                .concat(reportData.produtosMenosSaem.map((item, i) => ([`Menos V. ${i+1}`, item.nome, item.vendas])))
-            );
-
-            addTitle("Produtos com Estoque Crítico");
-            const produtosFaltaData = reportData.produtosFalta.map(item => ([item]));
-            if (produtosFaltaData.length > 0) {
-                addTable(["Nome do Produto"], produtosFaltaData);
-            } else {
-                addText("Nenhum produto em falta. O estoque está saudável!", 12);
-                y += 5;
-            }
-            
-            addTitle("Análise de Clientes e Fornecedores");
-            const topClientesData = reportData.topClientes.map(item => ([item]));
-            if (topClientesData.length > 0) {
-                addTable(["Principais Clientes"], topClientesData);
-            } else {
-                addText("Nenhum cliente com compras significativas encontrado.", 12);
-                y += 5;
-            }
-
-            addTable(["Principal Fornecedor", "Valor Gasto"], [ [`${reportData.principalFornecedor.nome || 'N/A'}`, reportData.principalFornecedor.valorGasto] ]);
-
-            doc.save("relatorio_completo_sistema.pdf");
-            dropdownContent.classList.remove('show');
-        }
-
-        function exportToWord() {
-            if (!reportData) {
-                showToast('Nenhum dado para exportar.', 'error');
-                return;
-            }
-            const content = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Relatório do Sistema</title></head><body><h1>Relatório Completo do Sistema</h1><p><strong>Gerado em:</strong> ${new Date().toLocaleDateString('pt-BR')}</p><h2>Visão Geral do Estoque e Vendas</h2><ul><li><strong>Produtos em Estoque:</strong> ${reportData.produtosEstoque}</li><li><strong>Valor Total do Estoque:</strong> ${reportData.valorEstoque}</li><li><strong>Total de Vendas:</strong> ${reportData.totalVendas}</li><li><strong>Valor Total Ganho:</strong> ${reportData.valorGanho}</li></ul><h2>Resumo de Clientes e Fornecedores</h2><ul><li><strong>Fornecedores Cadastrados:</strong> ${reportData.fornecedores}</li><li><strong>Clientes Cadastrados:</strong> ${reportData.clientes}</li></ul><h2>Produtos em Falta</h2><p>${reportData.produtosFalta.length > 0 ? `<ul>${reportData.produtosFalta.map(item => `<li>${item}</li>`).join('')}</ul>` : `Nenhum produto em falta. O estoque está saudável!`}</p><h2>Ranking de Produtos</h2><h3>Produtos que Mais Saem</h3><ul>${reportData.produtosMaisSaem.map(item => `<li>${item.nome}: ${item.vendas} unidades</li>`).join('') || `<li>Nenhum produto encontrado.</li>`}</ul><h3>Produtos que Menos Saem</h3><ul>${reportData.produtosMenosSaem.map(item => `<li>${item.nome}: ${item.vendas} unidades</li>`).join('') || `<li>Nenhum produto encontrado.</li>`}</ul><h2>Análise de Clientes e Fornecedores</h2><h3>Principais Clientes</h3><p>${reportData.topClientes.length > 0 ? `<ul>${reportData.topClientes.map(item => `<li>${item}</li>`).join('')}</ul>` : `Nenhum cliente com compras significativas encontrado.`}</p><h3>Principal Fornecedor</h3><p>${reportData.principalFornecedor.nome || 'N/A'}: ${reportData.principalFornecedor.valorGasto}</p></body></html>`;
-            const blob = new Blob([content], { type: 'application/msword;charset=utf-8;' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'relatorio_completo_sistema.doc';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            dropdownContent.classList.remove('show');
-        }
-
-        function exportToExcel() {
-            if (!reportData) {
-                showToast('Nenhum dado para exportar.', 'error');
-                return;
-            }
-            const htmlContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>table{border-collapse:collapse;width:100%;font-family:Arial,sans-serif;margin-bottom:20px;}th,td{border:1px solid #000;padding:8px;text-align:left;}th{background-color:#4a90e2;color:#fff;font-weight:bold;text-align:center;}tr:nth-child(even){background-color:#f2f2f2;}</style></head><body><h1>Relatório Completo do Sistema</h1><p>Gerado em: ${new Date().toLocaleDateString('pt-BR')}</p><table><thead><tr><th colspan="2" style="background-color:#3498db;">Visão Geral do Estoque e Vendas</th></tr></thead><tbody><tr><td>Produtos em Estoque</td><td>${reportData.produtosEstoque}</td></tr><tr><td>Valor Total do Estoque</td><td>${reportData.valorEstoque}</td></tr><tr><td>Total de Vendas</td><td>${reportData.totalVendas}</td></tr><tr><td>Valor Total Ganho</td><td>${reportData.valorGanho}</td></tr></tbody></table><table><thead><tr><th colspan="2" style="background-color:#2ecc71;">Resumo de Clientes e Fornecedores</th></tr><tr><th>Tipo</th><th>Quantidade</th></tr></thead><tbody><tr><td>Fornecedores Cadastrados</td><td>${reportData.fornecedores}</td></tr><tr><td>Clientes Cadastrados</td><td>${reportData.clientes}</td></tr></tbody></table><table><thead><tr><th colspan="3" style="background-color:#e67e22;">Ranking de Produtos (Mais e Menos Vendidos)</th></tr><tr><th>Posição</th><th>Nome do Produto</th><th>Vendas</th></tr></thead><tbody>${reportData.produtosMaisSaem.map(item => `<tr><td>Top</td><td>${item.nome}</td><td>${item.vendas} unidades</td></tr>`).join('')}${reportData.produtosMenosSaem.map(item => `<tr><td>Menos V.</td><td>${item.nome}</td><td>${item.vendas} unidades</td></tr>`).join('')}</tbody></table><table><thead><tr><th style="background-color:#e74c3c;">Produtos com Estoque Crítico</th></tr><tr><th>Nome do Produto</th></tr></thead><tbody>${reportData.produtosFalta.map(item => `<tr><td>${item}</td></tr>`).join('') || `<tr><td>Nenhum produto em falta. O estoque está saudável!</td></tr>`}</tbody></table><table><thead><tr><th colspan="2" style="background-color:#9b59b6;">Análise de Clientes e Fornecedores</th></tr><tr><th>Métrica</th><th>Valor</th></tr></thead><tbody><tr><td>Principais Clientes</td><td><ul>${reportData.topClientes.map(item => `<li>${item}</li>`).join('') || `Nenhum cliente com compras significativas encontrado.`}</ul></td></tr><tr><td>Principal Fornecedor</td><td>${reportData.principalFornecedor.nome || 'N/A'}: ${reportData.principalFornecedor.valorGasto}</td></tr></tbody></table></body></html>`;
-            const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'relatorio_completo_sistema.xls';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            dropdownContent.classList.remove('show');
-        }
-    </script>
+    <script src="{% static 'js/relatorios.js' %}"></script>
 </body>
 </html>

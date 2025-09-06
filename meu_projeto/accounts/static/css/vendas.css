@@ -1,0 +1,535 @@
+/* ====================
+   Variáveis e Reset Global
+   ==================== */
+
+:root {
+  /* Cores de Fundo e Cards */
+  --bg-color: #f0f2f5;
+  --card-bg-color: #ffffff;
+  /* Cores Principais e de Destaque */
+  --primary-color: #26A0B8;
+  --secondary-color: #f7b731;
+  --danger-color: #d9534f;
+  /* Cores de Texto */
+  --text-color: #333;
+  --light-text-color: #888;
+  /* Estilos de Componentes */
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  /* Estilos de Modal */
+  --modal-bg: #ffffff;
+  --modal-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  --input-border: #dcdcdc;
+  --input-focus: #26A0B8;
+  --btn-confirm: #26A0B8;
+  --btn-cancel: #f0f2f5;
+  --btn-text-dark: #333;
+}
+
+/* Reset de estilos para todos os elementos */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Estilo do corpo da página */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  padding-top: 70px;
+  margin: 25px auto;
+}
+
+/* ====================
+   Layout Principal
+   ==================== */
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Cabeçalho com busca e botão de ação */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.header h1 {
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.search-container {
+  position: relative;
+  flex-grow: 1;
+  min-width: 250px;
+}
+
+.search-container i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--light-text-color);
+}
+
+#search-bar {
+  width: 100%;
+  padding: 12px 12px 12px 45px;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+#search-bar:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.add-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* ====================
+   Estilos dos Cards de Venda
+   ==================== */
+
+.sales-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.sale-card {
+  background-color: var(--card-bg-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 20px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.sale-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.sale-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 5px;
+}
+
+.sale-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.sale-info strong {
+  font-weight: 500;
+}
+
+.sale-info span {
+  color: var(--text-color);
+  text-align: right;
+}
+
+.sale-info small {
+  color: var(--light-text-color);
+}
+
+.sale-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.sale-actions .edit-btn,
+.sale-actions .delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--light-text-color);
+  transition: color 0.3s ease;
+  margin-left: 10px;
+}
+
+.sale-actions .edit-btn:hover {
+  color: var(--primary-color);
+}
+
+.sale-actions .delete-btn:hover {
+  color: var(--danger-color);
+}
+
+/* ====================
+   Estilos de Modais (Pop-ups)
+   ==================== */
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--modal-bg);
+  padding: 30px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--modal-shadow);
+  animation: fadeIn 0.3s ease-out;
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.modal-header h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-body .input-group {
+  margin-bottom: 20px;
+}
+
+.modal-body label {
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 8px;
+  display: block;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.modal-body input,
+.modal-body select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.modal-body input:focus,
+.modal-body select:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.modal-body .search-select-container {
+  position: relative;
+}
+
+.modal-body .select-options {
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  position: absolute;
+  width: 100%;
+  background-color: var(--modal-bg);
+  z-index: 10;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  display: none;
+  margin-top: 4px;
+}
+
+.modal-body .select-options div {
+  padding: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.modal-body .select-options div:hover {
+  background-color: #f5f5f5;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.modal-footer button {
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-footer .confirm-btn {
+  background-color: var(--btn-confirm);
+  color: white;
+  border: none;
+}
+
+.modal-footer .confirm-btn:hover {
+  background-color: #1f7f92;
+}
+
+.modal-footer .cancel-btn {
+  background-color: var(--btn-cancel);
+  color: var(--btn-text-dark);
+  border: 1px solid #e0e0e0;
+}
+
+.modal-footer .cancel-btn:hover {
+  background-color: #e6e8eb;
+}
+
+.label-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.label-container label {
+  margin-bottom: 0;
+}
+
+.quick-add-btn {
+  background-color: #eaf3fe;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-add-btn i {
+  margin-right: 5px;
+}
+
+.quick-add-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.input-warning {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--light-text-color);
+  margin-top: 5px;
+  padding-left: 2px;
+}
+
+/* Modal de Confirmação de Exclusão */
+#confirm-delete-modal .modal-content {
+  max-width: 420px;
+}
+
+#confirm-delete-modal .modal-header {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+#confirm-delete-modal .modal-header h3 {
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+}
+
+#confirm-delete-modal .modal-header .fa-exclamation-triangle {
+  color: var(--secondary-color);
+  margin-right: 15px;
+  font-size: 1.8rem;
+}
+
+#confirm-delete-modal .modal-body p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+#confirm-delete-modal .stock-warning {
+  background-color: #fffbe6;
+  border-left: 4px solid var(--secondary-color);
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  color: #664d03;
+  border-radius: 4px;
+}
+
+#confirm-delete-btn {
+  background-color: var(--danger-color);
+}
+
+#confirm-delete-btn:hover {
+  background-color: #c9302c;
+}
+
+/* Mensagens de feedback (toasts e popups) */
+.toast-message {
+  visibility: hidden;
+  min-width: 250px;
+  background-color: #4CAF50;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1001;
+  top: 0px;
+  right: 30px;
+  font-size: 17px;
+  opacity: 0;
+  transition: opacity 0.5s, top 0.5s;
+}
+
+.toast-message.show {
+  visibility: visible;
+  opacity: 1;
+  top: 30px;
+}
+
+.popup-msg {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  color: white;
+  padding: 12px 20px;
+  font-size: 15px;
+  border-radius: 6px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  min-width: 250px;
+  max-width: 350px;
+  z-index: 1002;
+  opacity: 0;
+  transform: translateX(calc(100% + 30px));
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.popup-msg.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.popup-msg i {
+  margin-right: 12px;
+  font-size: 18px;
+}
+
+/* Modal de Cadastro Rápido de Cliente */
+#cliente-rapido-modal {
+  z-index: 1001;
+}
+
+#cliente-rapido-modal .modal-content {
+  max-width: 650px;
+  border-radius: 16px;
+  padding: 35px 40px;
+}
+
+#cliente-rapido-modal .modal-header h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+#cliente-rapido-modal .modal-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 20px;
+}
+
+#cliente-rapido-modal .input-group {
+  width: calc(50% - 10px);
+  margin-bottom: 0;
+}
+
+#cliente-rapido-modal .full-width {
+  width: 100%;
+}
+
+#cliente-rapido-modal .modal-body label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #555;
+}
+
+#cliente-rapido-modal .modal-footer {
+  margin-top: 30px;
+}
+
+#cliente-rapido-modal input[readonly] {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+.select-options div.highlighted {
+    background-color: var(--primary-color, #26A0B8);
+    color: white;
+}

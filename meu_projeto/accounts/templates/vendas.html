@@ -2,563 +2,134 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Gestão de Vendas</title>
-<link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-<style>
-/* --- CSS ATUALIZADO PARA POP-UP MINIMALISTA --- */
-:root { --bg-color: #f0f2f5; --card-bg-color: #ffffff; --primary-color: #26A0B8; --secondary-color: #f7b731; --danger-color: #d9534f; --text-color: #333; --light-text-color: #888; --border-radius: 12px; --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); --modal-bg: #ffffff; --modal-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); --input-border: #dcdcdc; --input-focus: #26A0B8; --btn-confirm: #26A0B8; --btn-cancel: #f0f2f5; --btn-text-dark: #333; }
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; padding: 30px; padding-top: 90px; }
-.container { width: 100%; max-width: 1200px; margin: 0 auto; }
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
-.header h1 { font-size: 2.2rem; font-weight: 600; color: var(--primary-color); }
-.search-container { position: relative; flex-grow: 1; min-width: 250px; }
-.search-container i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--light-text-color); }
-#search-bar { width: 100%; padding: 12px 12px 12px 45px; border: 1px solid #ddd; border-radius: 50px; outline: none; transition: all 0.3s ease; }
-#search-bar:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); }
-.add-btn { background-color: var(--primary-color); color: white; border: none; border-radius: 50px; padding: 12px 24px; font-size: 1rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); transition: transform 0.2s, box-shadow 0.2s; }
-.add-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25); }
-.sales-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 0; list-style: none; }
-.sale-card { background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: var(--box-shadow); padding: 20px; transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; }
-.sale-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
-.sale-card h3 { font-size: 1.25rem; margin-bottom: 10px; color: var(--primary-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 5px; }
-.sale-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.95rem; }
-.sale-info strong { font-weight: 500; }
-.sale-info span { color: var(--text-color); text-align: right; }
-.sale-info small { color: var(--light-text-color); }
-.sale-actions { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; }
-.sale-actions .edit-btn, .sale-actions .delete-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--light-text-color); transition: color 0.3s ease; margin-left: 10px; }
-.sale-actions .edit-btn:hover { color: var(--primary-color); }
-.sale-actions .delete-btn:hover { color: var(--danger-color); }
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 1000; }
-.modal-content { background-color: var(--modal-bg); padding: 30px; border-radius: 10px; width: 90%; max-width: 500px; box-shadow: var(--modal-shadow); animation: fadeIn 0.3s ease-out; overflow: hidden; }
-@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-.modal-header { text-align: center; margin-bottom: 25px; }
-.modal-header h2 { font-size: 1.6rem; font-weight: 600; color: #333; }
-.modal-body .input-group { margin-bottom: 20px; }
-.modal-body label { font-weight: 500; color: #555; margin-bottom: 8px; display: block; font-size: 0.9rem; text-transform: uppercase; }
-.modal-body input, .modal-body select { width: 100%; padding: 12px; border: 1px solid var(--input-border); border-radius: 8px; font-size: 1rem; transition: border-color 0.3s, box-shadow 0.3s; }
-.modal-body input:focus, .modal-body select:focus { outline: none; border-color: var(--input-focus); box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1); }
-.modal-body .search-select-container { position: relative; }
-.modal-body .select-options { border: 1px solid var(--input-border); border-radius: 8px; max-height: 180px; overflow-y: auto; position: absolute; width: 100%; background-color: var(--modal-bg); z-index: 10; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: none; margin-top: 4px; }
-.modal-body .select-options div { padding: 12px; cursor: pointer; transition: background-color 0.2s; }
-.modal-body .select-options div:hover { background-color: #f5f5f5; }
-.modal-footer { display: flex; justify-content: flex-end; gap: 15px; margin-top: 25px; }
-.modal-footer button { padding: 12px 25px; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
-.modal-footer .confirm-btn { background-color: var(--btn-confirm); color: white; border: none; }
-.modal-footer .confirm-btn:hover { background-color: #1f7f92; }
-.modal-footer .cancel-btn { background-color: var(--btn-cancel); color: var(--btn-text-dark); border: 1px solid #e0e0e0; }
-.modal-footer .cancel-btn:hover { background-color: #e6e8eb; }
-.label-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.label-container label { margin-bottom: 0; }
-.quick-add-btn { background-color: #eaf3fe; color: var(--primary-color); border: 1px solid var(--primary-color); border-radius: 20px; padding: 4px 12px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
-.quick-add-btn i { margin-right: 5px; }
-.quick-add-btn:hover { background-color: var(--primary-color); color: white; }
-.input-warning { display: block; font-size: 0.8rem; color: var(--light-text-color); margin-top: 5px; padding-left: 2px; }
-#confirm-delete-modal .modal-content { max-width: 420px; }
-#confirm-delete-modal .modal-header { text-align: left; margin-bottom: 20px; }
-#confirm-delete-modal .modal-header h3 { font-size: 1.4rem; display: flex; align-items: center; }
-#confirm-delete-modal .modal-header .fa-exclamation-triangle { color: var(--secondary-color); margin-right: 15px; font-size: 1.8rem; }
-#confirm-delete-modal .modal-body p { font-size: 1rem; line-height: 1.6; margin-bottom: 15px; }
-#confirm-delete-modal .stock-warning { background-color: #fffbe6; border-left: 4px solid var(--secondary-color); padding: 10px 15px; font-size: 0.9rem; color: #664d03; border-radius: 4px; }
-#confirm-delete-btn { background-color: var(--danger-color); }
-#confirm-delete-btn:hover { background-color: #c9302c; }
-.toast-message { visibility: hidden; min-width: 250px; background-color: #4CAF50; color: #fff; text-align: center; border-radius: 6px; padding: 16px; position: fixed; z-index: 1001; top: 0px; right: 30px; font-size: 17px; opacity: 0; transition: opacity 0.5s, top 0.5s; }
-.toast-message.show { visibility: visible; opacity: 1; top: 30px; }
-/* Estilos do novo sistema de Pop-up Minimalista */
-.popup-msg { position: fixed; top: 20px; right: 20px; display: flex; align-items: center; color: white; padding: 12px 20px; font-size: 15px; border-radius: 6px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15); min-width: 250px; max-width: 350px; z-index: 1002; opacity: 0; transform: translateX(calc(100% + 30px)); transition: opacity 0.4s ease, transform 0.4s ease; }
-.popup-msg.show { opacity: 1; transform: translateX(0); }
-.popup-msg i { margin-right: 12px; font-size: 18px; }
-#cliente-rapido-modal { z-index: 1001; }
-#cliente-rapido-modal .modal-content { max-width: 650px; border-radius: 16px; padding: 35px 40px; }
-#cliente-rapido-modal .modal-header h2 { font-size: 1.75rem; font-weight: 600; margin-bottom: 30px; }
-#cliente-rapido-modal .modal-body { display: flex; flex-wrap: wrap; gap: 20px 20px; }
-#cliente-rapido-modal .input-group { width: calc(50% - 10px); margin-bottom: 0; }
-#cliente-rapido-modal .full-width { width: 100%; }
-#cliente-rapido-modal .modal-body label { font-size: 0.75rem; font-weight: 600; color: #555; }
-#cliente-rapido-modal .modal-footer { margin-top: 30px; }
-#cliente-rapido-modal input[readonly] { background-color: #e9ecef; cursor: not-allowed; }
-</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registro de Vendas</title>
+
+    <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="{% static 'css/vendas.css' %}" />
 </head>
 <body>
-{% include 'barra.html' %}
-{% include 'session_timeout_modal.html' %}
-<div class="container">
-<div class="header">
-<div class="search-container">
-<i class="fas fa-search"></i>
-<input type="text" id="search-bar" placeholder="Buscar por produto, cliente ou data..." oninput="filtrarVendas()" />
-</div>
-<button class="add-btn" onclick="openModal()">+ Nova Venda</button>
-</div>
-<div id="sales-grid" class="sales-grid">
-</div>
-<div id="venda-modal" class="modal" onclick="closeModal()">
-<div class="modal-content" onclick="event.stopPropagation()">
-<div class="modal-header">
-<h2 id="modal-title">Registrar Venda</h2>
-</div>
-<form id="venda-form" onsubmit="registrarVenda(event)">
-<input type="hidden" name="id" id="venda-id" />
-<div class="modal-body">
-<div class="input-group">
-<label for="produto-search">Produto</label>
-<div class="search-select-container" id="produto-select-container"></div>
-</div>
-<div class="input-group">
-<div class="label-container">
-<label for="cliente-search">Cliente</label>
-<button type="button" class="quick-add-btn" onclick="openClienteRapidoModal(event)">
-<i class="fas fa-plus"></i> Cadastro Rápido
-</button>
-</div>
-<div class="search-select-container" id="cliente-select-container"></div>
-</div>
-<div class="input-group">
-<label for="quantidade-venda">Quantidade</label>
-<input type="number" name="quantidade_venda" id="quantidade-venda" placeholder="Quantidade vendida" min="1" required />
-</div>
-</div>
-<div class="modal-footer">
-<button type="button" class="cancel-btn" onclick="closeModal()">Cancelar</button>
-<button type="submit" id="confirm-button" class="confirm-btn">Registrar Venda</button>
-</div>
-</form>
-</div>
-</div>
-<div id="cliente-rapido-modal" class="modal" onclick="closeClienteRapidoModal()">
-<div class="modal-content" onclick="event.stopPropagation()">
-<div class="modal-header">
-<h2>Cadastro Rápido de Cliente</h2>
-</div>
-<form id="cliente-rapido-form" onsubmit="registrarClienteRapido(event)">
-<div class="modal-body">
-<div class="input-group">
-<label for="cliente-rapido-nome">Nome Completo</label>
-<input type="text" id="cliente-rapido-nome" placeholder="Nome completo do cliente" required>
-</div>
-<div class="input-group">
-<label for="cliente-rapido-cpf">CPF</label>
-<input type="text" id="cliente-rapido-cpf" placeholder="000.000.000-00" required>
-</div>
-<div class="input-group">
-<label for="cliente-rapido-email">Email</label>
-<input type="email" id="cliente-rapido-email" placeholder="email@exemplo.com" required>
-</div>
-<div class="input-group">
-<label for="cliente-rapido-telefone">Telefone</label>
-<input type="text" id="cliente-rapido-telefone" placeholder="Digite apenas números" required>
-</div>
-<div class="input-group">
-<label for="cliente-rapido-cep">CEP</label>
-<input type="text" id="cliente-rapido-cep" placeholder="00000-000" required>
-</div>
-<div class="input-group">
-<label for="cliente-rapido-endereco">Rua/N°/Bairro</label>
-<input type="text" id="cliente-rapido-endereco" placeholder="Rua Exemplo, 123 - Bairro" required>
-</div>
-<div class="input-group">
-<label for="cliente-rapido-cidade">Cidade</label>
-<input type="text" id="cliente-rapido-cidade" placeholder="Preenchimento automático" required readonly>
-</div>
-<div class="input-group">
-<label for="cliente-rapido-estado">Estado</label>
-<input type="text" id="cliente-rapido-estado" placeholder="Preenchimento automático" required readonly>
-</div>
-</div>
-<div class="modal-footer">
-<button type="button" class="cancel-btn" onclick="closeClienteRapidoModal()">Cancelar</button>
-<button type="submit" class="confirm-btn">Salvar Cliente</button>
-</div>
-</form>
-</div>
-</div>
-<div id="confirm-delete-modal" class="modal" onclick="closeDeleteModal()">
-<div class="modal-content" onclick="event.stopPropagation()">
-<div class="modal-header">
-<h3><i class="fas fa-exclamation-triangle"></i>Confirmar Exclusão</h3>
-</div>
-<div class="modal-body">
-<p id="delete-message">Você tem certeza que deseja excluir esta venda?</p>
-<p class="stock-warning" id="stock-warning-message">
-Atenção: A quantidade vendida retornará ao estoque do produto.
-</p>
-</div>
-<div class="modal-footer">
-<button type="button" class="cancel-btn" onclick="closeDeleteModal()">Cancelar</button>
-<button type="button" id="confirm-delete-btn" class="confirm-btn">Excluir Venda</button>
-</div>
-</div>
-</div>
-<div class="popup-msg" id="popupMsg"></div>
-<div id="toast-message" class="toast-message"></div>
-<script>
-let vendas = [];
-let produtosDisponiveis = [];
-let clientesDisponiveis = [];
-const API_VENDAS_URL = '/api/vendas/';
-const API_PRODUTOS_URL = '/api/produtos/';
-const API_CLIENTES_URL = '/api/clientes/';
-const popupMsg = document.getElementById('popupMsg');
-function openModal(edit = false) {
-document.getElementById('venda-modal').style.display = 'flex';
-const form = document.getElementById('venda-form');
-form.reset();
-document.getElementById('modal-title').textContent = edit ? "Editar Venda" : "Registrar Venda";
-document.getElementById('confirm-button').textContent = edit ? "Salvar Alterações" : "Registrar Venda";
-document.getElementById('venda-id').value = '';
-}
-function closeModal() {
-document.getElementById('venda-modal').style.display = 'none';
-}
-function openClienteRapidoModal(event) {
-event.stopPropagation();
-document.getElementById('cliente-rapido-modal').style.display = 'flex';
-}
-function closeClienteRapidoModal() {
-const form = document.getElementById('cliente-rapido-form');
-form.reset();
-document.getElementById('cliente-rapido-modal').style.display = 'none';
-toggleAddressFields(form, false);
-}
-function openDeleteModal() {
-document.getElementById('confirm-delete-modal').style.display = 'flex';
-}
-function closeDeleteModal() {
-document.getElementById('confirm-delete-modal').style.display = 'none';
-}
-function getCookie(name) {
-let cookieValue = null;
-if (document.cookie && document.cookie !== '') {
-const cookies = document.cookie.split(';');
-for (let i = 0; i < cookies.length; i++) {
-const cookie = cookies[i].trim();
-if (cookie.substring(0, name.length + 1) === (name + '=')) {
-cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-break;
-}
-}
-}
-return cookieValue;
-}
-// --- FUNÇÃO DE POP-UP MINIMALISTA ATUALIZADA ---
-function showPopup(message, isError = false) {
-const icon = isError ? '<i class="fas fa-times-circle"></i>' : '<i class="fas fa-check-circle"></i>';
-popupMsg.innerHTML = `${icon} ${message}`;
-popupMsg.style.backgroundColor = isError ? '#e74c3c' : '#2ecc71';
-popupMsg.classList.add('show');
-setTimeout(() => {
-popupMsg.classList.remove('show');
-}, 3500); // Um pouco mais de tempo para leitura
-}
-function formatCEP(cep) {
-if (!cep) return "";
-return cep.replace(/\D/g, '').slice(0, 8).replace(/(\d{5})(\d)/, '$1-$2');
-}
-function formatCPF(cpf) {
-if (!cpf) return '';
-return cpf.replace(/\D/g, '').slice(0, 11).replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-}
-function toggleAddressFields(formContainer, enableManual) {
-const cityField = formContainer.querySelector('[id*="cidade"]');
-const stateField = formContainer.querySelector('[id*="estado"]');
-if (cityField && stateField) {
-cityField.readOnly = !enableManual;
-stateField.readOnly = !enableManual;
-if (enableManual) {
-cityField.placeholder = 'Digite a cidade';
-stateField.placeholder = 'Digite o estado (UF)';
-} else {
-cityField.placeholder = 'Preenchimento automático';
-stateField.placeholder = 'Preenchimento automático';
-}
-}
-}
-async function handleCepLookup(event) {
-const inputElement = event.target;
-const formContainer = inputElement.closest('form');
-if (!formContainer) return;
-const streetField = formContainer.querySelector('[id*="endereco"]');
-const cityField = formContainer.querySelector('[id*="cidade"]');
-const stateField = formContainer.querySelector('[id*="estado"]');
-const cep = inputElement.value.replace(/\D/g, '');
-if (cep.length === 8) {
-try {
-const response = await fetch(`/api/buscar_cep/${cep}/`);
-if (!response.ok) throw new Error('CEP não encontrado');
-const data = await response.json();
-if (data.success) {
-streetField.value = data.endereco;
-cityField.value = data.cidade;
-stateField.value = data.estado;
-toggleAddressFields(formContainer, false);
-} else {
-showPopup('CEP não encontrado. Preencha o endereço manualmente.', true);
-streetField.value = ''; cityField.value = ''; stateField.value = '';
-toggleAddressFields(formContainer, true);
-}
-} catch (error) {
-console.error("Erro na busca de CEP:", error);
-showPopup('Erro ao buscar CEP. Preencha o endereço manualmente.', true);
-streetField.value = ''; cityField.value = ''; stateField.value = '';
-toggleAddressFields(formContainer, true);
-}
-}
-}
-async function carregarDadosIniciais() {
-await Promise.all([
-carregarProdutosDisponiveis(),
-carregarClientesDisponiveis(),
-carregarVendas()
-]);
-}
-async function carregarVendas() {
-try {
-const response = await fetch(API_VENDAS_URL);
-if (!response.ok) throw new Error('Erro ao carregar vendas');
-vendas = await response.json();
-renderizarVendas();
-} catch (error) {
-console.error("Erro ao carregar vendas:", error);
-document.getElementById('sales-grid').innerHTML = `<p style="text-align:center; color: var(--light-text-color);">Não foi possível carregar as vendas.</p>`;
-}
-}
-async function carregarProdutosDisponiveis() {
-try {
-const response = await fetch(API_PRODUTOS_URL);
-if (!response.ok) throw new Error('Erro ao carregar produtos');
-produtosDisponiveis = await response.json();
-preencherSelectProdutos();
-} catch (error) { console.error("Erro ao carregar produtos:", error); }
-}
-async function carregarClientesDisponiveis() {
-try {
-const response = await fetch(API_CLIENTES_URL);
-if (!response.ok) throw new Error('Erro ao carregar clientes');
-clientesDisponiveis = await response.json();
-preencherSelectClientes();
-} catch (error) { console.error("Erro ao carregar clientes:", error); }
-}
-function renderizarVendas() {
-const grid = document.getElementById('sales-grid');
-grid.innerHTML = '';
-if (vendas.length === 0) {
-grid.innerHTML = `<p style="text-align:center; color: var(--light-text-color);">Nenhuma venda registrada.</p>`;
-return;
-}
-vendas.forEach(venda => {
-const card = document.createElement('div');
-card.classList.add('sale-card');
-const precoTotalFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(venda.preco_total);
-const dataFormatada = new Date(venda.data_venda).toLocaleDateString('pt-BR');
-card.innerHTML = `
-<h3>Venda #${venda.id.substring(0, 8)}</h3>
-<div class="sale-info">
-<strong>Produto:</strong> <span>${venda.produto__nome}</span>
-</div>
-<div class="sale-info">
-<strong>Cliente:</strong> <span>${venda.cliente__nome}</span>
-</div>
-<div class="sale-info">
-<strong>Quantidade:</strong> <span>${venda.quantidade}</span>
-</div>
-<div class="sale-info">
-<strong>Valor Total:</strong> <span>${precoTotalFormatado}</span>
-</div>
-<div class="sale-info">
-<strong>Data:</strong> <span>${dataFormatada}</span>
-</div>
-<div class="sale-actions">
-<button class="delete-btn" onclick="excluirVenda('${venda.id}')">
-<i class="fas fa-trash-alt"></i>
-</button>
-</div>
-`;
-grid.appendChild(card);
-});
-filtrarVendas();
-}
-async function registrarClienteRapido(event) {
-event.preventDefault();
-const csrftoken = getCookie('csrftoken');
-const clienteData = {
-nome: document.getElementById('cliente-rapido-nome').value.trim(),
-cpf: document.getElementById('cliente-rapido-cpf').value.replace(/\D/g, ''),
-email: document.getElementById('cliente-rapido-email').value.trim(),
-telefone: document.getElementById('cliente-rapido-telefone').value.replace(/\D/g, ''),
-cep: document.getElementById('cliente-rapido-cep').value.replace(/\D/g, ''),
-endereco: document.getElementById('cliente-rapido-endereco').value.trim(),
-cidade: document.getElementById('cliente-rapido-cidade').value.trim(),
-estado: document.getElementById('cliente-rapido-estado').value.trim()
-};
-try {
-const response = await fetch(API_CLIENTES_URL, {
-method: 'POST',
-headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-body: JSON.stringify(clienteData),
-});
-const resultado = await response.json();
-if (!response.ok) {
-throw new Error(resultado.error || 'Erro desconhecido ao cadastrar cliente.');
-}
-showPopup('Cliente cadastrado com sucesso!');
-closeClienteRapidoModal();
-await carregarClientesDisponiveis();
-const clienteSearchInput = document.getElementById('cliente-search');
-clienteSearchInput.value = resultado.cliente.nome;
-clienteSearchInput.dataset.selectedCpf = resultado.cliente.cpf;
-} catch (error) {
-console.error("Erro ao cadastrar cliente:", error);
-showPopup(`Erro: ${error.message}`, true);
-}
-}
-async function registrarVenda(event) {
-event.preventDefault();
-const csrftoken = getCookie('csrftoken');
-const form = event.target;
-const vendaData = {
-id: form.id.value.trim() || null,
-produto_id: document.getElementById('produto-search').dataset.selectedId,
-cliente_cpf: document.getElementById('cliente-search').dataset.selectedCpf,
-quantidade: parseInt(form.quantidade_venda.value.trim()),
-};
-if (!vendaData.produto_id || !vendaData.cliente_cpf || isNaN(vendaData.quantidade) || vendaData.quantidade <= 0) {
-showPopup("Por favor, preencha todos os campos corretamente.", true);
-return;
-}
-const produtoSelecionado = produtosDisponiveis.find(p => p.id === vendaData.produto_id);
-if (vendaData.quantidade > produtoSelecionado.quantidade) {
-showPopup(`Estoque insuficiente. Disponível: ${produtoSelecionado.quantidade}`, true);
-return;
-}
-try {
-const url = vendaData.id ? `${API_VENDAS_URL}${vendaData.id}/` : API_VENDAS_URL;
-const method = vendaData.id ? 'PUT' : 'POST';
-const response = await fetch(url, {
-method: method,
-headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-body: JSON.stringify(vendaData),
-});
-if (!response.ok) {
-const errorData = await response.json();
-throw new Error(errorData.error || 'Erro ao registrar a venda');
-}
-showPopup('Venda registrada com sucesso!');
-await carregarDadosIniciais();
-closeModal();
-} catch (error) {
-console.error("Erro na venda:", error);
-showPopup(`Erro ao registrar a venda: ${error.message}`, true);
-}
-}
-function excluirVenda(id) {
-const venda = vendas.find(v => v.id === id);
-if (!venda) return;
-const deleteMessage = document.getElementById('delete-message');
-const stockWarningMessage = document.getElementById('stock-warning-message');
-const confirmBtn = document.getElementById('confirm-delete-btn');
-deleteMessage.innerHTML = `Tem certeza que deseja excluir a venda do produto <strong>${venda.produto__nome}</strong> para o cliente <strong>${venda.cliente__nome}</strong>?`;
-stockWarningMessage.innerHTML = `⚠️ <strong>Atenção:</strong> A quantidade vendida (<strong>${venda.quantidade}</strong>) retornará ao estoque do produto.`;
-confirmBtn.dataset.vendaId = id;
-openDeleteModal();
-}
-async function confirmarExclusao() {
-const id = document.getElementById('confirm-delete-btn').dataset.vendaId;
-if (!id) {
-showPopup("Erro: ID da venda não encontrado.", true);
-return;
-}
-try {
-const csrftoken = getCookie('csrftoken');
-const url = `${API_VENDAS_URL}${id}/`;
-const response = await fetch(url, {
-method: 'DELETE',
-headers: { 'X-CSRFToken': csrftoken }
-});
-if (response.status === 204) {
-showPopup('Venda excluída com sucesso!');
-closeDeleteModal();
-await carregarDadosIniciais();
-} else {
-const errorData = await response.json();
-throw new Error(errorData.error || 'Erro ao excluir venda');
-}
-} catch (error) {
-console.error(error);
-showPopup(`Erro ao excluir venda: ${error.message}`, true);
-}
-}
-function preencherSelectProdutos(selectedId = null) {
-const container = document.getElementById('produto-select-container');
-container.innerHTML = `
-<input type="text" id="produto-search" placeholder="Buscar produto..." oninput="filtrarOpcoes('produto')" autocomplete="off">
-<div id="produto-options" class="select-options"></div>
-`;
-const optionsDiv = document.getElementById('produto-options');
-produtosDisponiveis.forEach(produto => {
-const option = document.createElement('div');
-option.textContent = `${produto.nome} (Estoque: ${produto.quantidade})`;
-option.dataset.value = produto.id;
-option.onclick = () => {
-document.getElementById('produto-search').value = produto.nome;
-document.getElementById('produto-search').dataset.selectedId = produto.id;
-optionsDiv.style.display = 'none';
-};
-optionsDiv.appendChild(option);
-});
-document.getElementById('produto-search').onfocus = () => optionsDiv.style.display = 'block';
-document.getElementById('produto-search').onblur = () => setTimeout(() => optionsDiv.style.display = 'none', 200);
-}
-function preencherSelectClientes(selectedCpf = null) {
-const container = document.getElementById('cliente-select-container');
-container.innerHTML = `
-<input type="text" id="cliente-search" placeholder="Buscar cliente por nome ou CPF..." oninput="filtrarOpcoes('cliente')" autocomplete="off">
-<div id="cliente-options" class="select-options"></div>
-`;
-const optionsDiv = document.getElementById('cliente-options');
-clientesDisponiveis.forEach(cliente => {
-const option = document.createElement('div');
-option.textContent = `${cliente.nome} (${cliente.cpf})`;
-option.dataset.value = cliente.cpf;
-option.onclick = () => {
-document.getElementById('cliente-search').value = cliente.nome;
-document.getElementById('cliente-search').dataset.selectedCpf = cliente.cpf;
-optionsDiv.style.display = 'none';
-};
-optionsDiv.appendChild(option);
-});
-document.getElementById('cliente-search').onfocus = () => optionsDiv.style.display = 'block';
-document.getElementById('cliente-search').onblur = () => setTimeout(() => optionsDiv.style.display = 'none', 200);
-}
-function filtrarOpcoes(tipo) {
-const searchTerm = document.getElementById(`${tipo}-search`).value.toLowerCase();
-const options = document.getElementById(`${tipo}-options`).children;
-Array.from(options).forEach(option => {
-option.style.display = option.textContent.toLowerCase().includes(searchTerm) ? 'block' : 'none';
-});
-}
-function filtrarVendas() {
-const filtro = document.getElementById('search-bar').value.toLowerCase();
-const cards = document.querySelectorAll('.sale-card');
-cards.forEach(card => {
-card.style.display = card.textContent.toLowerCase().includes(filtro) ? 'flex' : 'none';
-});
-}
-document.addEventListener('DOMContentLoaded', () => {
-carregarDadosIniciais();
-document.getElementById('confirm-delete-btn').addEventListener('click', confirmarExclusao);
-const rapidoCPF = document.getElementById('cliente-rapido-cpf');
-const rapidoTelefone = document.getElementById('cliente-rapido-telefone');
-const rapidoCEP = document.getElementById('cliente-rapido-cep');
-rapidoCPF.addEventListener('input', (e) => e.target.value = formatCPF(e.target.value));
-rapidoTelefone.addEventListener('input', (e) => e.target.value = e.target.value.replace(/\D/g, ''));
-rapidoCEP.addEventListener('input', (e) => e.target.value = formatCEP(e.target.value));
-rapidoCEP.addEventListener('blur', handleCepLookup);
-});
-</script>
+    {% include 'barra.html' %}
+
+    <div class="container">
+        <div class="header">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-bar" placeholder="Buscar por produto, cliente ou data..." oninput="filtrarVendas()" />
+            </div>
+            <button class="add-btn" onclick="openModal()">+ Nova Venda</button>
+        </div>
+
+        <div id="sales-grid" class="sales-grid"></div>
+
+        <div id="venda-modal" class="modal" onclick="closeModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h2 id="modal-title">Registrar Venda</h2>
+                </div>
+                <form id="venda-form" onsubmit="registrarVenda(event)">
+                    <input type="hidden" name="id" id="venda-id" />
+                    <div class="modal-body">
+                        <div class="input-group">
+                            <label for="produto-search">Produto</label>
+                            <div class="search-select-container" id="produto-select-container"></div>
+                        </div>
+                        <div class="input-group">
+                            <div class="label-container">
+                                <label for="cliente-search">Cliente</label>
+                                <button type="button" class="quick-add-btn" onclick="openClienteRapidoModal(event)">
+                                    <i class="fas fa-plus"></i> Cadastro Rápido
+                                </button>
+                            </div>
+                            <div class="search-select-container" id="cliente-select-container"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="quantidade-venda">Quantidade</label>
+                            <input type="number" name="quantidade_venda" id="quantidade-venda" placeholder="Quantidade vendida" min="1" required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="cancel-btn" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" id="confirm-button" class="confirm-btn">Registrar Venda</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="cliente-rapido-modal" class="modal" onclick="closeClienteRapidoModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Cadastro Rápido de Cliente</h2>
+                </div>
+                <form id="cliente-rapido-form" onsubmit="registrarClienteRapido(event)">
+                    <div class="modal-body">
+                        <div class="input-group">
+                            <label for="cliente-rapido-nome">Nome Completo</label>
+                            <input type="text" id="cliente-rapido-nome" placeholder="Nome completo do cliente" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="cliente-rapido-cpf">CPF</label>
+                            <input type="text" id="cliente-rapido-cpf" placeholder="000.000.000-00" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="cliente-rapido-email">Email</label>
+                            <input type="email" id="cliente-rapido-email" placeholder="email@exemplo.com" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="cliente-rapido-telefone">Telefone</label>
+                            <input type="text" id="cliente-rapido-telefone" placeholder="Digite apenas números" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="cliente-rapido-cep">CEP</label>
+                            <input type="text" id="cliente-rapido-cep" placeholder="00000-000" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="cliente-rapido-endereco">Rua/N°/Bairro</label>
+                            <input type="text" id="cliente-rapido-endereco" placeholder="Rua Exemplo, 123 - Bairro" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="cliente-rapido-cidade">Cidade</label>
+                            <input type="text" id="cliente-rapido-cidade" placeholder="Preenchimento automático" required readonly>
+                        </div>
+                        <div class="input-group">
+                            <label for="cliente-rapido-estado">Estado</label>
+                            <input type="text" id="cliente-rapido-estado" placeholder="Preenchimento automático" required readonly>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="cancel-btn" onclick="closeClienteRapidoModal()">Cancelar</button>
+                        <button type="submit" class="confirm-btn">Salvar Cliente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="confirm-delete-modal" class="modal" onclick="closeDeleteModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i>Confirmar Exclusão</h3>
+                </div>
+                <div class="modal-body">
+                    <p id="delete-message">Você tem certeza que deseja excluir esta venda?</p>
+                    <p class="stock-warning" id="stock-warning-message">
+                        Atenção: A quantidade vendida retornará ao estoque do produto.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="cancel-btn" onclick="closeDeleteModal()">Cancelar</button>
+                    <button type="button" id="confirm-delete-btn" class="confirm-btn">Excluir Venda</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="popup-msg" id="popupMsg"></div>
+        <div id="toast-message" class="toast-message"></div>
+    </div>
+
+    <script src="{% static 'js/vendas.js' %}"></script>
 </body>
 </html>

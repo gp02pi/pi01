@@ -4,7 +4,8 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     # Páginas
-    path('', views.login_page, name='login'),
+    path('', views.apresentacao, name='apresentacao'),
+    path('apresentacao/', views.apresentacao, name='apresentacao'),
     path('login/', views.login_page, name='login'),
     path('inicio/', views.inicio, name='inicio'),
     path('clientes/', views.clientes, name='clientes'),
@@ -28,10 +29,12 @@ urlpatterns = [
 
     # APIs de Produtos
     path('api/produtos/', views.api_produtos, name='api_produtos'),
-    path('api/produtos/<int:id>/', views.api_produto_detalhe, name='api_produto_detalhe'),
-    path('api/historico-notas/', views.api_historico_notas, name='api_historico_notas'),
-    path('api/historico-notas/<int:id>/', views.api_historico_nota_detalhe, name='api_historico_nota_detalhe'),
     path('api/produtos/<uuid:id>/', views.api_produto_detalhe, name='api_produto_detalhe'),
+
+    # APIs de Histórico de Notas
+    path('api/historico-notas/', views.api_historico_notas, name='api_historico_notas'),
+    # --- CORREÇÃO APLICADA AQUI: trocado <int:id> por <uuid:id> ---
+    path('api/historico-notas/<uuid:id>/', views.api_historico_notas, name='api_historico_nota_detalhe'),
 
     # APIs de Fornecedores e Clientes
     path('api/fornecedores/', views.api_fornecedores, name='api_fornecedores'),
@@ -41,7 +44,8 @@ urlpatterns = [
 
     # APIs de Vendas
     path('api/vendas/', views.api_vendas, name='api_vendas'),
-    path('api/vendas/<int:id>/', views.api_vendas, name='api_venda_detalhe'),
+    path('api/vendas/<int:id>/', views.api_vendas, name='api_venda_detalhe'), # Assumindo que ID de venda é INT
+    path('api/vendas/<uuid:id>/', views.api_vendas, name='api_vendas_detail_delete'), # Assumindo que ID de venda pode ser UUID também
 
     # APIs de Relatórios e Dashboard
     path('api/exportar-produtos/', views.api_exportar_produtos, name='api_exportar_produtos'),
@@ -53,17 +57,17 @@ urlpatterns = [
     # API de Geocodificação
     path('api/map/locations/', views.api_map_locations, name='api_map_locations'),
     
-    # Nova API para busca de CEP
+    # APIs Auxiliares
     path('api/buscar_cep/<str:cep>/', views.api_buscar_cep, name='api_buscar_cep'),
     path('api/cidade-rankings/', views.api_cidade_rankings, name='api_cidade_rankings'),
     
-    path('api/user/profile/', views.api_user_profile, name='api_user_profile'),
-    path('api/user/profile/update/', views.api_update_user_profile, name='api_update_user_profile'),
+    # Rotas adicionais de perfil (verifique se não há duplicatas com as de cima)
+    path('api/user/profile/', views.api_user_profile, name='api_user_profile_alt'),
+    path('api/user/profile/update/', views.api_update_user_profile, name='api_update_user_profile_alt'),
     path('api/user/profile/send-code/', views.api_enviar_codigo_alteracao_senha, name='api_send_code'),
 
     path('recuperar-senha/', views.recuperar_senha, name='recuperar_senha_view'),
     
-    # NOVAS APIs para o front-end
     path('validar-codigo/', views.validar_codigo, name='validar_codigo_api'),
     path('redefinir-senha/', views.redefinir_senha, name='redefinir_senha_api'),
 ]

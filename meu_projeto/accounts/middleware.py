@@ -1,29 +1,21 @@
 # accounts/middleware.py
 
-from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
 
-class SessionTimeoutMiddleware(MiddlewareMixin):
+class CacheControlMiddleware(MiddlewareMixin):
     """
-    Middleware que adiciona o tempo restante da sessão ao contexto de
-    respostas que renderizam templates.
+    Middleware para adicionar cabeçalhos de controle de cache em respostas
+    para usuários autenticados.
+    
+    Isso instrui o navegador a não armazenar em cache as páginas seguras,
+    impedindo que um usuário deslogado possa usar o botão "voltar"
+    para ver conteúdo restrito.
     """
-    def process_template_response(self, request, response):
-        # Este método só é chamado para respostas que renderizam um template.
-        
+    def process_response(self, request, response):
+        # Verifica se o usuário da requisição está autenticado
         if request.user.is_authenticated:
-            try:
-                expiry_datetime = request.session.get_expiry_date()
-                now = timezone.now()
-                
-                remaining_seconds = (expiry_datetime - now).total_seconds()
-
-                # Adiciona um buffer de 2 segundos
-                if remaining_seconds > 2:
-                    response.context_data['session_timeout_seconds'] = int(remaining_seconds - 2) * 1000
-            except AttributeError:
-                # Caso response.context_data não exista por algum motivo,
-                # apenas ignoramos para não quebrar a aplicação.
-                pass
-        
+            # Adiciona os cabeçalhos que impedem o cache
+            response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response['Pragma'] = 'no-cache'
+            response['Expires'] = '0'
         return response

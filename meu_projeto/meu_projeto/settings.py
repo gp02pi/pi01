@@ -32,11 +32,11 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware', # Gerencia as sessões
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'accounts.middleware.CacheControlMiddleware', # <-- NOSSO NOVO MIDDLEWARE AQUI
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    #'accounts.middleware.SessionTimeoutMiddleware', 
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -101,7 +101,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'account', 'static'),
 ]
 
 # Default primary key field type
@@ -118,35 +118,35 @@ EMAIL_HOST_PASSWORD = 'efnm zhnx rvee jheq'
 
 # --- CONFIGURAÇÕES DE AUTENTICAÇÃO E SESSÃO ---
 
-# 1. URL para onde o @login_required redireciona usuários não autenticados.
-#    'login' é o nome que demos para a nossa URL de login em accounts/urls.py
+# URL para onde o @login_required redireciona usuários não autenticados.
 LOGIN_URL = 'login'
 
-# 2. URL para onde o usuário é redirecionado APÓS o login bem-sucedido.
+# URL para onde o usuário é redirecionado APÓS o login bem-sucedido.
 LOGIN_REDIRECT_URL = '/inicio/'
 
-# 3. URL para onde o usuário é redirecionado APÓS o logout.
+# URL para onde o usuário é redirecionado APÓS o logout.
 LOGOUT_REDIRECT_URL = 'login'
 
-# 4. Garante que a sessão seja encerrada quando o usuário fechar o navegador.
+# 1. ATIVADO: GARANTE QUE A SESSÃO SEJA ENCERRADA QUANDO O USUÁRIO FECHAR O NAVEGADOR/ABA.
+# Isso atende diretamente ao seu pedido.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
+# 2. CONFIGURAÇÃO DE TIMEOUT POR INATIVIDADE (OPCIONAL, MAS RECOMENDADO)
+# Define o tempo de vida da sessão em segundos. Após este tempo de inatividade,
+# o usuário será deslogado na próxima ação.
+SESSION_COOKIE_AGE = 3600 # Você pode ajustar esse valor
 
-# --- CONFIGURAÇÕES DE SESSÃO COM LOGOUT AUTOMÁTICO POR INATIVIDADE ---
-
-# 1. Define o tempo de vida da sessão em segundos.
-#    Após este tempo de inatividade, o usuário será deslogado na próxima ação.
-#    Exemplos:
-#    900 segundos = 15 minutos
-#    1800 segundos = 30 minutos
-#    3600 segundos = 1 hora
-SESSION_COOKIE_AGE = 3600
-
-# 2. Garante que o tempo de vida da sessão seja atualizado a cada requisição.
-#    Esta é a chave para o "tempo de inatividade". Cada clique do usuário
-#    reinicia a contagem dos 15 minutos.
+# 3. ATIVADO: GARANTE QUE O TEMPO DE VIDA DA SESSÃO SEJA ATUALIZADO A CADA REQUISIÇÃO.
+# Cada clique do usuário reinicia a contagem do SESSION_COOKIE_AGE.
 SESSION_SAVE_EVERY_REQUEST = True
 
-# 3. Desativamos a configuração anterior. Agora o tempo é controlado
-#    explicitamente pelo SESSION_COOKIE_AGE, e não mais pelo fechamento do navegador.
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+# --- CABEÇALHOS DE SEGURANÇA ADICIONAIS (RECOMENDADO PARA PRODUÇÃO) ---
+# Para usar em produção (com HTTPS), descomente as linhas abaixo
+# SECURE_HSTS_SECONDS = 31536000 # 1 ano
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# SECURE_BROWSER_XSS_FILTER = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# X_FRAME_OPTIONS = 'DENY'

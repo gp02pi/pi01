@@ -1,277 +1,100 @@
+{% comment %}
+    Carrega as tags de template do Django para que a tag {% static %}
+    possa resolver corretamente os caminhos para os arquivos CSS e JS.
+{% endcomment %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel de Gestão de Estoque</title>
-<link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<style>
-body {background-color: #f4f6f9;color: #333;font-family: 'Montserrat', sans-serif;padding-top: 80px;}
-.main-content {padding: 20px;}
-.dashboard-grid {display: grid;grid-template-columns: repeat(4, 1fr);grid-auto-rows: auto;gap: 20px;}
-.kpi-total-vendas { grid-column: 1 / 2; grid-row: 1; }
-.kpi-numero-vendas { grid-column: 2 / 3; grid-row: 1; }
-.kpi-estoque { grid-column: 3 / 4; grid-row: 1; }
-.kpi-entradas { grid-column: 4 / 5; grid-row: 1; }
-.main-chart { grid-column: 1 / 5; grid-row: 2; }
-.vendas-produto-chart { grid-column: 1 / 3; grid-row: 3; }
-.compras-fornecedor-chart { grid-column: 3 / 5; grid-row: 3; }
-.map-wrapper { grid-column: 1 / 4; grid-row: 4; }
-.side-cards-wrapper {grid-column: 4 / 5;grid-row: 4;display: flex;flex-direction: column;gap: 20px;}
-.side-cards-wrapper .chart-container {flex: 1;margin-bottom: 0;}
-.sales-growth-chart { grid-column: 1 / 5; grid-row: 5; }
-.map-wrapper .chart-container,.map-wrapper #map-container {height: 100%;}
-.map-wrapper {grid-column: 1 / 4;grid-row: 4;min-height: 500px;}
-#map-container {height: 100%;}
-.map-wrapper .chart-container {display: flex;flex-direction: column;}
-#map-container {height: 600px;}
-.kpi-card {background-color: #fff;border-radius: 8px;padding: 15px;box-shadow: 0 2px 4px rgba(0,0,0,0.05);text-align: center;transition: transform .3s ease, box-shadow .3s ease;display: flex;flex-direction: column;justify-content: center;align-items: center;height: 100%;}
-.kpi-card:hover {transform: translateY(-5px);box-shadow: 0 8px 16px rgba(0,0,0,0.1);}
-.kpi-card-header {font-size: 14px;color: #26A0B8;font-weight: 600;margin-bottom: 10px;}
-.kpi-card-value {font-size: 32px;font-weight: 700;color: #333;}
-.kpi-card-footer {font-size: 12px;color: #666;margin-top: 5px;}
-.chart-container {background-color: #fff;border-radius: 8px;padding: 15px;box-shadow: 0 2px 4px rgba(0,0,0,0.05);animation: fadeIn 1s ease-in-out;height: 100%;margin-bottom: 0;}
-.chart-header {font-size: 18px;font-weight: 600;margin-bottom: 15px;}
-.chart-wrapper {position: relative;height: 100%;}
-#mainChart-wrapper {height: 250px;}
-#inventoryValueChart-wrapper,#salesTrendChart-wrapper,#payableAgingChart-wrapper {height: 180px;}
-.location-list {list-style-type: none;padding-left: 0;font-size: 14px;}
-.location-list li {margin-bottom: 8px;}
-.location-list .fa-solid {margin-right: 8px;}
-@keyframes fadeIn {from { opacity: 0; }to { opacity: 1; }}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="icon" href="{% static 'img/favi.png' %}" type="image/x-icon">
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <link rel="stylesheet" href="{% static 'css/inicio.css' %}">
 </head>
 <body>
-{% include 'barra.html' %}
-{% include 'session_timeout_modal.html' %}
-<div class="main-content">
-<div class="dashboard-grid">
-<div class="kpi-total-vendas">
-<div class="kpi-card">
-<div class="kpi-card-header">Total de Vendas</div>
-<div class="kpi-card-value" id="kpi-vendas-valor">...</div>
-<div class="kpi-card-footer">R$</div>
-</div>
-</div>
-<div class="kpi-numero-vendas">
-<div class="kpi-card">
-<div class="kpi-card-header">Número de Vendas</div>
-<div class="kpi-card-value" id="kpi-vendas-numero">...</div>
-<div class="kpi-card-footer">Transações</div>
-</div>
-</div>
-<div class="kpi-estoque">
-<div class="kpi-card">
-<div class="kpi-card-header">Produtos em Estoque</div>
-<div class="kpi-card-value" id="kpi-estoque-total">...</div>
-<div class="kpi-card-footer">unidades</div>
-</div>
-</div>
-<div class="kpi-entradas">
-<div class="kpi-card">
-<div class="kpi-card-header">Entrada de Produtos</div>
-<div class="kpi-card-value" id="kpi-entrada-produtos">...</div>
-<div class="kpi-card-footer">unidades</div>
-</div>
-</div>
-<div class="main-chart">
-<div class="chart-container">
-<div class="chart-header">Vendas e Estoque</div>
-<div class="chart-wrapper" id="mainChart-wrapper">
-<canvas id="mainChart"></canvas>
-</div>
-</div>
-</div>
-<div class="vendas-produto-chart">
-<div class="chart-container">
-<div class="chart-header">Vendas por Produto</div>
-<div class="chart-wrapper" id="inventoryValueChart-wrapper">
-<canvas id="inventoryValueChart"></canvas>
-</div>
-</div>
-</div>
-<div class="compras-fornecedor-chart">
-<div class="chart-container">
-<div class="chart-header">Compras por Fornecedor</div>
-<div class="chart-wrapper" id="payableAgingChart-wrapper">
-<canvas id="payableAgingChart"></canvas>
-</div>
-</div>
-</div>
-<div class="map-wrapper">
-<div class="chart-container">
-<div class="chart-header">Localização de Clientes e Fornecedores</div>
-<div id="map-container"></div>
-</div>
-</div>
-<div class="side-cards-wrapper">
-<div class="chart-container">
-<div class="chart-header">Cidades com mais clientes</div>
-<ul class="location-list" id="top-clientes-list">
-<li>Carregando...</li>
-</ul>
-</div>
-<div class="chart-container">
-<div class="chart-header">Cidades com mais fornecedores</div>
-<ul class="location-list" id="top-fornecedores-list">
-<li>Carregando...</li>
-</ul>
-</div>
-</div>
-<div class="sales-growth-chart">
-<div class="chart-container">
-<div class="chart-header">Crescimento de Vendas</div>
-<div class="chart-wrapper" id="salesTrendChart-wrapper">
-<canvas id="salesTrendChart"></canvas>
-</div>
-</div>
-</div>
-</div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // URLs das APIs
-    const BASE_API_URL = '/api/dashboard/data/';
-    const MAP_API_URL = '/api/map/locations/';
-    const RANKING_API_URL = '/api/cidade-rankings/';
 
-    // ... (toda a sua lógica de inicialização de gráficos permanece a mesma) ...
-    const months = ['Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
-    let charts = {};
-    const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { usePointStyle: true } } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#e9ecef' } } }, animation: { duration: 1500, easing: 'easeOutQuart' } };
-    const initialData = { kpis: { totalVendas: '...', numeroVendas: '...', produtosEstoque: '...', entradaProdutos: '...' }, mainChart: { labels: months, vendas: [], estoque: [] }, inventoryValueChart: { labels: [], data: [] }, salesTrendChart: { labels: months, data: [] }, payableAgingChart: { labels: [], data: [] } };
-    const initializeCharts = (data) => {
-        const mainChartCtx = document.getElementById('mainChart').getContext('2d');
-        charts.mainChart = new Chart(mainChartCtx, { type: 'bar', data: { labels: data.mainChart.labels, datasets: [{ type: 'bar', label: 'Vendas', data: data.mainChart.vendas, backgroundColor: '#26A0B8', yAxisID: 'y' }, { type: 'bar', label: 'Estoque', data: data.mainChart.estoque, backgroundColor: '#EB9941', yAxisID: 'y' }] }, options: { ...chartOptions, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, position: 'left' } } } });
-        const inventoryValueChartCtx = document.getElementById('inventoryValueChart').getContext('2d');
-        charts.inventoryValueChart = new Chart(inventoryValueChartCtx, { type: 'bar', data: { labels: data.inventoryValueChart.labels, datasets: [{ label: 'Vendas', data: data.inventoryValueChart.data, backgroundColor: '#26A0B8' }] }, options: { ...chartOptions, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true }, y: { grid: { display: false } } } } });
-        const salesTrendChartCtx = document.getElementById('salesTrendChart').getContext('2d');
-        charts.salesTrendChart = new Chart(salesTrendChartCtx, { type: 'line', data: { labels: data.salesTrendChart.labels, datasets: [{ label: 'Crescimento de Vendas', data: data.salesTrendChart.data, borderColor: '#26A0B8', backgroundColor: 'rgba(26, 115, 232, 0.2)', tension: 0.4, fill: true }] }, options: { ...chartOptions, plugins: { legend: { display: false } } } });
-        const payableAgingChartCtx = document.getElementById('payableAgingChart').getContext('2d');
-        charts.payableAgingChart = new Chart(payableAgingChartCtx, { type: 'bar', data: { labels: data.payableAgingChart.labels, datasets: [{ label: 'Compras (R$)', data: data.payableAgingChart.data, backgroundColor: ['#26A0B8', '#EB9941', '#26A0B8', '#EB9941'], }] }, options: { ...chartOptions, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, grid: { display: false } }, y: { grid: { display: false } } } } });
-    };
+    {% comment %}
+        Inclusão de componentes de template reutilizáveis (barra de navegação e modal).
+    {% endcomment %}
+    {% include 'barra.html' %}
 
-    const updateDashboard = async () => {
-        try {
-            const response = await fetch(BASE_API_URL);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            document.getElementById('kpi-vendas-valor').textContent = data.kpis.totalVendas;
-            document.getElementById('kpi-vendas-numero').textContent = data.kpis.numeroVendas;
-            document.getElementById('kpi-estoque-total').textContent = data.kpis.produtosEstoque;
-            document.getElementById('kpi-entrada-produtos').textContent = data.kpis.entradaProdutos;
-            charts.mainChart.data.datasets[0].data = data.mainChart.vendas;
-            charts.mainChart.data.datasets[1].data = data.mainChart.estoque;
-            charts.mainChart.update();
-            charts.inventoryValueChart.data.labels = data.inventoryValueChart.labels;
-            charts.inventoryValueChart.data.datasets[0].data = data.inventoryValueChart.data;
-            charts.inventoryValueChart.update();
-            charts.salesTrendChart.data.labels = data.salesTrendChart.labels;
-            charts.salesTrendChart.data.datasets[0].data = data.salesTrendChart.data;
-            charts.salesTrendChart.update();
-            charts.payableAgingChart.data.labels = data.payableAgingChart.labels;
-            charts.payableAgingChart.data.datasets[0].data = data.payableAgingChart.data;
-            charts.payableAgingChart.update();
-        } catch (error) {
-            console.error("Erro ao buscar dados da API:", error);
-        }
-    };
+    <main class="main-content">
+        <div class="dashboard-grid">
 
-    // Inicializa o mapa uma vez
-    const map = L.map('map-container', { zoomControl: false }).setView([-14.235, -51.9253], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+            <div class="kpi-total-vendas kpi-card">
+                <div class="kpi-card-header">Total de Vendas</div>
+                <div class="kpi-card-value" id="kpi-vendas-valor">...</div>
+                <div class="kpi-card-footer">R$</div>
+            </div>
+            <div class="kpi-numero-vendas kpi-card">
+                <div class="kpi-card-header">Número de Vendas</div>
+                <div class="kpi-card-value" id="kpi-vendas-numero">...</div>
+                <div class="kpi-card-footer">Transações</div>
+            </div>
+            <div class="kpi-estoque kpi-card">
+                <div class="kpi-card-header">Produtos em Estoque</div>
+                <div class="kpi-card-value" id="kpi-estoque-total">...</div>
+                <div class="kpi-card-footer">unidades</div>
+            </div>
+            <div class="kpi-entradas kpi-card">
+                <div class="kpi-card-header">Entrada de Produtos</div>
+                <div class="kpi-card-value" id="kpi-entrada-produtos">...</div>
+                <div class="kpi-card-footer">unidades</div>
+            </div>
 
-    // Função para carregar os rankings (RÁPIDO)
-    const loadRankings = () => {
-        fetch(RANKING_API_URL)
-            .then(response => response.ok ? response.json() : Promise.reject('Falha ao carregar rankings'))
-            .then(data => {
-                const topClientesList = document.getElementById('top-clientes-list');
-                const topFornecedoresList = document.getElementById('top-fornecedores-list');
-                topClientesList.innerHTML = '';
-                topFornecedoresList.innerHTML = '';
+            <div class="main-chart chart-container">
+                <h2 class="chart-header">Vendas e Estoque</h2>
+                <div class="chart-wrapper" id="mainChart-wrapper">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+            <div class="vendas-produto-chart chart-container">
+                <h2 class="chart-header">Vendas por Produto</h2>
+                <div class="chart-wrapper" id="inventoryValueChart-wrapper">
+                    <canvas id="inventoryValueChart"></canvas>
+                </div>
+            </div>
+            <div class="compras-fornecedor-chart chart-container">
+                <h2 class="chart-header">Análise Financeira (Custos vs. Receita)</h2>
+                <div class="chart-wrapper" id="payableAgingChart-wrapper">
+                    <canvas id="payableAgingChart"></canvas>
+                </div>
+            </div>
+            <div class="map-wrapper chart-container">
+                <h2 class="chart-header">Localização de Clientes e Fornecedores <br>
+                    <span class="map-warning">A depender dos cadastros, o mapa pode conter inconsistências</span>
+                </h2>
+                <div id="map-container"></div>
+            </div>
+            <aside class="side-cards-wrapper">
+                <div class="chart-container">
+                    <h2 class="chart-header">Cidades com mais clientes</h2>
+                    <ul class="location-list" id="top-clientes-list"><li>Carregando...</li></ul>
+                </div>
+                <div class="chart-container">
+                    <h2 class="chart-header">Cidades com mais fornecedores</h2>
+                    <ul class="location-list" id="top-fornecedores-list"><li>Carregando...</li></ul>
+                </div>
+            </aside>
+            
+            <div class="sales-growth-chart chart-container">
+                <h2 class="chart-header">Crescimento de Vendas</h2>
+                <div class="chart-wrapper" id="salesTrendChart-wrapper">
+                    <canvas id="salesTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
 
-                if (data.top_clientes && data.top_clientes.length > 0) {
-                    data.top_clientes.forEach(item => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<i class="fa-solid fa-city" style="color: #26A0B8;"></i> ${item.cidade}/${item.estado} - <strong>${item.count}</strong>`;
-                        topClientesList.appendChild(li);
-                    });
-                } else {
-                    topClientesList.innerHTML = '<li>Nenhum dado disponível.</li>';
-                }
-
-                if (data.top_fornecedores && data.top_fornecedores.length > 0) {
-                    data.top_fornecedores.forEach(item => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<i class="fa-solid fa-store" style="color: #EB9941;"></i> ${item.cidade}/${item.estado} - <strong>${item.count}</strong>`;
-                        topFornecedoresList.appendChild(li);
-                    });
-                } else {
-                    topFornecedoresList.innerHTML = '<li>Nenhum dado disponível.</li>';
-                }
-            })
-            .catch(error => {
-                console.error("Erro ao buscar rankings:", error);
-                document.getElementById('top-clientes-list').innerHTML = '<li>Erro ao carregar.</li>';
-                document.getElementById('top-fornecedores-list').innerHTML = '<li>Erro ao carregar.</li>';
-            });
-    };
-
-    // Função para carregar os pontos do mapa (LENTO)
-    const loadMapData = () => {
-        fetch(MAP_API_URL)
-            .then(response => response.ok ? response.json() : Promise.reject('Falha ao carregar dados do mapa'))
-            .then(data => {
-                const markers = [];
-                if (data.locations) {
-                    data.locations.forEach(loc => {
-                        const markerColor = loc.tipo === 'cliente' ? '#26A0B8' : '#EB9941';
-                        const customIcon = L.divIcon({
-                            className: 'custom-div-icon',
-                            html: `<i class="fa-solid fa-map-pin" style="color:${markerColor}; font-size: 24px;"></i>`,
-                            iconSize: [24, 24],
-                            iconAnchor: [12, 24],
-                        });
-                        if (loc.latitude && loc.longitude) {
-                            const marker = L.marker([loc.latitude, loc.longitude], { icon: customIcon })
-                                .addTo(map)
-                                .bindPopup(`<b>${loc.nome}</b><br>${loc.endereco}`);
-                            markers.push(marker);
-                        }
-                    });
-                }
-
-                if (markers.length > 0) {
-                    const group = new L.featureGroup(markers);
-                    map.fitBounds(group.getBounds().pad(0.5));
-                }
-            })
-            .catch(error => {
-                console.error("Erro ao buscar dados do mapa:", error);
-            });
-    };
-
-    // --- INICIALIZAÇÃO ---
-    initializeCharts(initialData);
-    updateDashboard();
-    setInterval(updateDashboard, 5000);
-
-    // Chama as funções de carregamento separadamente
-    loadRankings();  // Carrega os rankings imediatamente
-    loadMapData();   // Carrega o mapa em segundo plano
-});
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <script src="{% static 'js/inicio.js' %}"></script>
 </body>
 </html>

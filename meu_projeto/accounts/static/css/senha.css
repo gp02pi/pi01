@@ -1,0 +1,124 @@
+/* ====================
+   Estilos Globais e de Layout
+   ==================== */
+
+/* Estilo do corpo da página: centraliza o conteúdo */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f4f8;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+/* Container principal do formulário */
+.reset-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+}
+
+/* Título do formulário */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* ====================
+   Componentes do Formulário
+   ==================== */
+
+/* Estilo padrão para campos de entrada */
+.input-field {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box; /* Garante que padding não afete a largura total */
+}
+
+/* Estilo para botões de ação */
+.reset-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #26A0B8;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Efeito de hover no botão */
+.reset-btn:hover {
+    background-color: #1B91AC;
+}
+
+/* Link para a página de login */
+.login-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.login-link a {
+    color: #1B91AC;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* ====================
+   Mensagens de Feedback
+   ==================== */
+
+/* Estilo padrão para a caixa de mensagem (oculta por padrão) */
+.message {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 4px;
+    display: none;
+}
+
+/* Mensagem de sucesso */
+.message.success {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    display: block;
+}
+
+/* Mensagem de erro */
+.message.error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    display: block;
+}
+
+/* ====================
+   Responsividade
+   ==================== */
+
+@media (max-width: 768px) {
+    .reset-container {
+        padding: 30px;
+    }
+}
